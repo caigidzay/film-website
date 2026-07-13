@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KFilm - Xem Phim Online Miễn Phí</title>
+  <title>KFilm - Xem Phim Online</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#0a0a0a; color:white; font-family:Arial, sans-serif; }
     header {
       background: linear-gradient(90deg, #1a1a1a, #c00);
       padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     .logo { font-size: 28px; font-weight: bold; color: #ff4444; }
     .search {
@@ -22,42 +25,62 @@
       border: none;
       font-size: 16px;
     }
-    .banner {
-      height: 400px;
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/id/1015/1920/600');
-      background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: white;
+    .slider {
+      height: 450px;
+      position: relative;
+      overflow: hidden;
     }
-    .category { padding: 20px; font-size: 22px; font-weight: bold; }
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      transition: opacity 1s;
+      display: none;
+    }
+    .slide.active { display: block; }
+    .slide-content {
+      position: absolute;
+      bottom: 80px;
+      left: 50px;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+    }
+    .category {
+      padding: 20px 20px 10px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 2px solid #c00;
+      margin-bottom: 15px;
+    }
     .movie-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
       gap: 15px;
       padding: 0 20px 40px;
     }
     .movie-card {
       background: #1f1f1f;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
       transition: 0.3s;
     }
-    .movie-card:hover { transform: scale(1.1); }
-    .movie-card img { width: 100%; height: 220px; object-fit: cover; }
-    .movie-info { padding: 10px; text-align: center; }
+    .movie-card:hover { transform: scale(1.08); box-shadow: 0 10px 20px rgba(255,0,0,0.3); }
+    .movie-card img { width: 100%; height: 240px; object-fit: cover; }
+    .movie-info { padding: 12px; text-align: center; }
     button {
       background: #c00;
       color: white;
       border: none;
-      padding: 8px 15px;
+      padding: 8px 18px;
       border-radius: 6px;
       margin-top: 8px;
       cursor: pointer;
     }
-    video { width: 100%; max-width: 1100px; margin: 20px auto; display: block; }
+    video { width: 100%; max-width: 1100px; margin: 20px auto; display: block; background: black; }
   </style>
 </head>
 <body>
@@ -66,26 +89,50 @@
     <input type="text" class="search" placeholder="🔍 Tìm phim..." id="searchInput" onkeyup="searchMovies()">
   </header>
 
-  <div class="banner">
-    <div>
-      <h1 style="font-size: 48px;">Xem Phim Hay Nhất 2026</h1>
-      <p>Không quảng cáo - Xem online miễn phí</p>
+  <!-- Banner Slider -->
+  <div class="slider" id="slider">
+    <div class="slide active" style="background-image: url('https://picsum.photos/id/1015/1920/600')">
+      <div class="slide-content">
+        <h1>Big Buck Bunny</h1>
+        <p>Phim hoạt hình kinh điển - Xem ngay!</p>
+        <button onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'Big Buck Bunny')">▶ Xem Ngay</button>
+      </div>
+    </div>
+    <div class="slide" style="background-image: url('https://picsum.photos/id/201/1920/600')">
+      <div class="slide-content">
+        <h1>Sintel</h1>
+        <p>Phim hoạt hình 3D đẹp nhất</p>
+        <button onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', 'Sintel')">▶ Xem Ngay</button>
+      </div>
     </div>
   </div>
 
+  <!-- Phim Hot -->
   <div class="category">Phim Hot</div>
-  <div class="movie-grid" id="movieList"></div>
+  <div class="movie-grid" id="hotList"></div>
+
+  <!-- Phim Lẻ -->
+  <div class="category">Phim Lẻ</div>
+  <div class="movie-grid" id="leList"></div>
 
   <script>
     const movies = [
-      { title: "Big Buck Bunny", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-      { title: "Sintel", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-      { title: "Tears of Steel", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-      // Thêm phim của bạn vào đây
+      { title: "Big Buck Bunny", category: "hot", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
+      { title: "Sintel", category: "hot", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
+      { title: "Tears of Steel", category: "le", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
+      { title: "Elephant Dream", category: "le", poster: "https://picsum.photos/id/401/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+      // Thêm nhiều phim hơn vào đây
     ];
 
-    function loadMovies(list) {
-      const container = document.getElementById('movieList');
+    function loadMovies() {
+      const hot = movies.filter(m => m.category === "hot");
+      const le = movies.filter(m => m.category === "le");
+      renderGrid('hotList', hot);
+      renderGrid('leList', le);
+    }
+
+    function renderGrid(id, list) {
+      const container = document.getElementById(id);
       container.innerHTML = '';
       list.forEach(movie => {
         const card = document.createElement('div');
@@ -104,23 +151,35 @@
     function searchMovies() {
       const term = document.getElementById('searchInput').value.toLowerCase();
       const filtered = movies.filter(m => m.title.toLowerCase().includes(term));
-      loadMovies(filtered.length ? filtered : movies);
+      document.getElementById('hotList').innerHTML = '';
+      document.getElementById('leList').innerHTML = '';
+      renderGrid('hotList', filtered);
+      renderGrid('leList', filtered);
     }
 
     function playMovie(url, title) {
       document.body.innerHTML = `
-        <div style="text-align:center; padding:20px; background:#000;">
+        <div style="text-align:center; padding:20px; background:#000; min-height:100vh;">
           <h1>${title}</h1>
           <video controls autoplay>
             <source src="${url}" type="video/mp4">
           </video>
           <br><br>
-          <button onclick="location.reload()" style="padding:12px 25px; font-size:18px;">← Quay lại</button>
+          <button onclick="location.reload()" style="padding:12px 30px; font-size:18px;">← Quay lại trang chủ</button>
         </div>
       `;
     }
 
-    loadMovies(movies);
+    // Auto slider
+    let slideIndex = 0;
+    setInterval(() => {
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach(s => s.classList.remove('active'));
+      slideIndex = (slideIndex + 1) % slides.length;
+      slides[slideIndex].classList.add('active');
+    }, 5000);
+
+    loadMovies();
   </script>
 </body>
 </html>
