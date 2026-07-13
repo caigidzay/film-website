@@ -56,37 +56,53 @@
 
   <div class="banner">
     <div>
-      <h1 style="font-size: 42px;">KFilm - Xem Phim Online</h1>
+      <h1 style="font-size: 42px;">KFilm - Xem Phim Online Miễn Phí</h1>
       <p>Không quảng cáo - Cập nhật phim mới liên tục</p>
     </div>
   </div>
 
+  <!-- Phim Hot -->
   <div class="category">Phim Hot</div>
-  <div class="movie-grid" id="movieList"></div>
+  <div class="movie-grid" id="hotList"></div>
+
+  <!-- Phim Lẻ -->
+  <div class="category">Phim Lẻ</div>
+  <div class="movie-grid" id="leList"></div>
+
+  <!-- Phim Bộ -->
+  <div class="category">Phim Bộ</div>
+  <div class="movie-grid" id="boList"></div>
 
   <script>
     const movies = [
-      { 
-        title: "Thám Tử Lừng Danh Conan 25: Nàng Dâu Halloween", 
-        poster: "https://picsum.photos/id/1015/300/400", 
-        m3u8: "https://s3.phim1280.tv/20240819/JENogw8d/index.m3u8" 
-      },
-      { 
-        title: "Big Buck Bunny", 
-        poster: "https://picsum.photos/id/201/300/400", 
-        m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
-      },
-      { 
-        title: "Sintel", 
-        poster: "https://picsum.photos/id/301/300/400", 
-        m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" 
-      }
+      // Phim Hot
+      { title: "Thám Tử Lừng Danh Conan 25: Nàng Dâu Halloween", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://s3.phim1280.tv/20240819/JENogw8d/index.m3u8", type: "le" },
+      { title: "The Batman", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
+      { title: "Dune Part Two", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "le" },
+      
+      // Phim Lẻ
+      { title: "The Killer", poster: "https://picsum.photos/id/401/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", type: "le" },
+      { title: "Extraction 2", poster: "https://picsum.photos/id/501/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
+      
+      // Phim Bộ
+      { title: "The Boys Season 4", poster: "https://picsum.photos/id/601/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "bo" },
+      { title: "House of the Dragon", poster: "https://picsum.photos/id/701/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", type: "bo" },
     ];
 
     function loadMovies() {
-      const container = document.getElementById('movieList');
+      const hot = movies.filter(m => m.type === "le" || m.type === "bo").slice(0, 6);
+      const le = movies.filter(m => m.type === "le");
+      const bo = movies.filter(m => m.type === "bo");
+
+      renderGrid('hotList', hot);
+      renderGrid('leList', le);
+      renderGrid('boList', bo);
+    }
+
+    function renderGrid(id, list) {
+      const container = document.getElementById(id);
       container.innerHTML = '';
-      movies.forEach(movie => {
+      list.forEach(movie => {
         const card = document.createElement('div');
         card.className = 'movie-card';
         card.innerHTML = `
@@ -103,20 +119,12 @@
     function searchMovies() {
       const term = document.getElementById('searchInput').value.toLowerCase();
       const filtered = movies.filter(m => m.title.toLowerCase().includes(term));
-      const container = document.getElementById('movieList');
-      container.innerHTML = '';
-      filtered.forEach(movie => {
-        const card = document.createElement('div');
-        card.className = 'movie-card';
-        card.innerHTML = `
-          <img src="${movie.poster}">
-          <div class="movie-info">
-            <h4>${movie.title}</h4>
-            <button onclick="playMovie('${movie.m3u8}', '${movie.title}')">▶ Xem</button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+      document.getElementById('hotList').innerHTML = '';
+      document.getElementById('leList').innerHTML = '';
+      document.getElementById('boList').innerHTML = '';
+      renderGrid('hotList', filtered);
+      renderGrid('leList', filtered);
+      renderGrid('boList', filtered);
     }
 
     function playMovie(url, title) {
