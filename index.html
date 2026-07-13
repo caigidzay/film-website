@@ -177,14 +177,21 @@
   }
   .empty-state h3{font-family:'Bebas Neue',cursive; font-size:24px; color:var(--text); margin-bottom:8px; letter-spacing:1px;}
 
-  /* ---------- genre chips ---------- */
-  .chips{display:flex; gap:10px; flex-wrap:wrap; padding:0 24px 4px; max-width:1400px; margin:0 auto;}
-  .chip{
-    padding:7px 16px; border-radius:20px; font-size:13px; font-weight:600;
-    background:var(--bg-raised); border:1px solid var(--line); color:var(--muted); cursor:pointer; transition:.2s;
+  /* ---------- filter bar (dropdowns) ---------- */
+  .filter-bar{
+    display:flex; gap:24px; flex-wrap:wrap;
+    padding:16px 0 22px; border-bottom:1px solid var(--line); margin-bottom:24px;
   }
-  .chip:hover{color:var(--text);}
-  .chip.active{background:var(--gold); color:#151217; border-color:var(--gold);}
+  .filter-item{display:flex; align-items:center; gap:10px;}
+  .filter-item label{font-size:13px; font-weight:600; color:var(--muted); white-space:nowrap;}
+  .filter-item select{
+    appearance:none; -webkit-appearance:none;
+    background:var(--bg-raised) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%239a94a6" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 12px center;
+    border:1px solid var(--line); color:var(--text); font-size:14px; font-weight:600;
+    padding:9px 34px 9px 14px; border-radius:8px; cursor:pointer; min-width:150px; transition:.2s;
+  }
+  .filter-item select:hover, .filter-item select:focus{border-color:var(--gold); outline:none;}
+  .filter-item select option{background:var(--bg-raised); color:var(--text);}
 
   /* ---------- modal player ---------- */
   .modal-overlay{
@@ -245,7 +252,7 @@
       <a href="#phim-le">Phim lẻ</a>
       <a href="#phim-bo">Phim bộ</a>
       <a href="#the-loai">Thể loại</a>
-      <a href="#quoc-gia">Quốc gia</a>
+      <a href="#the-loai">Quốc gia</a>
     </nav>
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Tìm phim, diễn viên...">
@@ -286,15 +293,18 @@
     <div class="movie-grid" id="hotList"></div>
   </div>
 
-  <div class="section" id="the-loai">
-    <div class="section-head"><h2>Thể loại</h2></div>
+  <div class="section" id="the-loai" style="padding-bottom:0;">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label for="genreSelect">Thể loại</label>
+        <select id="genreSelect" onchange="setGenre(this.value)"></select>
+      </div>
+      <div class="filter-item">
+        <label for="countrySelect">Quốc gia</label>
+        <select id="countrySelect" onchange="setCountry(this.value)"></select>
+      </div>
+    </div>
   </div>
-  <div class="chips" id="genreChips"></div>
-
-  <div class="section" id="quoc-gia" style="padding-top:14px;">
-    <div class="section-head"><h2>Quốc gia</h2></div>
-  </div>
-  <div class="chips" id="countryChips"></div>
 
   <div class="section" id="phim-le">
     <div class="section-head"><h2>Phim lẻ</h2><span class="count" id="leCount"></span></div>
@@ -416,22 +426,18 @@ function renderGrid(elId, list){
 
 function renderGenreChips(){
   const genres = ["Tất cả", ...new Set(movies.flatMap(m => m.genre))];
-  const el = document.getElementById("genreChips");
-  el.innerHTML = genres.map(g =>
-    `<div class="chip ${g===activeGenre?'active':''}" onclick="setGenre('${g}')">${g}</div>`
-  ).join("");
+  const el = document.getElementById("genreSelect");
+  el.innerHTML = genres.map(g => `<option value="${g}" ${g===activeGenre?'selected':''}>${g}</option>`).join("");
 }
 
 function renderCountryChips(){
   const countries = ["Tất cả", ...new Set(movies.map(m => m.country))];
-  const el = document.getElementById("countryChips");
-  el.innerHTML = countries.map(c =>
-    `<div class="chip ${c===activeCountry?'active':''}" onclick="setCountry('${c}')">${c}</div>`
-  ).join("");
+  const el = document.getElementById("countrySelect");
+  el.innerHTML = countries.map(c => `<option value="${c}" ${c===activeCountry?'selected':''}>${c}</option>`).join("");
 }
 
-function setGenre(g){ activeGenre = g; renderGenreChips(); applyFilters(); }
-function setCountry(c){ activeCountry = c; renderCountryChips(); applyFilters(); }
+function setGenre(g){ activeGenre = g; applyFilters(); }
+function setCountry(c){ activeCountry = c; applyFilters(); }
 
 function applyFilters(){
   const filtered = movies.filter(m =>
