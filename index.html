@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KFilm - Xem Phim Online</title>
+  <title>KFilm - Xem Phim Online Miễn Phí</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#0a0a0a; color:white; font-family:Arial, sans-serif; }
@@ -18,44 +18,17 @@
       z-index: 100;
     }
     .logo { font-size: 28px; font-weight: bold; color: #ff4444; }
-    .search {
-      width: 500px;
-      padding: 10px 20px;
-      border-radius: 30px;
-      border: none;
-      font-size: 16px;
-    }
-    .slider {
-      height: 450px;
-      position: relative;
-      overflow: hidden;
-    }
-    .slide {
-      position: absolute;
-      width: 100%;
-      height: 100%;
+    .search { width: 500px; padding: 10px 20px; border-radius: 30px; border: none; font-size: 16px; }
+    .banner {
+      height: 420px;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://picsum.photos/id/1015/1920/600');
       background-size: cover;
-      background-position: center;
-      transition: opacity 1s;
-      display: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
-    .slide.active { display: block; }
-    .slide-content {
-      position: absolute;
-      bottom: 80px;
-      left: 50px;
-      background: rgba(0,0,0,0.7);
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-    }
-    .category {
-      padding: 20px 20px 10px;
-      font-size: 22px;
-      font-weight: bold;
-      border-bottom: 2px solid #c00;
-      margin-bottom: 15px;
-    }
+    .category { padding: 25px 20px 10px; font-size: 22px; font-weight: bold; border-bottom: 2px solid #c00; margin-bottom: 15px; }
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -71,15 +44,7 @@
     .movie-card:hover { transform: scale(1.08); box-shadow: 0 10px 20px rgba(255,0,0,0.3); }
     .movie-card img { width: 100%; height: 240px; object-fit: cover; }
     .movie-info { padding: 12px; text-align: center; }
-    button {
-      background: #c00;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 6px;
-      margin-top: 8px;
-      cursor: pointer;
-    }
+    button { background: #c00; color: white; border: none; padding: 8px 18px; border-radius: 6px; margin-top: 8px; cursor: pointer; }
     video { width: 100%; max-width: 1100px; margin: 20px auto; display: block; background: black; }
   </style>
 </head>
@@ -89,21 +54,10 @@
     <input type="text" class="search" placeholder="🔍 Tìm phim..." id="searchInput" onkeyup="searchMovies()">
   </header>
 
-  <!-- Banner Slider -->
-  <div class="slider" id="slider">
-    <div class="slide active" style="background-image: url('https://picsum.photos/id/1015/1920/600')">
-      <div class="slide-content">
-        <h1>Big Buck Bunny</h1>
-        <p>Phim hoạt hình kinh điển - Xem ngay!</p>
-        <button onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'Big Buck Bunny')">▶ Xem Ngay</button>
-      </div>
-    </div>
-    <div class="slide" style="background-image: url('https://picsum.photos/id/201/1920/600')">
-      <div class="slide-content">
-        <h1>Sintel</h1>
-        <p>Phim hoạt hình 3D đẹp nhất</p>
-        <button onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', 'Sintel')">▶ Xem Ngay</button>
-      </div>
+  <div class="banner">
+    <div>
+      <h1 style="font-size: 42px;">KFilm - Xem Phim Online</h1>
+      <p>Không quảng cáo - Cập nhật phim mới liên tục</p>
     </div>
   </div>
 
@@ -115,20 +69,34 @@
   <div class="category">Phim Lẻ</div>
   <div class="movie-grid" id="leList"></div>
 
+  <!-- Phim Bộ -->
+  <div class="category">Phim Bộ</div>
+  <div class="movie-grid" id="boList"></div>
+
   <script>
     const movies = [
-      { title: "Big Buck Bunny", category: "hot", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-      { title: "Sintel", category: "hot", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-      { title: "Tears of Steel", category: "le", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-      { title: "Elephant Dream", category: "le", poster: "https://picsum.photos/id/401/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
-      // Thêm nhiều phim hơn vào đây
+      // Phim Hot
+      { title: "The Batman", category: "hot", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
+      { title: "Dune Part Two", category: "hot", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "le" },
+      { title: "Oppenheimer", category: "hot", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", type: "le" },
+      
+      // Phim Lẻ
+      { title: "The Killer", category: "le", poster: "https://picsum.photos/id/401/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", type: "le" },
+      { title: "Extraction 2", category: "le", poster: "https://picsum.photos/id/501/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
+      
+      // Phim Bộ
+      { title: "The Boys Season 4", category: "bo", poster: "https://picsum.photos/id/601/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "bo" },
+      { title: "House of the Dragon", category: "bo", poster: "https://picsum.photos/id/701/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", type: "bo" },
     ];
 
     function loadMovies() {
       const hot = movies.filter(m => m.category === "hot");
-      const le = movies.filter(m => m.category === "le");
+      const le = movies.filter(m => m.type === "le");
+      const bo = movies.filter(m => m.type === "bo");
+
       renderGrid('hotList', hot);
       renderGrid('leList', le);
+      renderGrid('boList', bo);
     }
 
     function renderGrid(id, list) {
@@ -153,8 +121,10 @@
       const filtered = movies.filter(m => m.title.toLowerCase().includes(term));
       document.getElementById('hotList').innerHTML = '';
       document.getElementById('leList').innerHTML = '';
+      document.getElementById('boList').innerHTML = '';
       renderGrid('hotList', filtered);
       renderGrid('leList', filtered);
+      renderGrid('boList', filtered);
     }
 
     function playMovie(url, title) {
@@ -169,15 +139,6 @@
         </div>
       `;
     }
-
-    // Auto slider
-    let slideIndex = 0;
-    setInterval(() => {
-      const slides = document.querySelectorAll('.slide');
-      slides.forEach(s => s.classList.remove('active'));
-      slideIndex = (slideIndex + 1) % slides.length;
-      slides[slideIndex].classList.add('active');
-    }, 5000);
 
     loadMovies();
   </script>
