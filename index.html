@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KFilm - Xem Phim Online Miễn Phí</title>
+  <title>KFilm - Xem Phim Online</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#0a0a0a; color:white; font-family:Arial, sans-serif; }
@@ -61,48 +61,32 @@
     </div>
   </div>
 
-  <!-- Phim Hot -->
   <div class="category">Phim Hot</div>
-  <div class="movie-grid" id="hotList"></div>
-
-  <!-- Phim Lẻ -->
-  <div class="category">Phim Lẻ</div>
-  <div class="movie-grid" id="leList"></div>
-
-  <!-- Phim Bộ -->
-  <div class="category">Phim Bộ</div>
-  <div class="movie-grid" id="boList"></div>
+  <div class="movie-grid" id="movieList"></div>
 
   <script>
     const movies = [
-      // Phim Hot
-      { title: "The Batman", category: "hot", poster: "https://picsum.photos/id/1015/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
-      { title: "Dune Part Two", category: "hot", poster: "https://picsum.photos/id/201/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "le" },
-      { title: "Oppenheimer", category: "hot", poster: "https://picsum.photos/id/301/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", type: "le" },
-      
-      // Phim Lẻ
-      { title: "The Killer", category: "le", poster: "https://picsum.photos/id/401/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", type: "le" },
-      { title: "Extraction 2", category: "le", poster: "https://picsum.photos/id/501/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", type: "le" },
-      
-      // Phim Bộ
-      { title: "The Boys Season 4", category: "bo", poster: "https://picsum.photos/id/601/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", type: "bo" },
-      { title: "House of the Dragon", category: "bo", poster: "https://picsum.photos/id/701/300/400", m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", type: "bo" },
+      { 
+        title: "Thám Tử Lừng Danh Conan 25: Nàng Dâu Halloween", 
+        poster: "https://picsum.photos/id/1015/300/400", 
+        m3u8: "https://s3.phim1280.tv/20240819/JENogw8d/index.m3u8" 
+      },
+      { 
+        title: "Big Buck Bunny", 
+        poster: "https://picsum.photos/id/201/300/400", 
+        m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
+      },
+      { 
+        title: "Sintel", 
+        poster: "https://picsum.photos/id/301/300/400", 
+        m3u8: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" 
+      }
     ];
 
     function loadMovies() {
-      const hot = movies.filter(m => m.category === "hot");
-      const le = movies.filter(m => m.type === "le");
-      const bo = movies.filter(m => m.type === "bo");
-
-      renderGrid('hotList', hot);
-      renderGrid('leList', le);
-      renderGrid('boList', bo);
-    }
-
-    function renderGrid(id, list) {
-      const container = document.getElementById(id);
+      const container = document.getElementById('movieList');
       container.innerHTML = '';
-      list.forEach(movie => {
+      movies.forEach(movie => {
         const card = document.createElement('div');
         card.className = 'movie-card';
         card.innerHTML = `
@@ -119,12 +103,20 @@
     function searchMovies() {
       const term = document.getElementById('searchInput').value.toLowerCase();
       const filtered = movies.filter(m => m.title.toLowerCase().includes(term));
-      document.getElementById('hotList').innerHTML = '';
-      document.getElementById('leList').innerHTML = '';
-      document.getElementById('boList').innerHTML = '';
-      renderGrid('hotList', filtered);
-      renderGrid('leList', filtered);
-      renderGrid('boList', filtered);
+      const container = document.getElementById('movieList');
+      container.innerHTML = '';
+      filtered.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `
+          <img src="${movie.poster}">
+          <div class="movie-info">
+            <h4>${movie.title}</h4>
+            <button onclick="playMovie('${movie.m3u8}', '${movie.title}')">▶ Xem</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
     }
 
     function playMovie(url, title) {
@@ -132,10 +124,10 @@
         <div style="text-align:center; padding:20px; background:#000; min-height:100vh;">
           <h1>${title}</h1>
           <video controls autoplay>
-            <source src="${url}" type="video/mp4">
+            <source src="${url}" type="application/x-mpegURL">
           </video>
           <br><br>
-          <button onclick="location.reload()" style="padding:12px 30px; font-size:18px;">← Quay lại trang chủ</button>
+          <button onclick="location.reload()" style="padding:12px 30px; font-size:18px;">← Quay lại</button>
         </div>
       `;
     }
