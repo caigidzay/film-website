@@ -364,23 +364,21 @@ const SAMPLE_SOURCES = [
 
 // Chỉ cần nhập tmdbId + link video. Phim bộ dùng "episodes", phim lẻ dùng "src" — code tự nhận biết loại phim.
 const CATALOG = [
-  { id:2,   tmdbId:1451344, hot:true, src:https://vip.opstream90.com/20260619/35261_3bfc3fb5/index.m3u8 },
-  { id:3,   tmdbId:693134, hot:true, src:SAMPLE_SOURCES[2] },
-
-  // ⚠️ Các dòng bên dưới dùng tmdbId ví dụ — hãy tự tra đúng ID trên themoviedb.org rồi thay vào
-  { id:4,   tmdbId:640146, src:SAMPLE_SOURCES[3] },
-  { id:5,   tmdbId:667538, src:SAMPLE_SOURCES[0] },
-  { id:101, tmdbId:1622, hot:true,
+  { id:2,   tmdbId:414906, hot:true, src:SAMPLE_SOURCES[1] }, // The Batman (đã kiểm tra thật)
+  { id:3,   tmdbId:693134, hot:true, src:SAMPLE_SOURCES[2] }, // Dune: Part Two (đã kiểm tra thật)
+  { id:4,   tmdbId:800158, src:SAMPLE_SOURCES[3] },           // The Killer 2023 (đã kiểm tra thật)
+  { id:5,   tmdbId:697843, src:SAMPLE_SOURCES[0] },           // Extraction 2 (đã kiểm tra thật)
+  { id:101, tmdbId:76479, hot:true,                            // The Boys (đã kiểm tra thật)
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[1]}, {label:"Tập 2", src:SAMPLE_SOURCES[2]},
       {label:"Tập 3", src:SAMPLE_SOURCES[3]}, {label:"Tập 4", src:SAMPLE_SOURCES[0]}
     ]},
-  { id:102, tmdbId:94997, hot:true,
+  { id:102, tmdbId:94997, hot:true,                            // House of the Dragon (đã kiểm tra thật)
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[2]}, {label:"Tập 2", src:SAMPLE_SOURCES[3]},
       {label:"Tập 3", src:SAMPLE_SOURCES[0]}
     ]},
-  { id:103, tmdbId:93405,
+  { id:103, tmdbId:93405,                                      // Squid Game (đã kiểm tra thật)
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[0]}, {label:"Tập 2", src:SAMPLE_SOURCES[1]}
     ]},
@@ -502,8 +500,16 @@ async function loadHome(){
   try{
     const results = await Promise.allSettled(CATALOG.map(fetchTmdbInfo));
     movies = results.filter(r => r.status === "fulfilled").map(r => r.value);
-    const failed = results.filter(r => r.status === "rejected").length;
-    if(failed) console.warn(failed + " phim không lấy được dữ liệu từ TMDb (kiểm tra lại tmdbId).");
+    const failedEntries = results
+      .map((r, i) => r.status === "rejected" ? CATALOG[i].id : null)
+      .filter(id => id !== null);
+    if(failedEntries.length){
+      console.warn("Không lấy được dữ liệu TMDb cho các phim có id:", failedEntries, "- kiểm tra lại tmdbId của các phim này.");
+      const banner = document.createElement('div');
+      banner.style.cssText = "max-width:1400px;margin:0 auto;padding:12px 24px;color:#e8b84b;font-size:13px;";
+      banner.textContent = `⚠️ ${failedEntries.length} phim không tải được dữ liệu (tmdbId sai hoặc không tồn tại) — id trong CATALOG: ${failedEntries.join(", ")}`;
+      document.getElementById('mainContent').prepend(banner);
+    }
   }catch(err){
     console.error(err);
   }
