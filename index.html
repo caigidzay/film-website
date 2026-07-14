@@ -342,6 +342,19 @@
 
 <script>
 /* ---------------- DATA ---------------- */
+/* =========================================================================
+   CẤU HÌNH TMDb (The Movie Database) — lấy poster/thông tin phim tự động
+   1. Vào https://www.themoviedb.org/settings/api -> đăng ký free -> lấy "API Key (v3 auth)"
+   2. Dán key vào TMDB_API_KEY bên dưới
+   3. Ở mỗi phim trong CATALOG, bạn chỉ cần cho: tmdbId và link m3u8 của bạn
+      (src cho phim lẻ, episodes cho phim bộ). KHÔNG cần ghi mediaType hay type nữa —
+      code tự nhận biết: có "episodes" -> tự hiểu là phim bộ, có "src" -> tự hiểu là phim lẻ.
+   4. Tìm tmdbId: vào themoviedb.org, search phim -> nhìn URL, số sau /movie/ hoặc /tv/
+      VD: themoviedb.org/movie/414906-the-batman -> tmdbId = 414906
+   ========================================================================= */
+const TMDB_API_KEY = "a62eca83c146453c780b7d81a2e3546a";
+const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+
 const SAMPLE_SOURCES = [
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
@@ -349,49 +362,71 @@ const SAMPLE_SOURCES = [
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
 ];
 
-const movies = [
-  { id:1, title:"Thám Tử Lừng Danh Conan: Nàng Dâu Halloween", poster:"https://picsum.photos/id/1015/300/450", type:"le", year:2024, rating:8.6, country:"Nhật Bản", genre:["Hoạt hình","Trinh thám"], hot:true, desc:"Một vụ án bí ẩn xảy ra giữa lễ hội Halloween, Conan phải phá án trước khi kẻ thủ ác ra tay lần nữa.", src:SAMPLE_SOURCES[0] },
-  { id:2, title:"The Batman", poster:"https://picsum.photos/id/201/300/450", type:"le", year:2022, rating:8.2, country:"Âu Mỹ", genre:["Hành động","Tội phạm"], hot:true, desc:"Batman điều tra một chuỗi án mạng liên hoàn tại Gotham, đối đầu với kẻ sát nhân Riddler.", src:SAMPLE_SOURCES[1] },
-  { id:3, title:"Dune: Hành Tinh Cát - Phần 2", poster:"https://picsum.photos/id/301/300/450", type:"le", year:2024, rating:8.9, country:"Âu Mỹ", genre:["Viễn tưởng","Phiêu lưu"], hot:true, desc:"Paul Atreides tiếp tục hành trình trả thù và định mệnh trên hành tinh sa mạc Arrakis.", src:SAMPLE_SOURCES[2] },
-  { id:4, title:"The Killer", poster:"https://picsum.photos/id/401/300/450", type:"le", year:2023, rating:7.4, country:"Âu Mỹ", genre:["Hành động","Tâm lý"], desc:"Một sát thủ chuyên nghiệp mắc sai lầm trong phi vụ và phải đối mặt với hậu quả.", src:SAMPLE_SOURCES[3] },
-  { id:5, title:"Extraction 2", poster:"https://picsum.photos/id/501/300/450", type:"le", year:2023, rating:7.7, country:"Âu Mỹ", genre:["Hành động"], desc:"Tyler Rake trở lại với nhiệm vụ giải cứu nguy hiểm hơn bao giờ hết.", src:SAMPLE_SOURCES[0] },
-  { id:6, title:"Kẻ Trộm Mặt Trăng 4", poster:"https://picsum.photos/id/1025/300/450", type:"le", year:2024, rating:7.9, country:"Âu Mỹ", genre:["Hoạt hình","Hài"], desc:"Gru và gia đình Minion trở lại với những trò nghịch ngợm mới.", src:SAMPLE_SOURCES[1] },
-  { id:7, title:"Vùng Đất Câm Lặng: Ngày Một", poster:"https://picsum.photos/id/611/300/450", type:"le", year:2024, rating:7.6, country:"Âu Mỹ", genre:["Kinh dị"], desc:"Ngày đầu tiên loài quái vật xâm chiếm Trái Đất, con người phải học cách sinh tồn trong im lặng.", src:SAMPLE_SOURCES[2] },
-  { id:8, title:"Godzilla x Kong: Đế Chế Mới", poster:"https://picsum.photos/id/650/300/450", type:"le", year:2024, rating:7.1, country:"Âu Mỹ", genre:["Hành động","Viễn tưởng"], desc:"Hai quái vật huyền thoại buộc phải liên minh để chống lại mối đe doạ chung.", src:SAMPLE_SOURCES[3] },
+// Chỉ cần nhập tmdbId + link video. Phim bộ dùng "episodes", phim lẻ dùng "src" — code tự nhận biết loại phim.
+const CATALOG = [
+  { id:2,   tmdbId:1451344, hot:true, src:https://vip.opstream90.com/20260619/35261_3bfc3fb5/index.m3u8 },
+  { id:3,   tmdbId:693134, hot:true, src:SAMPLE_SOURCES[2] },
 
-  { id:101, title:"The Boys", poster:"https://picsum.photos/id/601/300/450", type:"bo", year:2024, rating:8.7, country:"Âu Mỹ", genre:["Hành động","Châm biếm"], hot:true,
-    desc:"Nhóm siêu anh hùng bị tha hoá bởi quyền lực, và một nhóm người thường quyết tâm vạch trần sự thật.",
+  // ⚠️ Các dòng bên dưới dùng tmdbId ví dụ — hãy tự tra đúng ID trên themoviedb.org rồi thay vào
+  { id:4,   tmdbId:640146, src:SAMPLE_SOURCES[3] },
+  { id:5,   tmdbId:667538, src:SAMPLE_SOURCES[0] },
+  { id:101, tmdbId:1622, hot:true,
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[1]}, {label:"Tập 2", src:SAMPLE_SOURCES[2]},
       {label:"Tập 3", src:SAMPLE_SOURCES[3]}, {label:"Tập 4", src:SAMPLE_SOURCES[0]}
     ]},
-  { id:102, title:"House of the Dragon", poster:"https://picsum.photos/id/701/300/450", type:"bo", year:2024, rating:8.5, country:"Âu Mỹ", genre:["Chính kịch","Giả tưởng"], hot:true,
-    desc:"Cuộc nội chiến tranh giành ngai vàng của gia tộc rồng Targaryen.",
+  { id:102, tmdbId:94997, hot:true,
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[2]}, {label:"Tập 2", src:SAMPLE_SOURCES[3]},
       {label:"Tập 3", src:SAMPLE_SOURCES[0]}
     ]},
-  { id:103, title:"Squid Game", poster:"https://picsum.photos/id/801/300/450", type:"bo", year:2024, rating:8.0, country:"Hàn Quốc", genre:["Sinh tồn","Chính kịch"],
-    desc:"456 người chơi tham gia trò chơi sinh tử để giành giải thưởng khổng lồ.",
+  { id:103, tmdbId:93405,
     episodes:[
       {label:"Tập 1", src:SAMPLE_SOURCES[0]}, {label:"Tập 2", src:SAMPLE_SOURCES[1]}
     ]},
-  { id:104, title:"Slow Horses", poster:"https://picsum.photos/id/901/300/450", type:"bo", year:2024, rating:8.3, country:"Âu Mỹ", genre:["Trinh thám","Chính kịch"],
-    desc:"Một nhóm điệp viên MI5 bị đày ải phải chứng minh giá trị của mình qua một vụ án phức tạp.",
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[3]}, {label:"Tập 2", src:SAMPLE_SOURCES[2]}, {label:"Tập 3", src:SAMPLE_SOURCES[1]}
-    ]},
-  { id:105, title:"Shogun", poster:"https://picsum.photos/id/1005/300/450", type:"bo", year:2024, rating:8.8, country:"Nhật Bản", genre:["Lịch sử","Chính kịch"],
-    desc:"Một thuỷ thủ người Anh mắc kẹt tại Nhật Bản thời phong kiến và bị cuốn vào cuộc chiến quyền lực.",
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[1]}, {label:"Tập 2", src:SAMPLE_SOURCES[0]}
-    ]},
-  { id:106, title:"3 Body Problem", poster:"https://picsum.photos/id/1011/300/450", type:"bo", year:2024, rating:7.8, country:"Âu Mỹ", genre:["Viễn tưởng","Bí ẩn"],
-    desc:"Một chuỗi sự kiện bí ẩn kết nối các nhà khoa học trên toàn thế giới với một bí mật ngoài hành tinh.",
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[2]}, {label:"Tập 2", src:SAMPLE_SOURCES[3]}
-    ]},
 ];
+
+// Map mã quốc gia TMDb (ISO) -> nhãn tiếng Việt hiển thị trên site
+function mapCountry(codes){
+  if(!codes || !codes.length) return "Khác";
+  const set = new Set(codes);
+  if(set.has("KR")) return "Hàn Quốc";
+  if(set.has("JP")) return "Nhật Bản";
+  if(set.has("CN") || set.has("HK") || set.has("TW")) return "Trung Quốc";
+  if(set.has("TH")) return "Thái Lan";
+  if(set.has("VN")) return "Việt Nam";
+  if(set.has("US") || set.has("GB") || set.has("FR") || set.has("DE") || set.has("CA")) return "Âu Mỹ";
+  return "Khác";
+}
+
+// Gọi TMDb, ghép dữ liệu tự động với phần bạn nhập tay (video link, hot)
+async function fetchTmdbInfo(entry){
+  // Tự nhận biết loại phim: có "episodes" -> phim bộ (tv), có "src" -> phim lẻ (movie)
+  const isTv = Array.isArray(entry.episodes);
+  const mediaType = isTv ? "tv" : "movie";
+  const type = isTv ? "bo" : "le";
+
+  const url = `https://api.themoviedb.org/3/${mediaType}/${entry.tmdbId}?api_key=${TMDB_API_KEY}&language=vi-VN`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("TMDb lookup failed for id " + entry.tmdbId);
+  const data = await res.json();
+
+  const countryCodes = isTv ? data.origin_country : (data.production_countries || []).map(c => c.iso_3166_1);
+
+  return {
+    ...entry,
+    mediaType, type,
+    title: isTv ? data.name : data.title,
+    poster: data.poster_path ? (TMDB_IMG + data.poster_path) : "https://placehold.co/300x450/1b1a24/9a94a6?text=No+Poster",
+    desc: data.overview || "Chưa có mô tả.",
+    rating: data.vote_average || 0,
+    year: (isTv ? data.first_air_date : data.release_date || "").slice(0,4) || "N/A",
+    genre: (data.genres || []).map(g => g.name),
+    country: mapCountry(countryCodes),
+  };
+}
+
+let movies = [];
 
 let hls = null;
 let activeGenre = "Tất cả";
@@ -450,7 +485,29 @@ function applyFilters(){
   document.getElementById('boCount').textContent = filtered.filter(m=>m.type==="bo").length + " phim";
 }
 
-function loadHome(){
+async function loadHome(){
+  const loadingHtml = `<div class="empty-state" style="grid-column:1/-1;"><h3>Đang tải dữ liệu phim...</h3><p>Đang lấy poster & thông tin từ TMDb.</p></div>`;
+  ['hotList','leList','boList'].forEach(id => document.getElementById(id).innerHTML = loadingHtml);
+
+  if(!TMDB_API_KEY || TMDB_API_KEY.includes("DÁN_API_KEY")){
+    const warn = `<div class="empty-state" style="grid-column:1/-1;">
+      <h3>Chưa cấu hình TMDb API Key</h3>
+      <p>Mở file, tìm dòng <code>const TMDB_API_KEY</code> ở đầu thẻ &lt;script&gt; và dán API key miễn phí lấy từ
+      themoviedb.org/settings/api vào đó.</p>
+    </div>`;
+    ['hotList','leList','boList'].forEach(id => document.getElementById(id).innerHTML = warn);
+    return;
+  }
+
+  try{
+    const results = await Promise.allSettled(CATALOG.map(fetchTmdbInfo));
+    movies = results.filter(r => r.status === "fulfilled").map(r => r.value);
+    const failed = results.filter(r => r.status === "rejected").length;
+    if(failed) console.warn(failed + " phim không lấy được dữ liệu từ TMDb (kiểm tra lại tmdbId).");
+  }catch(err){
+    console.error(err);
+  }
+
   renderGrid('hotList', movies.filter(m => m.hot));
   renderGenreChips();
   renderCountryChips();
