@@ -329,9 +329,11 @@
       <h2 id="modalTitle"></h2>
       <button class="close-btn" onclick="closePlayer()">✕</button>
     </div>
+    <div id="versionTabs" class="ep-list" style="display:none;margin-bottom:14px;"></div>
     <div class="player-wrap">
       <video id="videoPlayer" controls autoplay playsinline></video>
     </div>
+    <p id="sourceStatus" style="font-size:12.5px;color:var(--muted);margin-top:8px;min-height:16px;"></p>
     <div class="episode-panel" id="episodePanel" style="display:none;">
       <h4>Danh sách tập</h4>
       <div class="ep-list" id="epList"></div>
@@ -351,37 +353,70 @@
       code tự nhận biết: có "episodes" -> tự hiểu là phim bộ, có "src" -> tự hiểu là phim lẻ.
    4. Tìm tmdbId: vào themoviedb.org, search phim -> nhìn URL, số sau /movie/ hoặc /tv/
       VD: themoviedb.org/movie/414906-the-batman -> tmdbId = 414906
+   5. LINK DỰ PHÒNG (link phụ): nếu 1 phim/tập có nhiều nguồn phát, dùng "sources" thay vì "src":
+        { id:2, tmdbId:414906, sources:["link_chinh.m3u8", "link_phu_1.m3u8", "link_phu_2.m3u8"] }
+      Link đầu tiên trong mảng là link chính. Nếu link chính lỗi (mất, die, không phát được),
+      trình phát TỰ ĐỘNG chuyển sang link tiếp theo trong danh sách, không cần bạn làm gì thêm.
+      Người xem sẽ thấy dòng nhỏ dưới khung phim báo "đã tự chuyển sang nguồn 2/3" khi việc này xảy ra.
+      Vẫn dùng "src" bình thường nếu chỉ có 1 link duy nhất (không bắt buộc đổi qua "sources").
+   6. THUYẾT MINH / PHỤ ĐỀ (không bắt buộc): nếu 1 phim có cả 2 bản, dùng "versions" thay vì "src"/"sources":
+        { id:2, tmdbId:414906,
+          versions:[
+            { label:"Thuyết minh", src:"link_thuyet_minh.m3u8" },
+            { label:"Phụ đề",       src:"link_phu_de.m3u8" }
+          ]
+        }
+      Web sẽ tự hiện 2 nút để người xem chọn. Mỗi bản trong "versions" cũng có thể dùng
+      "sources":[...] thay vì "src" nếu bản đó cũng cần link dự phòng.
+      PHIM KHÔNG CÓ 2 BẢN THÌ BỎ QUA MỤC NÀY — cứ dùng "src"/"sources" như bình thường,
+      web sẽ không hiện nút chọn gì cả, không rườm rà.
    ========================================================================= */
 const TMDB_API_KEY = "a62eca83c146453c780b7d81a2e3546a";
 const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
 
-const SAMPLE_SOURCES = [
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-];
-
 // Chỉ cần nhập tmdbId + link video. Phim bộ dùng "episodes", phim lẻ dùng "src" — code tự nhận biết loại phim.
+// Dùng công cụ "add-movie-tool.html" để tự sinh và chèn phim vào đây, bắt đầu từ id:1.
 const CATALOG = [
-  { id:2,   tmdbId:414906, hot:true, src:"https://vip.opstream14.com/20220419/8794_04aa0944/index.m3u8" }, // The Batman (đã kiểm tra thật)
-  { id:3,   tmdbId:693134, hot:true, src:SAMPLE_SOURCES[2] }, // Dune: Part Two (đã kiểm tra thật)
-  { id:4,   tmdbId:800158, src:SAMPLE_SOURCES[3] },           // The Killer 2023 (đã kiểm tra thật)
-  { id:5,   tmdbId:697843, src:SAMPLE_SOURCES[0] },           // Extraction 2 (đã kiểm tra thật)
-  { id:101, tmdbId:76479, hot:true,                            // The Boys (đã kiểm tra thật)
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[1]}, {label:"Tập 2", src:SAMPLE_SOURCES[2]},
-      {label:"Tập 3", src:SAMPLE_SOURCES[3]}, {label:"Tập 4", src:SAMPLE_SOURCES[0]}
-    ]},
-  { id:102, tmdbId:94997, hot:true,                            // House of the Dragon (đã kiểm tra thật)
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[2]}, {label:"Tập 2", src:SAMPLE_SOURCES[3]},
-      {label:"Tập 3", src:SAMPLE_SOURCES[0]}
-    ]},
-  { id:103, tmdbId:93405,                                      // Squid Game (đã kiểm tra thật)
-    episodes:[
-      {label:"Tập 1", src:SAMPLE_SOURCES[0]}, {label:"Tập 2", src:SAMPLE_SOURCES[1]}
-    ]},
+  { id:3, tmdbId:157336,
+    versions:[
+    { label:"Thuyết minh", sources:["https://s4.phim1280.tv/20250302/BLbAWQOK/index.m3u8","https://s4.phim1280.tv/20250302/BLbAWQOK/3000kb/hls/index.m3u8"] },
+    { label:"Phụ đề", src:"https://sg.streamuuzy.com/video/0c72d002-226b-438c-9117-56c46fa54436/master.m3u8" }
+  ]
+  }, // Hố Đen Tử Thần
+  { id:4, tmdbId:161822,
+    versions:[
+    { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250527/yTZ7KG81/index.m3u8","https://s6.kkphimplayer6.com/20250527/yTZ7KG81/3500kb/hls/index.m3u8"] },
+    { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250524/Awk0DQDc/index.m3u8","https://s6.kkphimplayer6.com/20250524/Awk0DQDc/3500kb/hls/index.m3u8"] }
+  ]
+  }, // Doraemon: Nobita và Mê Cung Thiếc
+  { id:5, tmdbId:28808,
+    versions:[
+    { label:"Thuyết minh", sources:["https://s3.phim1280.tv/20240819/cZz2HAo8/index.m3u8","https://s3.phim1280.tv/20240819/cZz2HAo8/2000kb/hls/index.m3u8"] },
+    { label:"Phụ đề", sources:["https://s3.phim1280.tv/20240819/UPpCtR2Q/index.m3u8","https://s3.phim1280.tv/20240819/UPpCtR2Q/2000kb/hls/index.m3u8"] }
+  ]
+  }, // Thám Tử Lừng Danh Conan: Ảo Thuật Gia Cuối Cùng Của Thế Kỷ
+  { id:6, tmdbId:39205,
+    versions:[
+    { label:"Thuyết minh", sources:["https://s3.phim1280.tv/20240819/9qzbf4UI/index.m3u8","https://s3.phim1280.tv/20240819/9qzbf4UI/2000kb/hls/index.m3u8"] },
+    { label:"Phụ đề", sources:["https://s3.phim1280.tv/20240819/GV7kN6yZ/index.m3u8","https://s3.phim1280.tv/20240819/GV7kN6yZ/2000kb/hls/index.m3u8"] }
+  ]
+  }, // Thám Tử Lừng Danh Conan: Lễ Cầu Hồn Của Thám Tử
+  { id:7, tmdbId:903939,
+    versions:[
+    { label:"Phụ đề", sources:["https://vip.opstream16.com/20221116/26062_e55ff6ac/index.m3u8","https://vip.opstream16.com/20221116/26062_e55ff6ac/3000k/hls/mixed.m3u8"] }
+  ]
+  }, // Thám Tử Lừng Danh Conan: Nàng Dâu Halloween
+  { id:8, tmdbId:134126,
+    versions:[
+    { label:"Phụ đề", sources:["https://vip.opstream15.com/20220404/2624_3ee9e427/index.m3u8","https://vip.opstream15.com/20220404/2624_3ee9e427/3000k/hls/mixed.m3u8"] }
+  ]
+  }, // Sát Thủ Máu Lạnh
+  { id:9, tmdbId:634649,
+    versions:[
+    { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250828/Dklujs3J/index.m3u8","https://s6.kkphimplayer6.com/20250828/Dklujs3J/3500kb/hls/index.m3u8"] },
+    { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250828/c0xkSuds/index.m3u8","https://s6.kkphimplayer6.com/20250828/c0xkSuds/3500kb/hls/index.m3u8"] }
+  ]
+  }, // Người Nhện: Không Còn Nhà
 ];
 
 // Map mã quốc gia TMDb (ISO) -> nhãn tiếng Việt hiển thị trên site
@@ -390,11 +425,45 @@ function mapCountry(codes){
   const set = new Set(codes);
   if(set.has("KR")) return "Hàn Quốc";
   if(set.has("JP")) return "Nhật Bản";
-  if(set.has("CN") || set.has("HK") || set.has("TW")) return "Trung Quốc";
+  if(set.has("CN")) return "Trung Quốc";
+  if(set.has("HK")) return "Hồng Kông";
   if(set.has("TH")) return "Thái Lan";
+  if(set.has("PH")) return "Philippines";
   if(set.has("VN")) return "Việt Nam";
-  if(set.has("US") || set.has("GB") || set.has("FR") || set.has("DE") || set.has("CA")) return "Âu Mỹ";
+  const auMy = ["US","CA","GB","FR","DE","ES","IT","AU","NZ","IE","NL","BE",
+                "SE","NO","DK","FI","PT","AT","CH","PL","CZ","GR","HU"];
+  if(auMy.some(c => set.has(c))) return "Âu Mỹ";
   return "Khác";
+}
+
+// Map ID thể loại chuẩn của TMDb -> nhãn tiếng Việt gọn (không có chữ "phim")
+const GENRE_MAP = {
+  28:"Hành Động", 10759:"Hành Động",
+  12:"Phiêu Lưu",
+  16:"Hoạt Hình",
+  35:"Hài Hước",
+  80:"Tội Phạm",
+  99:"Tài Liệu",
+  18:"Chính Kịch", 10766:"Chính Kịch",
+  10751:"Gia Đình",
+  14:"Giả Tưởng",
+  36:"Cổ Trang",
+  27:"Kinh Dị",
+  10402:"Âm Nhạc",
+  9648:"Bí Ẩn",
+  10749:"Lãng Mạn",
+  878:"Viễn Tưởng", 10765:"Viễn Tưởng",
+  10770:"Truyền Hình",
+  53:"Giật Gân",
+  10752:"Chiến Tranh", 10768:"Chiến Tranh",
+  37:"Viễn Tây",
+  10762:"Thiếu Nhi",
+  10763:"Tin Tức",
+  10764:"Thực Tế",
+  10767:"Trò Chuyện",
+};
+function mapGenres(genres){
+  return (genres || []).map(g => GENRE_MAP[g.id] || g.name.replace(/^Phim\s+/i, ""));
 }
 
 // Gọi TMDb, ghép dữ liệu tự động với phần bạn nhập tay (video link, hot)
@@ -419,7 +488,7 @@ async function fetchTmdbInfo(entry){
     desc: data.overview || "Chưa có mô tả.",
     rating: data.vote_average || 0,
     year: (isTv ? data.first_air_date : data.release_date || "").slice(0,4) || "N/A",
-    genre: (data.genres || []).map(g => g.name),
+    genre: mapGenres(data.genres),
     country: mapCountry(countryCodes),
   };
 }
@@ -454,7 +523,7 @@ function renderGrid(elId, list){
   const el = document.getElementById(elId);
   el.innerHTML = list.length
     ? list.map(cardHtml).join("")
-    : `<div class="empty-state" style="grid-column:1/-1;"><h3>Không tìm thấy phim</h3><p>Thử một từ khoá khác nhé.</p></div>`;
+    : `<div class="empty-state" style="grid-column:1/-1;"><h3>Chưa có phim nào</h3><p>Dùng công cụ thêm phim để thêm phim vào đây nhé.</p></div>`;
 }
 
 function renderGenreChips(){
@@ -537,49 +606,147 @@ function searchMovies(){
 }
 document.getElementById('searchInput').addEventListener('input', searchMovies);
 
-/* ---------------- PLAYER ---------------- */
+/* ---------------- PLAYER (hỗ trợ link chính + link phụ, tự chuyển khi lỗi) ---------------- */
+let currentSources = [];   // danh sách link cho phim/tập đang xem
+let currentSourceIndex = 0;
+
+// Chuẩn hoá 1 phim hoặc 1 tập thành mảng link:
+// - Nếu có "sources":[...] -> dùng luôn mảng đó (link đầu = link chính, các link sau = link phụ)
+// - Nếu chỉ có "src":"..." -> coi như mảng chỉ có 1 link
+function getSources(obj){
+  if(Array.isArray(obj.sources) && obj.sources.length) return obj.sources;
+  if(obj.src) return [obj.src];
+  return [];
+}
+
 function loadSource(video, src){
-  if(video.canPlayType('application/vnd.apple.mpegurl')){
-    video.src = src;
-  } else if(window.Hls && Hls.isSupported() && src.includes('.m3u8')){
-    if(hls){ hls.destroy(); }
+  if(hls){ hls.destroy(); hls = null; }
+  if(window.Hls && Hls.isSupported() && src.includes('.m3u8')){
     hls = new Hls();
     hls.loadSource(src);
     hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if(data.fatal) tryNextSource(video);
+    });
   } else {
     video.src = src;
   }
 }
 
+function tryPlaySources(video, sources){
+  currentSources = sources;
+  currentSourceIndex = 0;
+  updateSourceStatus();
+  if(!sources.length){
+    showSourceError(video);
+    return;
+  }
+  loadSource(video, sources[0]);
+  video.onerror = () => tryNextSource(video);
+}
+
+function tryNextSource(video){
+  currentSourceIndex++;
+  if(currentSourceIndex < currentSources.length){
+    updateSourceStatus();
+    loadSource(video, currentSources[currentSourceIndex]);
+  } else {
+    showSourceError(video);
+  }
+}
+
+function updateSourceStatus(){
+  const el = document.getElementById('sourceStatus');
+  if(!el) return;
+  if(currentSources.length <= 1){
+    el.textContent = "";
+    return;
+  }
+  el.textContent = currentSourceIndex === 0
+    ? `Nguồn 1/${currentSources.length}`
+    : `⚠️ Link chính lỗi — đã tự chuyển sang nguồn ${currentSourceIndex+1}/${currentSources.length}`;
+}
+
+function showSourceError(video){
+  const el = document.getElementById('sourceStatus');
+  if(el) el.textContent = "❌ Tất cả link đều lỗi, không phát được video này.";
+}
+
+// Chuẩn hoá "bản chiếu" (thuyết minh / phụ đề...) thành mảng {label, sources}:
+// - Nếu obj có "versions":[...] -> dùng đúng các bản đó (mỗi bản có label + src/sources riêng)
+// - Nếu không có "versions" -> coi như phim chỉ có 1 bản duy nhất (không hiện tab chọn)
+function getVersions(obj){
+  if(Array.isArray(obj.versions) && obj.versions.length){
+    return obj.versions.map(v => ({ label: v.label, sources: getSources(v) }));
+  }
+  return [{ label: null, sources: getSources(obj) }];
+}
+
+let currentMovieId = null;
+let currentEpIndex = 0;
+let currentVersionIndex = 0;
+
 function openPlayer(id, epIndex){
   const movie = movies.find(m => m.id === id);
   if(!movie) return;
+  currentMovieId = id;
+  currentEpIndex = (epIndex !== undefined) ? epIndex : 0;
+  currentVersionIndex = 0;
   document.getElementById('modalTitle').textContent = movie.title;
   document.getElementById('modalDesc').textContent = movie.desc || "";
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderPlayerState();
+}
 
+function selectEpisode(epIndex){
+  currentEpIndex = epIndex;
+  currentVersionIndex = 0;
+  renderPlayerState();
+}
+
+function selectVersion(vIndex){
+  currentVersionIndex = vIndex;
+  renderPlayerState();
+}
+
+function renderPlayerState(){
+  const movie = movies.find(m => m.id === currentMovieId);
+  if(!movie) return;
   const video = document.getElementById('videoPlayer');
   const epPanel = document.getElementById('episodePanel');
   const epList = document.getElementById('epList');
+  const versionTabs = document.getElementById('versionTabs');
 
-  let src = movie.src;
+  let target = movie;
   if(movie.type === "bo"){
     epPanel.style.display = "block";
-    const idx = (epIndex !== undefined) ? epIndex : 0;
-    src = movie.episodes[idx].src;
+    target = movie.episodes[currentEpIndex];
     epList.innerHTML = movie.episodes.map((ep, i) =>
-      `<button class="ep-btn ${i===idx?'current':''}" onclick="openPlayer(${movie.id}, ${i})">${ep.label}</button>`
+      `<button class="ep-btn ${i===currentEpIndex?'current':''}" onclick="selectEpisode(${i})">${ep.label}</button>`
     ).join("");
   } else {
     epPanel.style.display = "none";
   }
 
-  loadSource(video, src);
-  document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const versions = getVersions(target);
+  if(versions.length > 1){
+    versionTabs.style.display = "flex";
+    versionTabs.innerHTML = versions.map((v,i) =>
+      `<button class="ep-btn ${i===currentVersionIndex?'current':''}" onclick="selectVersion(${i})">${v.label}</button>`
+    ).join("");
+  } else {
+    versionTabs.style.display = "none";
+    versionTabs.innerHTML = "";
+  }
+
+  const idx = Math.min(currentVersionIndex, versions.length - 1);
+  tryPlaySources(video, versions[idx].sources);
 }
 
 function closePlayer(){
   const video = document.getElementById('videoPlayer');
+  video.onerror = null;
   video.pause();
   video.removeAttribute('src');
   video.load();
