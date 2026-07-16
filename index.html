@@ -345,37 +345,34 @@
 <script>
 /* ---------------- DATA ---------------- */
 /* =========================================================================
-   CẤU HÌNH TMDb (The Movie Database) — lấy poster/thông tin phim tự động
-   1. Vào https://www.themoviedb.org/settings/api -> đăng ký free -> lấy "API Key (v3 auth)"
-   2. Dán key vào TMDB_API_KEY bên dưới
-   3. Ở mỗi phim trong CATALOG, bạn chỉ cần cho: tmdbId và link m3u8 của bạn
-      (src cho phim lẻ, episodes cho phim bộ). KHÔNG cần ghi mediaType hay type nữa —
-      code tự nhận biết: có "episodes" -> tự hiểu là phim bộ, có "src" -> tự hiểu là phim lẻ.
-   4. Tìm tmdbId: vào themoviedb.org, search phim -> nhìn URL, số sau /movie/ hoặc /tv/
-      VD: themoviedb.org/movie/414906-the-batman -> tmdbId = 414906
-   5. LINK DỰ PHÒNG (link phụ): nếu 1 phim/tập có nhiều nguồn phát, dùng "sources" thay vì "src":
-        { id:2, tmdbId:414906, sources:["link_chinh.m3u8", "link_phu_1.m3u8", "link_phu_2.m3u8"] }
-      Link đầu tiên trong mảng là link chính. Nếu link chính lỗi (mất, die, không phát được),
-      trình phát TỰ ĐỘNG chuyển sang link tiếp theo trong danh sách, không cần bạn làm gì thêm.
-      Người xem sẽ thấy dòng nhỏ dưới khung phim báo "đã tự chuyển sang nguồn 2/3" khi việc này xảy ra.
-      Vẫn dùng "src" bình thường nếu chỉ có 1 link duy nhất (không bắt buộc đổi qua "sources").
-   6. THUYẾT MINH / PHỤ ĐỀ (không bắt buộc): nếu 1 phim có cả 2 bản, dùng "versions" thay vì "src"/"sources":
-        { id:2, tmdbId:414906,
-          versions:[
-            { label:"Thuyết minh", src:"link_thuyet_minh.m3u8" },
-            { label:"Phụ đề",       src:"link_phu_de.m3u8" }
-          ]
-        }
-      Web sẽ tự hiện 2 nút để người xem chọn. Mỗi bản trong "versions" cũng có thể dùng
-      "sources":[...] thay vì "src" nếu bản đó cũng cần link dự phòng.
-      PHIM KHÔNG CÓ 2 BẢN THÌ BỎ QUA MỤC NÀY — cứ dùng "src"/"sources" như bình thường,
-      web sẽ không hiện nút chọn gì cả, không rườm rà.
+   DỮ LIỆU PHIM — đã "lưu chết" sẵn (không gọi TMDb khi mở trang)
+   Mỗi phim trong CATALOG giờ tự chứa đủ thông tin: title, poster, desc,
+   rating, year, genre, country — được lấy 1 LẦN DUY NHẤT lúc bạn dùng
+   "add-movie-tool.html" để thêm phim, rồi ghi thẳng vào đây.
+   => Trang này KHÔNG cần internet để lấy thông tin phim, không phụ thuộc
+      TMDb còn sống hay không, không bị chặn mạng ảnh hưởng.
+   Muốn thêm/sửa phim: dùng "add-movie-tool.html", đừng gõ tay vào đây
+   để tránh lỗi thiếu dấu ngoặc/dấu phẩy.
    ========================================================================= */
-const TMDB_API_KEY = "a62eca83c146453c780b7d81a2e3546a";
-const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
 
-// Chỉ cần nhập tmdbId + link video. Phim bộ dùng "episodes", phim lẻ dùng "src" — code tự nhận biết loại phim.
-// Dùng công cụ "add-movie-tool.html" để tự sinh và chèn phim vào đây, bắt đầu từ id:1.
+// Phòng khi có phim cũ chưa được "lưu chết" đủ thông tin (thiếu title/poster...),
+// trang vẫn hiển thị được thay vì trắng trơn/lỗi — dùng giá trị mặc định tạm.
+function withDefaults(entry){
+  return {
+    title: "Chưa cập nhật tên",
+    poster: "https://placehold.co/300x450/1b1a24/9a94a6?text=Chua+co+anh",
+    desc: "Chưa có mô tả — hãy dùng add-movie-tool.html để cập nhật lại dữ liệu phim này.",
+    rating: 0,
+    year: "N/A",
+    genre: [],
+    country: "Khác",
+    ...entry,
+    type: Array.isArray(entry.episodes) ? "bo" : "le",
+  };
+}
+
+let movies = [];
+
 const CATALOG = [
   { id:3, tmdbId:157336,
     versions:[
@@ -417,201 +414,7 @@ const CATALOG = [
     { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250828/c0xkSuds/index.m3u8","https://s6.kkphimplayer6.com/20250828/c0xkSuds/3500kb/hls/index.m3u8"] }
   ]
   }, // Người Nhện: Không Còn Nhà
-  { id:10, tmdbId:126485, // Đội Thiếu Niên Siêu Đẳng
-    episodes:[
-      { label:"Tập 1", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/MMYsonNF/index.m3u8","https://s6.kkphimplayer6.com/20250721/MMYsonNF/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/ZsGU1yen/index.m3u8","https://s6.kkphimplayer6.com/20250721/ZsGU1yen/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 2", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/S2uu6w37/index.m3u8","https://s6.kkphimplayer6.com/20250721/S2uu6w37/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/nanxjdoM/index.m3u8","https://s6.kkphimplayer6.com/20250721/nanxjdoM/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 3", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/jmfIa0qG/index.m3u8","https://s6.kkphimplayer6.com/20250721/jmfIa0qG/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/NZChSyHi/index.m3u8","https://s6.kkphimplayer6.com/20250721/NZChSyHi/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 4", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/dpSFNLuL/index.m3u8","https://s6.kkphimplayer6.com/20250721/dpSFNLuL/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/OwLqz4td/index.m3u8","https://s6.kkphimplayer6.com/20250721/OwLqz4td/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 5", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/WX2at1Qo/index.m3u8","https://s6.kkphimplayer6.com/20250721/WX2at1Qo/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/3trueqtW/index.m3u8","https://s6.kkphimplayer6.com/20250721/3trueqtW/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 6", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/yy55Mth5/index.m3u8","https://s6.kkphimplayer6.com/20250721/yy55Mth5/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/Rt0DznhK/index.m3u8","https://s6.kkphimplayer6.com/20250721/Rt0DznhK/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 7", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/fOlP9rk1/index.m3u8","https://s6.kkphimplayer6.com/20250721/fOlP9rk1/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/pMSvodOY/index.m3u8","https://s6.kkphimplayer6.com/20250721/pMSvodOY/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 8", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/jrFULuiM/index.m3u8","https://s6.kkphimplayer6.com/20250721/jrFULuiM/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/ul107cYj/index.m3u8","https://s6.kkphimplayer6.com/20250721/ul107cYj/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 9", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/o5DuNq7t/index.m3u8","https://s6.kkphimplayer6.com/20250721/o5DuNq7t/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/xmfAAxhm/index.m3u8","https://s6.kkphimplayer6.com/20250721/xmfAAxhm/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 10", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/nrkXY3Be/index.m3u8","https://s6.kkphimplayer6.com/20250721/nrkXY3Be/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/43m4RrFQ/index.m3u8","https://s6.kkphimplayer6.com/20250721/43m4RrFQ/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 11", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/wVGVGeIK/index.m3u8","https://s6.kkphimplayer6.com/20250721/wVGVGeIK/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/8ntg8cr2/index.m3u8","https://s6.kkphimplayer6.com/20250721/8ntg8cr2/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 12", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/bH6Sigq6/index.m3u8","https://s6.kkphimplayer6.com/20250721/bH6Sigq6/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/4FyDbkVh/index.m3u8","https://s6.kkphimplayer6.com/20250721/4FyDbkVh/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 13", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/8BLkBsie/index.m3u8","https://s6.kkphimplayer6.com/20250721/8BLkBsie/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/2gvbd2Oe/index.m3u8","https://s6.kkphimplayer6.com/20250721/2gvbd2Oe/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 14", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/KGb7yYp7/index.m3u8","https://s6.kkphimplayer6.com/20250721/KGb7yYp7/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/ChCCG6wj/index.m3u8","https://s6.kkphimplayer6.com/20250721/ChCCG6wj/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 15", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/VFmpKbyo/index.m3u8","https://s6.kkphimplayer6.com/20250721/VFmpKbyo/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/b3dra7GF/index.m3u8","https://s6.kkphimplayer6.com/20250721/b3dra7GF/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 16", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/H3aQHcjU/index.m3u8","https://s6.kkphimplayer6.com/20250721/H3aQHcjU/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/gKDlipbP/index.m3u8","https://s6.kkphimplayer6.com/20250721/gKDlipbP/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 17", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/H0ARIQ4B/index.m3u8","https://s6.kkphimplayer6.com/20250721/H0ARIQ4B/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/8w28JAuC/index.m3u8","https://s6.kkphimplayer6.com/20250721/8w28JAuC/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 18", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/aAICb1mw/index.m3u8","https://s6.kkphimplayer6.com/20250721/aAICb1mw/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/Jm7mUJFS/index.m3u8","https://s6.kkphimplayer6.com/20250721/Jm7mUJFS/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 19", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/kd9YeUyg/index.m3u8","https://s6.kkphimplayer6.com/20250721/kd9YeUyg/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/u5PkzgGn/index.m3u8","https://s6.kkphimplayer6.com/20250721/u5PkzgGn/3500kb/hls/index.m3u8"] }
-      ] },
-      { label:"Tập 20", versions:[
-        { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250721/Fg98nNr5/index.m3u8","https://s6.kkphimplayer6.com/20250721/Fg98nNr5/3500kb/hls/index.m3u8"] },
-        { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250721/lIaOCKDm/index.m3u8","https://s6.kkphimplayer6.com/20250721/lIaOCKDm/3500kb/hls/index.m3u8"] }
-      ] }
-    ]
-  },
-  { id:11, tmdbId:51608,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s4.phim1280.tv/20250313/Xmh8FYWy/index.m3u8","https://s4.phim1280.tv/20250313/Xmh8FYWy/3000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s4.phim1280.tv/20250313/alPd4Sdk/index.m3u8","https://s4.phim1280.tv/20250313/alPd4Sdk/3000kb/hls/index.m3u8"] }
-  ]
-  }, // Sát Thủ Vô Danh
-  { id:12, tmdbId:1290417,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20260414/zdWqggyU/index.m3u8","https://s6.kkphimplayer6.com/20260414/zdWqggyU/3500kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20260411/8dYpnDK3/index.m3u8","https://s6.kkphimplayer6.com/20260411/8dYpnDK3/3500kb/hls/index.m3u8"] }
-  ]
-  }, // Cá Mập Săn Người
-  { id:13, tmdbId:1305781, hot:true,
-    versions:[
-    { label:"Phụ đề", sources:["https://v7.kkphimplayer7.com/20260612/l2ArnwuL/index.m3u8","https://v7.kkphimplayer7.com/20260612/l2ArnwuL/3500kb/hls/index.m3u8"] }
-  ]
-  }, // Tiêu Nhân: Phong Khởi Đại Mạc
-  { id:14, tmdbId:1103621, hot:true,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s4.phim1280.tv/20240912/y8TcuGvt/index.m3u8","https://s4.phim1280.tv/20240912/y8TcuGvt/2000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s4.phim1280.tv/20240912/9KichaDX/index.m3u8","https://s4.phim1280.tv/20240912/9KichaDX/2000kb/hls/index.m3u8"] }
-  ]
-  }, // Gia Tài Của Ngoại
-  { id:15, tmdbId:1063814,
-    versions:[
-    { label:"Phụ đề", sources:["https://vip.opstream10.com/20240915/27780_a9d671a9/index.m3u8","https://vip.opstream10.com/20240915/27780_a9d671a9/3000k/hls/mixed.m3u8"] }
-  ]
-  }, // Anh Trai Vượt Mọi Tam Tai
-  { id:16, tmdbId:257512,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s3.phim1280.tv/20240819/7gqQaj7b/index.m3u8","https://s3.phim1280.tv/20240819/7gqQaj7b/2000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://vip.opstream90.com/20250512/5515_00c17237/index.m3u8","https://vip.opstream90.com/20250512/5515_00c17237/3000k/hls/mixed.m3u8"] }
-  ]
-  }, // Thám Tử Lừng Danh Conan: Sát Thủ Bắn Tỉa Không Tưởng
 ];
-
-// Map mã quốc gia TMDb (ISO) -> nhãn tiếng Việt hiển thị trên site
-function mapCountry(codes){
-  if(!codes || !codes.length) return "Khác";
-  const set = new Set(codes);
-  if(set.has("KR")) return "Hàn Quốc";
-  if(set.has("JP")) return "Nhật Bản";
-  if(set.has("CN")) return "Trung Quốc";
-  if(set.has("HK")) return "Hồng Kông";
-  if(set.has("TH")) return "Thái Lan";
-  if(set.has("PH")) return "Philippines";
-  if(set.has("VN")) return "Việt Nam";
-  const auMy = ["US","CA","GB","FR","DE","ES","IT","AU","NZ","IE","NL","BE",
-                "SE","NO","DK","FI","PT","AT","CH","PL","CZ","GR","HU"];
-  if(auMy.some(c => set.has(c))) return "Âu Mỹ";
-  return "Khác";
-}
-
-// Map ID thể loại chuẩn của TMDb -> nhãn tiếng Việt gọn (không có chữ "phim")
-const GENRE_MAP = {
-  28:"Hành Động", 10759:"Hành Động",
-  12:"Phiêu Lưu",
-  16:"Hoạt Hình",
-  35:"Hài Hước",
-  80:"Tội Phạm",
-  99:"Tài Liệu",
-  18:"Chính Kịch", 10766:"Chính Kịch",
-  10751:"Gia Đình",
-  14:"Giả Tưởng",
-  36:"Cổ Trang",
-  27:"Kinh Dị",
-  10402:"Âm Nhạc",
-  9648:"Bí Ẩn",
-  10749:"Lãng Mạn",
-  878:"Viễn Tưởng", 10765:"Viễn Tưởng",
-  10770:"Truyền Hình",
-  53:"Giật Gân",
-  10752:"Chiến Tranh", 10768:"Chiến Tranh",
-  37:"Viễn Tây",
-  10762:"Thiếu Nhi",
-  10763:"Tin Tức",
-  10764:"Thực Tế",
-  10767:"Trò Chuyện",
-};
-function mapGenres(genres){
-  return (genres || []).map(g => GENRE_MAP[g.id] || g.name.replace(/^Phim\s+/i, ""));
-}
-
-// Gọi TMDb, ghép dữ liệu tự động với phần bạn nhập tay (video link, hot)
-async function fetchTmdbInfo(entry){
-  // Tự nhận biết loại phim: có "episodes" -> phim bộ (tv), có "src" -> phim lẻ (movie)
-  const isTv = Array.isArray(entry.episodes);
-  const mediaType = isTv ? "tv" : "movie";
-  const type = isTv ? "bo" : "le";
-
-  const url = `https://api.themoviedb.org/3/${mediaType}/${entry.tmdbId}?api_key=${TMDB_API_KEY}&language=vi-VN`;
-  const res = await fetch(url);
-  if(!res.ok) throw new Error("TMDb lookup failed for id " + entry.tmdbId);
-  const data = await res.json();
-
-  const countryCodes = isTv ? data.origin_country : (data.production_countries || []).map(c => c.iso_3166_1);
-
-  return {
-    ...entry,
-    mediaType, type,
-    title: isTv ? data.name : data.title,
-    poster: data.poster_path ? (TMDB_IMG + data.poster_path) : "https://placehold.co/300x450/1b1a24/9a94a6?text=No+Poster",
-    desc: data.overview || "Chưa có mô tả.",
-    rating: data.vote_average || 0,
-    year: (isTv ? data.first_air_date : data.release_date || "").slice(0,4) || "N/A",
-    genre: mapGenres(data.genres),
-    country: mapCountry(countryCodes),
-  };
-}
-
-let movies = [];
 
 let hls = null;
 let activeGenre = "Tất cả";
@@ -670,35 +473,16 @@ function applyFilters(){
   document.getElementById('boCount').textContent = filtered.filter(m=>m.type==="bo").length + " phim";
 }
 
-async function loadHome(){
-  const loadingHtml = `<div class="empty-state" style="grid-column:1/-1;"><h3>Đang tải dữ liệu phim...</h3><p>Đang lấy poster & thông tin từ TMDb.</p></div>`;
-  ['hotList','leList','boList'].forEach(id => document.getElementById(id).innerHTML = loadingHtml);
+function loadHome(){
+  // Không cần gọi mạng nữa — dữ liệu đã "lưu chết" sẵn trong CATALOG, hiện ngay lập tức.
+  movies = CATALOG.map(withDefaults);
 
-  if(!TMDB_API_KEY || TMDB_API_KEY.includes("DÁN_API_KEY")){
-    const warn = `<div class="empty-state" style="grid-column:1/-1;">
-      <h3>Chưa cấu hình TMDb API Key</h3>
-      <p>Mở file, tìm dòng <code>const TMDB_API_KEY</code> ở đầu thẻ &lt;script&gt; và dán API key miễn phí lấy từ
-      themoviedb.org/settings/api vào đó.</p>
-    </div>`;
-    ['hotList','leList','boList'].forEach(id => document.getElementById(id).innerHTML = warn);
-    return;
-  }
-
-  try{
-    const results = await Promise.allSettled(CATALOG.map(fetchTmdbInfo));
-    movies = results.filter(r => r.status === "fulfilled").map(r => r.value);
-    const failedEntries = results
-      .map((r, i) => r.status === "rejected" ? CATALOG[i].id : null)
-      .filter(id => id !== null);
-    if(failedEntries.length){
-      console.warn("Không lấy được dữ liệu TMDb cho các phim có id:", failedEntries, "- kiểm tra lại tmdbId của các phim này.");
-      const banner = document.createElement('div');
-      banner.style.cssText = "max-width:1400px;margin:0 auto;padding:12px 24px;color:#e8b84b;font-size:13px;";
-      banner.textContent = `⚠️ ${failedEntries.length} phim không tải được dữ liệu (tmdbId sai hoặc không tồn tại) — id trong CATALOG: ${failedEntries.join(", ")}`;
-      document.getElementById('mainContent').prepend(banner);
-    }
-  }catch(err){
-    console.error(err);
+  const missing = movies.filter(m => m.desc.startsWith("Chưa có mô tả")).map(m => m.id);
+  if(missing.length){
+    const banner = document.createElement('div');
+    banner.style.cssText = "max-width:1400px;margin:0 auto;padding:12px 24px;color:#e8b84b;font-size:13px;";
+    banner.textContent = `⚠️ ${missing.length} phim chưa có dữ liệu đầy đủ (title/poster/mô tả...) — id: ${missing.join(", ")}. Dùng add-movie-tool.html để cập nhật lại.`;
+    document.getElementById('mainContent').prepend(banner);
   }
 
   renderGrid('hotList', movies.filter(m => m.hot));
