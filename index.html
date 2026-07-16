@@ -374,46 +374,213 @@ function withDefaults(entry){
 let movies = [];
 
 const CATALOG = [
-  { id:3, tmdbId:157336,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s4.phim1280.tv/20250302/BLbAWQOK/index.m3u8","https://s4.phim1280.tv/20250302/BLbAWQOK/3000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", src:"https://sg.streamuuzy.com/video/0c72d002-226b-438c-9117-56c46fa54436/master.m3u8" }
-  ]
+  {
+    "id": 3,
+    "tmdbId": 157336,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s4.phim1280.tv/20250302/BLbAWQOK/index.m3u8",
+          "https://s4.phim1280.tv/20250302/BLbAWQOK/3000kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "src": "https://sg.streamuuzy.com/video/0c72d002-226b-438c-9117-56c46fa54436/master.m3u8"
+      }
+    ],
+    "title": "Hố Đen Tử Thần",
+    "poster": "https://image.tmdb.org/t/p/w500/if4TI9LbqNIrzkoOgWjX5PZYDYe.jpg",
+    "desc": "Interstellar nói về chuyến hành trình đi tìm một hành tinh mới cho loài người trú ngụ khi mà Trái Đất dần dần không còn là nơi an toàn và sự sống thì đang chết dần với những dịch bệnh trên các loại cây lương thực, đe dọa đến sự tồn tại của loài người một cách mạnh mẽ. Chúng ta sẽ đi theo hành trình của phi hành đoàn gồm Copper, Amelia cùng các thành viên khác trong việc giải cứu các phi hành gia khác đã lên đường khám phá các hành tinh mới để tìm ra hành tinh mới cho loài người trú ngụ",
+    "rating": 8.481,
+    "year": "2014",
+    "genre": [
+      "Phiêu Lưu",
+      "Chính Kịch",
+      "Viễn Tưởng"
+    ],
+    "country": "Âu Mỹ"
   }, // Hố Đen Tử Thần
-  { id:4, tmdbId:161822,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250527/yTZ7KG81/index.m3u8","https://s6.kkphimplayer6.com/20250527/yTZ7KG81/3500kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250524/Awk0DQDc/index.m3u8","https://s6.kkphimplayer6.com/20250524/Awk0DQDc/3500kb/hls/index.m3u8"] }
-  ]
+  {
+    "id": 4,
+    "tmdbId": 161822,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s6.kkphimplayer6.com/20250527/yTZ7KG81/index.m3u8",
+          "https://s6.kkphimplayer6.com/20250527/yTZ7KG81/3500kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s6.kkphimplayer6.com/20250524/Awk0DQDc/index.m3u8",
+          "https://s6.kkphimplayer6.com/20250524/Awk0DQDc/3500kb/hls/index.m3u8"
+        ]
+      }
+    ],
+    "title": "Doraemon: Nobita và Mê Cung Thiếc",
+    "poster": "https://image.tmdb.org/t/p/w500/x0v7xiBYCl1oaujtpkbF6YtglUw.jpg",
+    "desc": "Bố Nobita tình cờ thấy một quảng cáo kỳ lạ về một khu nghỉ dưỡng tuyệt vời trên truyền hình vào lúc nửa đêm. Đang buồn ngủ, anh ấy đặt chỗ trước dù thậm chí không nhận ra mình đang nói chuyện với quảng cáo. Ngày hôm sau, anh thảo luận với gia đình về kế hoạch kỳ nghỉ của họ, chỉ để nhận ra rằng anh không thể tìm thấy nơi nào trên trái đất. Đột nhiên, mặc dù có một chiếc vali trong phòng Nobita và bị tò mò như vậy, cậu mở nó ra chỉ để tìm thấy cánh cổng dẫn đến một khu nghỉ dưỡng xinh đẹp được quản lý bởi những con rô bốt thiếc. Vẫn tốt hơn, nó hoàn toàn miễn phí. Có vẻ như có một chương trình nghị sự ẩn đằng sau người mời họ đến đó.",
+    "rating": 7.06,
+    "year": "1993",
+    "genre": [
+      "Phiêu Lưu",
+      "Hoạt Hình",
+      "Gia Đình",
+      "Viễn Tưởng",
+      "Hài Hước",
+      "Giả Tưởng"
+    ],
+    "country": "Nhật Bản"
   }, // Doraemon: Nobita và Mê Cung Thiếc
-  { id:5, tmdbId:28808,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s3.phim1280.tv/20240819/cZz2HAo8/index.m3u8","https://s3.phim1280.tv/20240819/cZz2HAo8/2000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s3.phim1280.tv/20240819/UPpCtR2Q/index.m3u8","https://s3.phim1280.tv/20240819/UPpCtR2Q/2000kb/hls/index.m3u8"] }
-  ]
+  {
+    "id": 5,
+    "tmdbId": 28808,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s3.phim1280.tv/20240819/cZz2HAo8/index.m3u8",
+          "https://s3.phim1280.tv/20240819/cZz2HAo8/2000kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s3.phim1280.tv/20240819/UPpCtR2Q/index.m3u8",
+          "https://s3.phim1280.tv/20240819/UPpCtR2Q/2000kb/hls/index.m3u8"
+        ]
+      }
+    ],
+    "title": "Thám Tử Lừng Danh Conan: Ảo Thuật Gia Cuối Cùng Của Thế Kỷ",
+    "poster": "https://image.tmdb.org/t/p/w500/d4GH7CBECElEzyaJrVZm0mOI06S.jpg",
+    "desc": "Thám Tử Lừng Danh Conan 3: Ảo Thuật Gia Cuối Cùng Của Thế Kỷ  – Imperial Easter Egg là món đồ nghệ thuật mà sa hoàng Nga đặt nghệ nhân Faberge tạo ra để làm quà tặng cho hoàng hậu nhân lễ phục sinh. Không chỉ Kid mà rất nhiều nhân vật tham gia vào vụ trộm này : Hoshi Seiran, nhà nghiên cứu vương triều Romanov; Ông Inui, nhà buôn đồ cổ; Ông Serger Ovchinikov - bí thư thứ nhất đại sứ quán Nga; Anh Sagawa Ryu – nhiếp ảnh gia tự do... Một cuộc họp khẩn do thanh tra Chaki chủ trì với sự góp mặt của các thanh tra cảnh sát cao cấp nhằm giải mã thư cảnh báo của siêu đạo chích Kid và ngăn chặn vụ trộm của hắn. Một lần nữa Hattori và Conan lại đụng độ cùng giải mã bí ẩn của Kid và báu vật có 1 không hai. Kid với những trò phù thủy của mình lại biến mất trong quá trình truy đuổi. Một kẻ bí ẩn đã ra tay? Kẻ đó là ai? Kid có thực sự chết? Lâu đài Yokusuka có vẻ như là nơi giả câu đố về báu vật. Mọi người đã cùng lên thuyền tới nơi đó? Những nguy hiểm nào đang chờ đợi họ?!",
+    "rating": 7.3,
+    "year": "1999",
+    "genre": [
+      "Phiêu Lưu",
+      "Hoạt Hình",
+      "Tội Phạm",
+      "Chính Kịch",
+      "Bí Ẩn"
+    ],
+    "country": "Nhật Bản"
   }, // Thám Tử Lừng Danh Conan: Ảo Thuật Gia Cuối Cùng Của Thế Kỷ
-  { id:6, tmdbId:39205,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s3.phim1280.tv/20240819/9qzbf4UI/index.m3u8","https://s3.phim1280.tv/20240819/9qzbf4UI/2000kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s3.phim1280.tv/20240819/GV7kN6yZ/index.m3u8","https://s3.phim1280.tv/20240819/GV7kN6yZ/2000kb/hls/index.m3u8"] }
-  ]
+  {
+    "id": 6,
+    "tmdbId": 39205,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s3.phim1280.tv/20240819/9qzbf4UI/index.m3u8",
+          "https://s3.phim1280.tv/20240819/9qzbf4UI/2000kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s3.phim1280.tv/20240819/GV7kN6yZ/index.m3u8",
+          "https://s3.phim1280.tv/20240819/GV7kN6yZ/2000kb/hls/index.m3u8"
+        ]
+      }
+    ],
+    "title": "Thám Tử Lừng Danh Conan: Lễ Cầu Hồn Của Thám Tử",
+    "poster": "https://image.tmdb.org/t/p/w500/b9a22TMbuTqkiPRJ6F2PkG8b4AZ.jpg",
+    "desc": "Thám Tử Lừng Danh Conan 10: Lễ Cầu Hồn Của Thám Tử – Một người đàn ông bí ẩn hỏi Kogoro để đến Yokohama. He asked Ran, Conan and the others go with him. Ông đã yêu cầu Ran, Conan và những người khác đi với anh ta. However, it was a trap, and Ran and the Detective Boys are taken as hostage. Tuy nhiên, nó đã là một cái bẫy, và Ran và Detective Boys được lấy làm con tin. The case that the mysterious man gave Kogoro must be solved within 12 hours, or else the bomb, hidden in VIP passes for an amusement park and worn by Ran and the others, will explode. Các trường hợp đó, người đàn ông bí ẩn đã Kogoro phải được giải quyết trong vòng 12 giờ, hoặc người nào khác quả bom, ẩn trong VIP qua cho một khu vui chơi và mòn của Ran và những người khác, sẽ phát nổ. The criminal also knows that Conan is Shinichi Kudo. tội phạm cũng biết rằng Conan là Shinichi Kudo. Heiji Hattori ...",
+    "rating": 7.1,
+    "year": "2006",
+    "genre": [
+      "Hoạt Hình",
+      "Bí Ẩn",
+      "Phiêu Lưu"
+    ],
+    "country": "Nhật Bản"
   }, // Thám Tử Lừng Danh Conan: Lễ Cầu Hồn Của Thám Tử
-  { id:7, tmdbId:903939,
-    versions:[
-    { label:"Phụ đề", sources:["https://vip.opstream16.com/20221116/26062_e55ff6ac/index.m3u8","https://vip.opstream16.com/20221116/26062_e55ff6ac/3000k/hls/mixed.m3u8"] }
-  ]
+  {
+    "id": 7,
+    "tmdbId": 903939,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://vip.opstream16.com/20221116/26062_e55ff6ac/index.m3u8",
+          "https://vip.opstream16.com/20221116/26062_e55ff6ac/3000k/hls/mixed.m3u8"
+        ]
+      }
+    ],
+    "title": "Thám Tử Lừng Danh Conan: Nàng Dâu Halloween",
+    "poster": "https://image.tmdb.org/t/p/w500/nc1LhmjzgErzcmacJ1HhaRX2Tk8.jpg",
+    "desc": "Thám Tử Lừng Danh Conan 25: Nàng Dâu Halloween – Thám tử lừng danh Conan: Nàng dâu Halloween là phim điện ảnh anime trinh thám năm 2022 của Nhật Bản dựa trên nguyên tác là bộ manga Thám tử lừng danh Conan của hoạ sĩ Aoyama Gōshō. Phim do Mitsunaka Susumu đạo diễn, dựa trên phần kịch bản do Okura Takahiro chấp bút.",
+    "rating": 6.4,
+    "year": "2022",
+    "genre": [
+      "Hoạt Hình",
+      "Hành Động",
+      "Tội Phạm",
+      "Bí Ẩn"
+    ],
+    "country": "Nhật Bản"
   }, // Thám Tử Lừng Danh Conan: Nàng Dâu Halloween
-  { id:8, tmdbId:134126,
-    versions:[
-    { label:"Phụ đề", sources:["https://vip.opstream15.com/20220404/2624_3ee9e427/index.m3u8","https://vip.opstream15.com/20220404/2624_3ee9e427/3000k/hls/mixed.m3u8"] }
-  ]
+  {
+    "id": 8,
+    "tmdbId": 134126,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://vip.opstream15.com/20220404/2624_3ee9e427/index.m3u8",
+          "https://vip.opstream15.com/20220404/2624_3ee9e427/3000k/hls/mixed.m3u8"
+        ]
+      }
+    ],
+    "title": "Sát Thủ Máu Lạnh",
+    "poster": "https://image.tmdb.org/t/p/w500/ggOJ1bKbqt4qOb8L7JvWxmebIx1.jpg",
+    "desc": "Hyeong Do là một sát thủ trong tổ chức giết người theo hợp đồng dưới mặt nạ là một công ty buôn bán kim loại. Đối với Hyeong giết người đã trở thành công việc thường nhật nhưng trong một lần nhận nhiệm vụ thủ tiêu Hyun Yi khi anh này hết giá trị sử dụng. Hyeong đã để tình cảm chi phối và không hoàn thành nhiệm vụ. Hyeong đã bị biến thành mục tiêu của nhóm các sát thủ khác.",
+    "rating": 6.9,
+    "year": "2012",
+    "genre": [
+      "Chính Kịch",
+      "Hành Động",
+      "Tội Phạm",
+      "Giật Gân"
+    ],
+    "country": "Hàn Quốc"
   }, // Sát Thủ Máu Lạnh
-  { id:9, tmdbId:634649,
-    versions:[
-    { label:"Thuyết minh", sources:["https://s6.kkphimplayer6.com/20250828/Dklujs3J/index.m3u8","https://s6.kkphimplayer6.com/20250828/Dklujs3J/3500kb/hls/index.m3u8"] },
-    { label:"Phụ đề", sources:["https://s6.kkphimplayer6.com/20250828/c0xkSuds/index.m3u8","https://s6.kkphimplayer6.com/20250828/c0xkSuds/3500kb/hls/index.m3u8"] }
-  ]
-  }, // Người Nhện: Không Còn Nhà
+  {
+    "id": 9,
+    "tmdbId": 634649,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s6.kkphimplayer6.com/20250828/Dklujs3J/index.m3u8",
+          "https://s6.kkphimplayer6.com/20250828/Dklujs3J/3500kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s6.kkphimplayer6.com/20250828/c0xkSuds/index.m3u8",
+          "https://s6.kkphimplayer6.com/20250828/c0xkSuds/3500kb/hls/index.m3u8"
+        ]
+      }
+    ],
+    "title": "Người Nhện: Không Còn Nhà",
+    "poster": "https://image.tmdb.org/t/p/w500/y4SQ2dJ1y2LBUnxTH7hCe8sr29c.jpg",
+    "desc": "Peter Parker đã bị lộ mặt và không còn có thể tách biệt cuộc sống bình thường của mình với những yêu cầu cao của việc trở thành một Siêu anh hùng. Khi anh ta yêu cầu sự giúp đỡ từ Doctor Strange, mọi thứ càng trở nên nguy hiểm hơn, buộc anh ta phải khám phá ra ý nghĩa thực sự của việc trở thành Người Nhện.",
+    "rating": 7.934,
+    "year": "2021",
+    "genre": [
+      "Hành Động",
+      "Phiêu Lưu",
+      "Viễn Tưởng"
+    ],
+    "country": "Âu Mỹ"
+  } // Người Nhện: Không Còn Nhà
 ];
 
 let hls = null;
