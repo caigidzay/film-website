@@ -7,7 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<!-- hls.js KHÔNG được tải sẵn ở đây nữa. Xem hàm loadSource() ở cuối file: nó luôn thử phát bằng
+     phần cứng của thiết bị trước (mượt hơn nhiều, đặc biệt trên Smart TV có CPU yếu). hls.js (giải mã
+     bằng JavaScript, nặng CPU hơn) chỉ được tải về từ mạng khi thiết bị KHÔNG hỗ trợ phát HLS bằng phần cứng. -->
 <style>
   :root{
     --bg:#0c0b10;
@@ -7255,7 +7257,129 @@ const CATALOG = [
         ]
       }
     ]
-  } // One Piece Film: Red
+  }, // One Piece Film: Red
+  {
+    "id": 118,
+    "title": "Ngày 24...",
+    "poster": "https://image.tmdb.org/t/p/w500/b3kgA2cqEFOCUWx5cesADOyhjWe.jpg",
+    "desc": "Sau tai nạn xe hơi, cô vũ công ba lê Eva (Eugénie Derouand) đành giã từ sân khấu trong đau đớn và phải gắn bó với chiếc xe lăn trong suốt quãng đời còn lại. Một đêm nọ, cô bạn Sophie (Honorine Magnier) tới thăm và tặng cho Eva một món quà nhân dịp sinh nhật vào ngày Giáng Sinh sắp đến. Mỗi ngày cho tới ngày 24/12, Eva sẽ ăn một viên kẹo trong hộp và những điều kì diệu lần lượt xảy ra. Nhưng đó là phép màu trong truyện thần tiên hay là cái bẫy kinh hoàng do quỷ dữ mang lại?",
+    "rating": 6.69,
+    "year": "2021",
+    "genre": [
+      "Kinh Dị",
+      "Giật Gân",
+      "Chính Kịch"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 762079,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://vip.opstream90.com/20260303/26299_3680e8e7/index.m3u8",
+          "https://vip.opstream90.com/20260303/26299_3680e8e7/3000k/hls/mixed.m3u8"
+        ]
+      }
+    ]
+  }, // Ngày 24...
+  {
+    "id": 119,
+    "title": "Đố Anh Còng Được Tôi",
+    "poster": "https://image.tmdb.org/t/p/w500/zqPpoVWrHMoIYzsnA94shKqdcM0.jpg",
+    "desc": "Các thanh tra kỳ cựu nổi tiếng đã hoạt động trở lại! Thám tử Seo Do-cheol (HWANG Jung-min) và đội điều tra tội phạm nguy hiểm của anh không ngừng truy lùng tội phạm cả ngày lẫn đêm, đặt cược cả cuộc sống cá nhân của họ. Nhận một vụ án sát hại một giáo sư, đội thanh tra nhận ra những mối liên hệ với các vụ án trong quá khứ và nảy sinh những nghi ngờ về một kẻ giết người hàng loạt. Điều này đã khiến cả nước rơi vào tình trạng hỗn loạn. Khi đội thanh tra đi sâu vào cuộc điều tra, kẻ sát nhân đã chế nhạo họ bằng cách công khai tung ra một đoạn giới thiệu trực tuyến, chỉ ra nạn nhân tiếp theo và làm gia tăng sự hỗn loạn. Để giải quyết mối đe dọa ngày càng leo thang, nhóm đã kết nạp một sĩ quan tân binh trẻ Park Sun-woo (JUNG Hae-in), dẫn đến những khúc mắc và đầy rẫy bất ngờ trong vụ án.",
+    "rating": 6.965,
+    "year": "2024",
+    "genre": [
+      "Hành Động",
+      "Tội Phạm",
+      "Hài Hước"
+    ],
+    "country": "Hàn Quốc",
+    "tmdbId": 995926,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s5.phim1280.tv/20241118/VGWdzphM/index.m3u8",
+          "https://s5.phim1280.tv/20241118/VGWdzphM/2000kb/hls/index.m3u8"
+        ]
+      }
+    ]
+  }, // Đố Anh Còng Được Tôi
+  {
+    "id": 120,
+    "title": "Xạ Thủ Bắn Tỉa: Vô Tổ Quốc",
+    "poster": "https://image.tmdb.org/t/p/w500/tUmARo0TZEK1EaSuS6dU35FhDyU.jpg",
+    "desc": "Brandon Beckett và Đặc vụ Zero dẫn đầu một nhiệm vụ giải cứu ở Venezuela khi bạn bè của họ bị bắt làm con tin.",
+    "rating": 6.655,
+    "year": "2026",
+    "genre": [
+      "Hành Động",
+      "Giật Gân"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 1641319,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://v7.kkphimplayer7.com/20260420/pZ1NsDKu/index.m3u8",
+          "https://v7.kkphimplayer7.com/20260420/pZ1NsDKu/3500kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://vip.opstream90.com/20260414/29439_bc9d42fc/index.m3u8",
+          "https://vip.opstream90.com/20260414/29439_bc9d42fc/3000k/hls/mixed.m3u8"
+        ]
+      },
+      {
+        "label": "4K - Eng",
+        "sources": [
+          "https://hn.streamuuzy.com/stream/a48c2966-d6f0-4864-ba4b-3a31dd7f8f1c/master.m3u8"
+        ]
+      }
+    ]
+  }, // Xạ Thủ Bắn Tỉa: Vô Tổ Quốc
+  {
+    "id": 121,
+    "title": "Robot Hoang Dã",
+    "poster": "https://image.tmdb.org/t/p/w500/fj1ywGV5k8D0qjXyVeEgNyksChq.jpg",
+    "desc": "Sau một vụ đắm tàu, robot thông minh tên Roz bị mắc kẹt trên một hòn đảo hoang. Để sống sót trong môi trường khắc nghiệt, Roz gắn kết với các loài động vật trên đảo và chăm sóc một chú ngỗng con mồ côi.",
+    "rating": 8.314,
+    "year": "2024",
+    "genre": [
+      "Gia Đình",
+      "Hoạt Hình",
+      "Viễn Tưởng",
+      "Phiêu Lưu"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 1184918,
+    "versions": [
+      {
+        "label": "Thuyết minh",
+        "sources": [
+          "https://s4.phim1280.tv/20241029/0YZTWNPG/index.m3u8",
+          "https://s4.phim1280.tv/20241029/0YZTWNPG/2000kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://s4.phim1280.tv/20241016/STXbevUY/index.m3u8",
+          "https://s4.phim1280.tv/20241016/STXbevUY/2000kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "4K - Eng",
+        "sources": [
+          "https://sg.streamuuzy.com/stream/c12eeeb1-82c7-4797-98e8-1cdda2838d48/master.m3u8"
+        ]
+      }
+    ]
+  } // Robot Hoang Dã
 ];
 
 let hls = null;
@@ -7363,9 +7487,43 @@ function getSources(obj){
   return [];
 }
 
-function loadSource(video, src){
+// Tải thư viện hls.js TỪ MẠNG chỉ khi thật sự cần (thiết bị không hỗ trợ phát HLS bằng phần cứng).
+// Nhờ vậy các TV/trình duyệt có hỗ trợ HLS phần cứng (rất nhiều Smart TV, kể cả VIDAA) sẽ không bao giờ
+// phải tải/chạy thư viện này — tiết kiệm CPU yếu của TV, phát mượt hơn hẳn.
+let hlsJsLoadPromise = null;
+function ensureHlsJsLoaded(){
+  if(window.Hls) return Promise.resolve();
+  if(hlsJsLoadPromise) return hlsJsLoadPromise;
+  hlsJsLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Không tải được hls.js'));
+    document.head.appendChild(script);
+  });
+  return hlsJsLoadPromise;
+}
+
+async function loadSource(video, src){
   if(hls){ hls.destroy(); hls = null; }
-  if(window.Hls && Hls.isSupported() && src.includes('.m3u8')){
+
+  // Ưu tiên số 1: để phần cứng của thiết bị tự giải mã HLS (mượt nhất, tốn ít CPU nhất).
+  // Rất nhiều trình duyệt Smart TV (Safari, WebKit trên VIDAA/Tizen/webOS...) hỗ trợ thẳng kiểu này.
+  const supportsNativeHls = video.canPlayType('application/vnd.apple.mpegurl') !== '';
+  if(supportsNativeHls || !src.includes('.m3u8')){
+    video.src = src;
+    return;
+  }
+
+  // Chỉ khi thiết bị KHÔNG hỗ trợ phần cứng mới tải hls.js về và giải mã bằng JavaScript (nặng CPU hơn).
+  try{
+    await ensureHlsJsLoaded();
+  }catch(err){
+    console.error(err);
+    video.src = src; // fallback cuối cùng, dù có thể không phát được
+    return;
+  }
+  if(window.Hls && Hls.isSupported()){
     hls = new Hls();
     hls.loadSource(src);
     hls.attachMedia(video);
@@ -7377,7 +7535,7 @@ function loadSource(video, src){
   }
 }
 
-function tryPlaySources(video, sources){
+async function tryPlaySources(video, sources){
   currentSources = sources;
   currentSourceIndex = 0;
   updateSourceStatus();
@@ -7385,15 +7543,15 @@ function tryPlaySources(video, sources){
     showSourceError(video);
     return;
   }
-  loadSource(video, sources[0]);
+  await loadSource(video, sources[0]);
   video.onerror = () => tryNextSource(video);
 }
 
-function tryNextSource(video){
+async function tryNextSource(video){
   currentSourceIndex++;
   if(currentSourceIndex < currentSources.length){
     updateSourceStatus();
-    loadSource(video, currentSources[currentSourceIndex]);
+    await loadSource(video, currentSources[currentSourceIndex]);
   } else {
     showSourceError(video);
   }
