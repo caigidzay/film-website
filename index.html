@@ -7,9 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- hls.js KHÔNG được tải sẵn ở đây nữa. Xem hàm loadSource() ở cuối file: nó luôn thử phát bằng
-     phần cứng của thiết bị trước (mượt hơn nhiều, đặc biệt trên Smart TV có CPU yếu). hls.js (giải mã
-     bằng JavaScript, nặng CPU hơn) chỉ được tải về từ mạng khi thiết bị KHÔNG hỗ trợ phát HLS bằng phần cứng. -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js" defer></script>
+<!-- hls.js được tải sẵn ngay từ đầu (không chặn hiển thị trang nhờ "defer") để đảm bảo ổn định trên
+     mọi trình duyệt/thiết bị — kể cả Chrome (Chrome KHÔNG hỗ trợ phát HLS bằng phần cứng nên luôn cần
+     hls.js). Xem hàm loadSource() ở cuối file: với thiết bị nào hỗ trợ phát HLS bằng phần cứng (nhiều
+     Smart TV, kể cả VIDAA), code sẽ bỏ qua không dùng tới hls.js, tiết kiệm CPU — nhưng thư viện vẫn có
+     sẵn nếu cần, không phải chờ tải giữa chừng lúc bấm phát (tránh lỗi do mạng chậm lúc phát). -->
 <style>
   :root{
     --bg:#0c0b10;
@@ -8358,9 +8361,8 @@ function getSources(obj){
   return [];
 }
 
-// Tải thư viện hls.js TỪ MẠNG chỉ khi thật sự cần (thiết bị không hỗ trợ phát HLS bằng phần cứng).
-// Nhờ vậy các TV/trình duyệt có hỗ trợ HLS phần cứng (rất nhiều Smart TV, kể cả VIDAA) sẽ không bao giờ
-// phải tải/chạy thư viện này — tiết kiệm CPU yếu của TV, phát mượt hơn hẳn.
+// hls.js đã được tải sẵn từ đầu trang (thẻ <script defer> ở <head>). Hàm này chỉ là lớp phòng hờ:
+// nếu vì lý do gì đó (bấm phát quá nhanh, mạng chậm...) mà hls.js chưa kịp tải xong, nó sẽ tự chờ/tải lại.
 let hlsJsLoadPromise = null;
 function ensureHlsJsLoaded(){
   if(window.Hls) return Promise.resolve();
@@ -8380,18 +8382,19 @@ async function loadSource(video, src){
 
   // Ưu tiên số 1: để phần cứng của thiết bị tự giải mã HLS (mượt nhất, tốn ít CPU nhất).
   // Rất nhiều trình duyệt Smart TV (Safari, WebKit trên VIDAA/Tizen/webOS...) hỗ trợ thẳng kiểu này.
+  // Chrome (PC lẫn điện thoại) KHÔNG hỗ trợ kiểu này nên sẽ luôn rơi xuống dùng hls.js bên dưới.
   const supportsNativeHls = video.canPlayType('application/vnd.apple.mpegurl') !== '';
   if(supportsNativeHls || !src.includes('.m3u8')){
     video.src = src;
     return;
   }
 
-  // Chỉ khi thiết bị KHÔNG hỗ trợ phần cứng mới tải hls.js về và giải mã bằng JavaScript (nặng CPU hơn).
   try{
     await ensureHlsJsLoaded();
   }catch(err){
     console.error(err);
-    video.src = src; // fallback cuối cùng, dù có thể không phát được
+    const el = document.getElementById('sourceStatus');
+    if(el) el.textContent = '❌ Không tải được thư viện phát video (hls.js) — kiểm tra lại kết nối mạng rồi thử lại.';
     return;
   }
   if(window.Hls && Hls.isSupported()){
