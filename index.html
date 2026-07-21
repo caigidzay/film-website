@@ -8518,6 +8518,30 @@ function renderPlayerState(){
 
   const idx = Math.min(currentVersionIndex, versions.length - 1);
   tryPlaySources(video, versions[idx].sources);
+
+}
+
+async function tryPlaySources(video, sources){
+  currentSources = sources;
+  currentSourceIndex = 0;
+  await loadSource(video, sources[0]);
+}
+
+async function loadSource(video, src){
+  if(hls){ hls.destroy(); hls = null; }
+
+  if(Hls.isSupported()){
+    hls = new Hls({
+      xhrSetup: function(xhr, url) {
+        xhr.setRequestHeader('Referer', 'https://cobephim.vip/');
+        xhr.setRequestHeader('Origin', 'https://cobephim.vip');
+      }
+    });
+    hls.loadSource(src);
+    hls.attachMedia(video);
+  } else {
+    video.src = src;
+  }
 }
 
 function closePlayer(){
