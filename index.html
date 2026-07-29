@@ -12522,8 +12522,9 @@ async function loadSource(video, src){
   if(Hls.isSupported()){
     hls = new Hls({
       xhrSetup: function(xhr, url) {
-        xhr.setRequestHeader('Referer', 'https://cobephim.vip/');
-        xhr.setRequestHeader('Origin', 'https://cobephim.vip');
+        // Dùng domain mới
+        xhr.setRequestHeader('Referer', 'https://cobephim.lol/');
+        xhr.setRequestHeader('Origin', 'https://cobephim.lol');
       }
     });
     hls.loadSource(src);
