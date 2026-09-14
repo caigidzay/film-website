@@ -38,6 +38,21 @@
   .marquee-font{font-family:'Bebas Neue',cursive;letter-spacing:1px;}
   a{color:inherit;text-decoration:none;}
 
+  /* thanh cuộn tối màu, khớp giao diện thay vì thanh cuộn sáng mặc định của trình duyệt */
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold-dim);}
+  * { scrollbar-color: var(--line) var(--bg); scrollbar-width: thin; }
+
+  /* trạng thái focus rõ ràng cho điều khiển từ xa (Smart TV) và bàn phím — không chỉ chuột/hover */
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+  .movie-card:focus-visible, .chip:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
   /* ---------- sprocket divider (signature element) ---------- */
   .sprockets{
     height:14px;
@@ -74,9 +89,21 @@
   nav.links a{
     font-size:14px; font-weight:600; color:var(--muted);
     padding:6px 2px; border-bottom:2px solid transparent;
-    transition:.2s;
+    transition:color .2s, border-color .2s;
   }
   nav.links a:hover, nav.links a.active{color:var(--text); border-color:var(--gold);}
+  .nav-dropdown{position:relative;}
+  .nav-dropdown-btn{
+    background:none; border:none; color:var(--muted); font-size:14px; font-weight:600; font-family:inherit;
+    padding:6px 2px; border-bottom:2px solid transparent; cursor:pointer;
+    display:flex; align-items:center; gap:5px;
+    transition:color .2s, border-color .2s;
+  }
+  .nav-dropdown-btn:hover{color:var(--text);}
+  .nav-dropdown.open .nav-dropdown-btn{color:var(--text); border-color:var(--gold);}
+  .nav-dropdown-btn svg{transition:transform .2s; opacity:.7;}
+  .nav-dropdown.open .nav-dropdown-btn svg{transform:rotate(180deg);}
+  .nav-dropdown .dropdown-list{top:calc(100% + 14px); min-width:170px;}
   .search-box{
     margin-left:auto; position:relative; flex:1; max-width:420px; min-width:140px;
   }
@@ -84,9 +111,9 @@
     width:100%; padding:10px 42px 10px 16px;
     border-radius:30px; border:1px solid var(--line);
     background:var(--bg-raised); color:var(--text); font-size:14px;
-    outline:none; transition:.2s;
+    outline:none; transition:border-color .2s, background .2s;
   }
-  .search-box input:focus{border-color:var(--gold);}
+  .search-box input:focus{border-color:var(--gold); background:#1d1c28;}
   .search-box svg{position:absolute; right:14px; top:50%; transform:translateY(-50%); pointer-events:none; opacity:.6;}
   .menu-toggle{display:none; background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;}
 
@@ -95,16 +122,20 @@
     position:relative;
     height:min(58vh,480px);
     background:
-      linear-gradient(90deg, rgba(12,11,16,.96) 10%, rgba(12,11,16,.35) 60%, rgba(12,11,16,.85)),
+      linear-gradient(90deg, rgba(12,11,16,.97) 8%, rgba(12,11,16,.4) 55%, rgba(12,11,16,.5) 75%, rgba(12,11,16,.92)),
       url('https://picsum.photos/id/1015/1920/700') center/cover;
     display:flex; align-items:center;
   }
-  .banner-inner{max-width:1400px; margin:0 auto; width:100%; padding:0 24px;}
-  .banner-tag{
-    display:inline-block; color:var(--gold); font-weight:700; font-size:13px;
-    letter-spacing:2px; text-transform:uppercase; margin-bottom:14px;
-    border:1px solid var(--gold-dim); padding:5px 12px; border-radius:20px;
+  .banner::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(12,11,16,.35) 0%, transparent 22%, transparent 78%, var(--bg) 100%);
   }
+  .banner-inner{position:relative; z-index:1; max-width:1400px; margin:0 auto; width:100%; padding:0 24px;}
+  .banner-tag{
+    display:flex; align-items:center; gap:8px; color:var(--gold); font-weight:700; font-size:13px;
+    margin-bottom:16px;
+  }
+  .banner-tag::before{content:''; width:22px; height:2px; background:var(--gold); display:inline-block;}
   .banner h1{
     font-family:'Bebas Neue',cursive; font-size:clamp(34px,6vw,64px);
     line-height:1.05; max-width:700px; letter-spacing:1px;
@@ -113,13 +144,13 @@
   .banner-actions{margin-top:26px; display:flex; gap:14px; flex-wrap:wrap;}
   .btn{
     border:none; cursor:pointer; font-weight:700; font-size:14px;
-    padding:12px 26px; border-radius:6px; transition:.2s;
+    padding:12px 26px; border-radius:6px; transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
     display:inline-flex; align-items:center; gap:8px;
   }
   .btn-primary{background:var(--gold); color:#151217;}
-  .btn-primary:hover{background:#f4c95d;}
+  .btn-primary:hover{background:#f4c95d; transform:translateY(-2px); box-shadow:0 8px 20px rgba(232,184,75,.25);}
   .btn-ghost{background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--line);}
-  .btn-ghost:hover{background:rgba(255,255,255,.15);}
+  .btn-ghost:hover{background:rgba(255,255,255,.15); transform:translateY(-2px);}
 
   /* ---------- sections ---------- */
   .section{max-width:1400px; margin:0 auto; padding:34px 24px 6px;}
@@ -140,34 +171,37 @@
   }
   .movie-card{
     background:var(--card); border-radius:var(--radius); overflow:hidden;
-    cursor:pointer; transition:transform .25s ease, box-shadow .25s ease;
+    cursor:pointer; transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .25s ease;
     position:relative; border:1px solid transparent;
   }
-  .movie-card:hover{
+  .movie-card:hover, .movie-card:focus-visible{
     transform:translateY(-6px);
-    box-shadow:0 16px 30px rgba(0,0,0,.5);
+    box-shadow:0 20px 34px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(232,184,75,.15);
     border-color:var(--gold-dim);
   }
   .poster-wrap{position:relative; aspect-ratio:2/3; overflow:hidden; background:var(--bg-raised);}
-  .poster-wrap img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .4s;}
-  .movie-card:hover .poster-wrap img{transform:scale(1.06);}
+  .poster-wrap img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s cubic-bezier(.2,.8,.2,1);}
+  .movie-card:hover .poster-wrap img{transform:scale(1.07);}
   .badge{
-    position:absolute; top:8px; left:8px; background:var(--crimson); color:#fff;
-    font-size:10px; font-weight:800; padding:3px 8px; border-radius:4px; letter-spacing:.5px;
+    position:absolute; top:0; left:10px; background:var(--crimson); color:#fff;
+    font-size:10px; font-weight:800; padding:4px 8px 3px; letter-spacing:.5px;
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
   }
-  .badge.ep{background:rgba(0,0,0,.7); left:auto; right:8px; top:auto; bottom:8px; border:1px solid var(--gold-dim); color:var(--gold);}
+  .badge.ep{background:rgba(10,9,13,.82); left:auto; right:8px; top:auto; bottom:8px; border:1px solid var(--gold-dim); color:var(--gold); clip-path:none; border-radius:4px; padding:3px 8px;}
   .play-overlay{
-    position:absolute; inset:0; background:rgba(10,9,13,.45);
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,9,13,.1), rgba(10,9,13,.6));
     display:flex; align-items:center; justify-content:center;
     opacity:0; transition:opacity .25s;
   }
-  .movie-card:hover .play-overlay{opacity:1;}
+  .movie-card:hover .play-overlay, .movie-card:focus-visible .play-overlay{opacity:1;}
   .play-overlay .circle{
     width:46px; height:46px; border-radius:50%; background:var(--gold);
     display:flex; align-items:center; justify-content:center;
     transform:scale(.7); transition:transform .25s;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
   }
-  .movie-card:hover .play-overlay .circle{transform:scale(1);}
+  .movie-card:hover .play-overlay .circle, .movie-card:focus-visible .play-overlay .circle{transform:scale(1);}
   .movie-info{padding:10px 12px 14px;}
   .movie-info h4{
     font-size:13.5px; font-weight:600; line-height:1.35;
@@ -182,27 +216,48 @@
   }
   .empty-state h3{font-family:'Bebas Neue',cursive; font-size:24px; color:var(--text); margin-bottom:8px; letter-spacing:1px;}
 
-  /* ---------- filter bar (dropdowns) ---------- */
+  /* ---------- filter bar (dropdown tự làm, không dùng <select> gốc của trình duyệt) ---------- */
   .filter-bar{
     display:flex; gap:24px; flex-wrap:wrap;
     padding:16px 0 22px; border-bottom:1px solid var(--line); margin-bottom:24px;
   }
-  .filter-item{display:flex; align-items:center; gap:10px;}
+  .filter-item{display:flex; align-items:center; gap:10px; position:relative;}
   .filter-item label{font-size:13px; font-weight:600; color:var(--muted); white-space:nowrap;}
-  .filter-item select{
-    appearance:none; -webkit-appearance:none;
-    background:var(--bg-raised) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%239a94a6" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 12px center;
-    border:1px solid var(--line); color:var(--text); font-size:14px; font-weight:600;
-    padding:9px 34px 9px 14px; border-radius:8px; cursor:pointer; min-width:150px; transition:.2s;
+  .dropdown{position:relative;}
+  .dropdown-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--text);
+    font-size:14px; font-weight:600; font-family:inherit;
+    padding:9px 14px; border-radius:8px; cursor:pointer; min-width:170px;
+    transition:border-color .2s, background .2s;
   }
-  .filter-item select:hover, .filter-item select:focus{border-color:var(--gold); outline:none;}
-  .filter-item select option{background:var(--bg-raised); color:var(--text);}
+  .dropdown-btn:hover{border-color:var(--gold-dim);}
+  .dropdown-btn svg{transition:transform .2s; flex-shrink:0; opacity:.7;}
+  .dropdown.open .dropdown-btn{border-color:var(--gold);}
+  .dropdown.open .dropdown-btn svg{transform:rotate(180deg);}
+  .dropdown-list{
+    display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:50;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    min-width:100%; max-height:280px; overflow-y:auto;
+    padding:6px; box-shadow:0 16px 32px -8px rgba(0,0,0,.6);
+    list-style:none;
+  }
+  .dropdown.open .dropdown-list{display:block;}
+  .dropdown-list li{margin:0;}
+  .dropdown-list button{
+    display:block; width:100%; text-align:left; background:none; border:none;
+    color:var(--text); font-size:13.5px; font-family:inherit; font-weight:500;
+    padding:9px 12px; border-radius:6px; cursor:pointer; white-space:nowrap;
+  }
+  .dropdown-list button:hover{background:var(--card-hover);}
+  .dropdown-list button.current{background:var(--gold); color:#151217; font-weight:700;}
 
   /* ---------- modal player ---------- */
   .modal-overlay{
     position:fixed; inset:0; background:rgba(5,4,7,.92); z-index:1000;
     display:none; align-items:flex-start; justify-content:center;
     overflow-y:auto; padding:40px 16px;
+    backdrop-filter:blur(2px);
   }
   .modal-overlay.open{display:flex;}
   .modal-box{width:100%; max-width:1050px;}
@@ -211,11 +266,13 @@
   .close-btn{
     background:var(--card); border:1px solid var(--line); color:var(--text);
     width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:18px; flex-shrink:0;
+    transition:background .2s, transform .2s;
   }
-  .close-btn:hover{background:var(--card-hover);}
+  .close-btn:hover{background:var(--card-hover); transform:rotate(90deg);}
   .player-wrap{
     width:100%; aspect-ratio:16/9; background:#000; border-radius:10px; overflow:hidden;
     border:1px solid var(--line);
+    box-shadow:0 24px 50px -12px rgba(0,0,0,.7);
   }
   .player-wrap video{width:100%; height:100%; display:block;}
   .episode-panel{margin-top:16px;}
@@ -223,31 +280,102 @@
   .ep-list{display:flex; gap:8px; flex-wrap:wrap;}
   .ep-btn{
     padding:9px 16px; border-radius:6px; background:var(--card); border:1px solid var(--line);
-    color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:.2s;
+    color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:background .2s, border-color .2s, transform .15s;
   }
-  .ep-btn:hover{background:var(--card-hover);}
+  .ep-btn:hover{background:var(--card-hover); border-color:var(--gold-dim);}
   .ep-btn.current{background:var(--gold); color:#151217; border-color:var(--gold);}
   .modal-desc{color:var(--muted); font-size:13.5px; line-height:1.7; margin-top:14px;}
 
   footer{
-    border-top:1px solid var(--line); margin-top:50px; padding:30px 24px;
-    color:var(--muted); font-size:13px; text-align:center;
+    border-top:1px solid var(--line); margin-top:56px; padding:36px 24px 28px;
+    color:var(--muted); font-size:13px;
   }
-  footer .f-logo{font-family:'Bebas Neue',cursive; color:var(--gold); font-size:20px; letter-spacing:2px; margin-bottom:8px;}
+  footer .footer-inner{max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;}
+  footer .f-logo{font-family:'Bebas Neue',cursive; color:var(--gold); font-size:20px; letter-spacing:2px; display:flex; align-items:center; gap:8px;}
+  footer .f-logo .dot{width:6px;height:6px;border-radius:50%;background:var(--crimson);display:inline-block;}
+  footer p{max-width:480px; line-height:1.6;}
 
   @media (max-width:820px){
     nav.links{display:none;}
     .menu-toggle{display:block;}
     .search-box{max-width:none; order:3; flex-basis:100%;}
     .nav-wrap{flex-wrap:wrap;}
+    footer .footer-inner{flex-direction:column; align-items:flex-start; text-align:left;}
   }
   @media (max-width:480px){
     .movie-grid{grid-template-columns:repeat(auto-fill, minmax(126px,1fr)); gap:12px;}
     .movie-info h4{font-size:12.5px;}
   }
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:.01ms !important; animation-duration:.01ms !important; scroll-behavior:auto !important;}
+    #themeEffectLayer{display:none !important;}
+  }
+
+  /* ---------- theme seasonal effects (tuyết, dơi, bí ngô, phù thuỷ, ông già Noel, pháo hoa...) ---------- */
+  #themeEffectLayer{
+    position:fixed; inset:0; pointer-events:none; z-index:5; overflow:hidden;
+  }
+  .theme-particle{position:absolute; top:0; left:0; will-change:transform, opacity;}
+
+  /* Giáng Sinh: tuyết rơi thẳng xuống */
+  .snow{color:#fff; opacity:.85; font-size:14px; animation:snowfall linear infinite;}
+  @keyframes snowfall{
+    0%{transform:translate(0,-10vh) rotate(0deg); opacity:0;}
+    8%{opacity:.85;}
+    92%{opacity:.85;}
+    100%{transform:translate(var(--drift,20px), 105vh) rotate(200deg); opacity:0;}
+  }
+
+  /* Bay khắp màn hình theo đường chéo ngẫu nhiên — dùng chung cho bí ngô/phù thuỷ/ông già Noel */
+  .fly-random{animation:flyrandom linear infinite;}
+  @keyframes flyrandom{
+    0%{transform:translate(var(--sx), var(--sy)) rotate(var(--r1,0deg)) scale(var(--sc,1)); opacity:0;}
+    8%{opacity:1;}
+    92%{opacity:1;}
+    100%{transform:translate(var(--ex), var(--ey)) rotate(var(--r2,0deg)) scale(var(--sc,1)); opacity:0;}
+  }
+  .pumpkin-wing{font-size:38px; filter:drop-shadow(0 4px 10px rgba(255,138,43,.45));}
+  .witch-fly{font-size:34px; filter:drop-shadow(0 4px 10px rgba(138,63,252,.4));}
+  .santa-fly{font-size:36px; filter:drop-shadow(0 4px 10px rgba(232,184,75,.4)); white-space:nowrap;}
+  .pumpkin-glow{font-size:16px; opacity:.7; animation:flicker 2.4s ease-in-out infinite;}
+  @keyframes flicker{0%,100%{opacity:.35;} 50%{opacity:.85;}}
+
+  /* Năm mới: pháo giấy rơi + pháo hoa nổ ngẫu nhiên */
+  .confetti{width:8px; height:12px; animation:confettifall linear infinite;}
+  @keyframes confettifall{
+    0%{transform:translate(0,-10vh) rotate(0deg); opacity:0;}
+    8%{opacity:1;}
+    92%{opacity:1;}
+    100%{transform:translate(var(--drift,30px), 105vh) rotate(540deg); opacity:0;}
+  }
+  .firework-wrap{position:absolute;}
+  .firework-spark{
+    position:absolute; top:0; left:0; width:5px; height:5px; border-radius:50%;
+    animation:fwspark 1s ease-out forwards;
+  }
+  @keyframes fwspark{
+    0%{transform:translate(0,0) scale(1); opacity:1;}
+    100%{transform:translate(var(--fx), var(--fy)) scale(.2); opacity:0;}
+  }
+
+  /* Trung Thu: lồng đèn đung đưa bay tới bay lui + bánh trung thu rơi */
+  .lantern{filter:drop-shadow(0 4px 12px rgba(255,178,56,.5)); animation:lanternsway ease-in-out infinite;}
+  @keyframes lanternsway{
+    0%{transform:translate(var(--sx), var(--sy)) rotate(-7deg); opacity:0;}
+    10%{opacity:1;}
+    50%{transform:translate(var(--mx), var(--my)) rotate(7deg); opacity:1;}
+    90%{opacity:1;}
+    100%{transform:translate(var(--sx), var(--ey)) rotate(-7deg); opacity:0;}
+  }
+  .mooncake{font-size:20px; animation:snowfall linear infinite;}
+
+  /* dải ruy băng theo mùa, thay cho sprockets phim khi có theme */
+  .theme-banner-accent{height:4px; background:linear-gradient(90deg, var(--theme-accent-1,var(--gold)), var(--theme-accent-2,var(--crimson)), var(--theme-accent-1,var(--gold)));}
 </style>
 </head>
 <body>
+<div id="themeEffectLayer"></div>
+
 
 <header>
   <div class="nav-wrap">
@@ -256,8 +384,20 @@
       <a href="#hot" class="active">Trang chủ</a>
       <a href="#phim-le">Phim lẻ</a>
       <a href="#phim-bo">Phim bộ</a>
-      <a href="#the-loai">Thể loại</a>
-      <a href="#the-loai">Quốc gia</a>
+      <div class="dropdown nav-dropdown" id="genreDropdown">
+        <button type="button" class="dropdown-btn nav-dropdown-btn" aria-haspopup="listbox" onclick="toggleDropdown('genreDropdown')">
+          <span id="genreDropdownText">Thể loại</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="dropdown-list" id="genreDropdownList" role="listbox"></ul>
+      </div>
+      <div class="dropdown nav-dropdown" id="countryDropdown">
+        <button type="button" class="dropdown-btn nav-dropdown-btn" aria-haspopup="listbox" onclick="toggleDropdown('countryDropdown')">
+          <span id="countryDropdownText">Quốc gia</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="dropdown-list" id="countryDropdownList" role="listbox"></ul>
+      </div>
     </nav>
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Tìm phim, thể loại, quốc gia, năm...">
@@ -270,7 +410,7 @@
 
 <section class="banner" id="hot">
   <div class="banner-inner">
-    <span class="banner-tag">★ Đề cử tuần này</span>
+    <span class="banner-tag">Đề cử tuần này</span>
     <h1>Xem phim online chất lượng cao — không quảng cáo</h1>
     <p>Kho phim lẻ, phim bộ cập nhật liên tục. Xem miễn phí, phụ đề đầy đủ, tốc độ tải mượt trên mọi thiết bị.</p>
     <div class="banner-actions">
@@ -298,18 +438,7 @@
     <div class="movie-grid" id="hotList"></div>
   </div>
 
-  <div class="section" id="the-loai" style="padding-bottom:0;">
-    <div class="filter-bar">
-      <div class="filter-item">
-        <label for="genreSelect">Thể loại</label>
-        <select id="genreSelect" onchange="setGenre(this.value)"></select>
-      </div>
-      <div class="filter-item">
-        <label for="countrySelect">Quốc gia</label>
-        <select id="countrySelect" onchange="setCountry(this.value)"></select>
-      </div>
-    </div>
-  </div>
+  <div class="section" id="the-loai" style="display:none;"></div>
 
   <div class="section" id="phim-le">
     <div class="section-head"><h2>Phim lẻ</h2><span class="count" id="leCount"></span></div>
@@ -323,8 +452,10 @@
 </div>
 
 <footer>
-  <div class="f-logo">KFILM</div>
-  <p>Trang demo minh hoạ giao diện xem phim online. Nội dung phim mẫu chỉ dùng cho mục đích trình bày.</p>
+  <div class="footer-inner">
+    <div class="f-logo"><span class="dot"></span>KFILM</div>
+    <p>Kho phim lẻ, phim bộ cập nhật liên tục — quản lý và cập nhật bằng add-movie-tool.html.</p>
+  </div>
 </footer>
 
 <!-- Modal Player -->
@@ -348,6 +479,226 @@
 </div>
 
 <script>
+/* =========================================================================
+   THEME THEO MÙA — Halloween / Giáng Sinh / Năm Mới / Trung Thu... (không bắt buộc)
+   Muốn BẬT 1 theme: đổi giá trị ACTIVE_THEME bên dưới thành đúng tên theme
+   (vd: "halloween", "christmas", "newyear2027", "trungthu"), rồi lưu + đưa lại lên GitHub.
+   Muốn TẮT, quay về giao diện gốc: đổi ACTIVE_THEME thành "default".
+   Muốn THÊM theme mới (vd 8/3, Quốc Khánh...): copy 1 khối trong THEMES,
+   đổi tên khoá + màu sắc + chữ trên banner + kiểu hiệu ứng cho phù hợp.
+   ========================================================================= */
+const ACTIVE_THEME = "trungthu"; // "default" | "halloween" | "christmas" | "newyear2027" | "trungthu"
+
+const THEMES = {
+  default: {
+    accent1: "#e8b84b", accent2: "#b8903a", secondary: "#c8102e",
+    bannerTag: null, effect: null,
+  },
+  halloween: {
+    accent1: "#ff8a2b", accent2: "#c65a12", secondary: "#8a3ffc",
+    bannerTag: "🎃 Mùa Halloween — phim kinh dị đang chờ bạn", effect: "halloween",
+  },
+  christmas: {
+    accent1: "#e8b84b", accent2: "#b8903a", secondary: "#1f8a4c",
+    bannerTag: "🎄 Giáng Sinh An Lành cùng KFILM", effect: "christmas",
+  },
+  newyear2027: {
+    accent1: "#ffd166", accent2: "#d9a441", secondary: "#c8102e",
+    bannerTag: "🎆 Chào Năm Mới 2027", effect: "newyear",
+  },
+  trungthu: {
+    accent1: "#ffb238", accent2: "#d68f1f", secondary: "#d6342c",
+    bannerTag: "🏮 Tết Trung Thu Đoàn Viên", effect: "trungthu",
+  },
+};
+
+function applyTheme(){
+  const theme = THEMES[ACTIVE_THEME] || THEMES.default;
+  const root = document.documentElement.style;
+  root.setProperty('--gold', theme.accent1);
+  root.setProperty('--gold-dim', theme.accent2);
+  root.setProperty('--crimson', theme.secondary);
+  root.setProperty('--theme-accent-1', theme.accent1);
+  root.setProperty('--theme-accent-2', theme.secondary);
+
+  if(theme.bannerTag){
+    const tagEl = document.querySelector('.banner-tag');
+    if(tagEl) tagEl.textContent = theme.bannerTag;
+  }
+  document.querySelectorAll('.sprockets').forEach(el => el.classList.toggle('theme-banner-accent', !!theme.effect));
+
+  if(theme.effect && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    spawnThemeEffect(theme.effect);
+  }
+}
+
+// Thêm 1 "vật bay" theo đường chéo ngẫu nhiên, xuất hiện rồi biến mất, lặp lại ngẫu nhiên
+function addFlyParticle(container, className, html, opts={}){
+  const el = document.createElement('div');
+  el.className = 'theme-particle fly-random ' + className;
+  el.innerHTML = html;
+  el.style.setProperty('--sx', (Math.random()*130-15) + 'vw');
+  el.style.setProperty('--sy', (Math.random()*130-15) + 'vh');
+  el.style.setProperty('--ex', (Math.random()*130-15) + 'vw');
+  el.style.setProperty('--ey', (Math.random()*130-15) + 'vh');
+  el.style.setProperty('--r1', (Math.random()*26-13) + 'deg');
+  el.style.setProperty('--r2', (Math.random()*26-13) + 'deg');
+  el.style.setProperty('--sc', (0.85 + Math.random()*0.5).toFixed(2));
+  el.style.animationDuration = ((opts.minDur||16) + Math.random()*(opts.durRange||12)) + 's';
+  el.style.animationDelay = (Math.random()*(opts.maxDelay||16)) + 's';
+  container.appendChild(el);
+}
+
+// Lồng đèn Trung Thu: đung đưa "bay tới bay lui" (đi rồi quay lại) chứ không bay 1 chiều như bí ngô/phù thuỷ
+function addLanternParticle(container){
+  const el = document.createElement('div');
+  el.className = 'theme-particle lantern';
+  el.innerHTML = LANTERN_SVG;
+  const sx = (Math.random()*80+5) + 'vw';
+  const mx = (Math.random()*80+5) + 'vw';
+  const sy = (Math.random()*70+5) + 'vh';
+  const my = (Math.random()*70+5) + 'vh';
+  const ey = (Math.random()*70+5) + 'vh';
+  el.style.setProperty('--sx', sx);
+  el.style.setProperty('--sy', sy);
+  el.style.setProperty('--mx', mx);
+  el.style.setProperty('--my', my);
+  el.style.setProperty('--ey', ey);
+  el.style.animationDuration = (14 + Math.random()*8) + 's';
+  el.style.animationDelay = (Math.random()*12) + 's';
+  container.appendChild(el);
+}
+
+// Bí ngô có cánh — hình vẽ gốc (không phải nhân vật có sẵn), mặt cười kiểu đèn lồng Halloween
+const PUMPKIN_WING_SVG = `<svg viewBox="0 0 100 60" width="46" height="28">
+  <path d="M14 30 C-4 18 -6 46 16 44 C8 38 8 32 14 30 Z" fill="#2a2036" opacity=".9"/>
+  <path d="M86 30 C104 18 106 46 84 44 C92 38 92 32 86 30 Z" fill="#2a2036" opacity=".9"/>
+  <ellipse cx="50" cy="34" rx="24" ry="19" fill="#ff8a2b"/>
+  <ellipse cx="50" cy="34" rx="24" ry="19" fill="none" stroke="#c65a12" stroke-width="2"/>
+  <rect x="47" y="10" width="6" height="10" rx="2" fill="#6b4423"/>
+  <path d="M39 30 L44 37 L50 30 L56 37 L61 30" stroke="#3a2410" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 42 Q50 50 62 42" stroke="#3a2410" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>`;
+
+// Lồng đèn giấy Trung Thu — hình vẽ gốc, dáng tròn truyền thống, không phải nhân vật có sẵn
+const LANTERN_SVG = `<svg viewBox="0 0 60 90" width="32" height="48">
+  <rect x="24" y="2" width="12" height="9" rx="2" fill="#ffd98a"/>
+  <ellipse cx="30" cy="44" rx="23" ry="27" fill="#d6342c"/>
+  <ellipse cx="30" cy="44" rx="23" ry="27" fill="none" stroke="#ffd98a" stroke-width="2"/>
+  <line x1="30" y1="18" x2="30" y2="70" stroke="#ffd98a" stroke-width="1.4" opacity=".65"/>
+  <line x1="13" y1="26" x2="13" y2="62" stroke="#ffd98a" stroke-width="1.2" opacity=".5"/>
+  <line x1="47" y1="26" x2="47" y2="62" stroke="#ffd98a" stroke-width="1.2" opacity=".5"/>
+  <circle cx="30" cy="44" r="9" fill="#ffe9a8" opacity=".85"/>
+  <rect x="24" y="70" width="12" height="7" rx="2" fill="#ffd98a"/>
+  <line x1="30" y1="77" x2="30" y2="88" stroke="#ffd98a" stroke-width="2"/>
+</svg>`;
+
+// Sinh 1 quả pháo hoa nổ tại vị trí ngẫu nhiên, tự biến mất sau khi nổ xong
+function spawnFirework(container){
+  const wrap = document.createElement('div');
+  wrap.className = 'theme-particle firework-wrap';
+  wrap.style.left = (8 + Math.random()*80) + 'vw';
+  wrap.style.top = (8 + Math.random()*55) + 'vh';
+  const colors = ['#ffd166','#c8102e','#4ea8de','#f3efe4','#7fd858','#e8b84b'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  const sparkCount = 12;
+  for(let i = 0; i < sparkCount; i++){
+    const spark = document.createElement('div');
+    spark.className = 'firework-spark';
+    const angle = (i / sparkCount) * 2 * Math.PI;
+    const dist = 36 + Math.random()*28;
+    spark.style.setProperty('--fx', Math.cos(angle)*dist + 'px');
+    spark.style.setProperty('--fy', Math.sin(angle)*dist + 'px');
+    spark.style.background = color;
+    wrap.appendChild(spark);
+  }
+  container.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 1100);
+}
+
+// Sinh hiệu ứng trang trí theo theme — số lượng giữ vừa phải để không nặng máy/TV yếu
+function spawnThemeEffect(effect){
+  const layer = document.getElementById('themeEffectLayer');
+  layer.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  if(effect === 'christmas'){
+    for(let i = 0; i < 26; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle snow';
+      el.textContent = ['❄','❅','❆'][i % 3];
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.setProperty('--drift', (Math.random()*80-40) + 'px');
+      el.style.fontSize = (10 + Math.random()*10) + 'px';
+      el.style.animationDuration = (9 + Math.random()*8) + 's';
+      el.style.animationDelay = (Math.random()*10) + 's';
+      frag.appendChild(el);
+    }
+    layer.appendChild(frag);
+    // Ông già Noel cưỡi xe kéo chở quà, bay chéo màn hình ngẫu nhiên
+    for(let i = 0; i < 2; i++){
+      addFlyParticle(layer, 'santa-fly', '🎅🛷🎁', { minDur:16, durRange:10, maxDelay:18 });
+    }
+    setInterval(() => addFlyParticle(layer, 'santa-fly', '🎅🛷🎁', { minDur:16, durRange:10, maxDelay:2 }), 9000);
+
+  } else if(effect === 'halloween'){
+    for(let i = 0; i < 6; i++){
+      addFlyParticle(layer, 'pumpkin-wing', PUMPKIN_WING_SVG, { minDur:13, durRange:9, maxDelay:14 });
+    }
+    for(let i = 0; i < 3; i++){
+      addFlyParticle(layer, 'witch-fly', '🧙\u200d♀️', { minDur:12, durRange:8, maxDelay:14 });
+    }
+    for(let i = 0; i < 10; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle pumpkin-glow';
+      el.textContent = '🎃';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.top = Math.random()*100 + 'vh';
+      el.style.animationDelay = (Math.random()*2.4) + 's';
+      frag.appendChild(el);
+    }
+    layer.appendChild(frag);
+    setInterval(() => addFlyParticle(layer, 'pumpkin-wing', PUMPKIN_WING_SVG, { minDur:13, durRange:9, maxDelay:2 }), 6000);
+    setInterval(() => addFlyParticle(layer, 'witch-fly', '🧙\u200d♀️', { minDur:12, durRange:8, maxDelay:2 }), 8000);
+
+  } else if(effect === 'newyear'){
+    const colors = ['#ffd166','#c8102e','#4ea8de','#f3efe4'];
+    for(let i = 0; i < 30; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle confetti';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.background = colors[i % colors.length];
+      el.style.setProperty('--drift', (Math.random()*120-60) + 'px');
+      el.style.animationDuration = (7 + Math.random()*6) + 's';
+      el.style.animationDelay = (Math.random()*8) + 's';
+      frag.appendChild(el);
+    }
+    layer.appendChild(frag);
+    // Pháo hoa nổ ngẫu nhiên trên màn hình, lặp lại liên tục
+    spawnFirework(layer);
+    setInterval(() => spawnFirework(layer), 1300 + Math.random()*900);
+
+  } else if(effect === 'trungthu'){
+    // Bánh trung thu rơi rào rào khắp màn hình
+    for(let i = 0; i < 34; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle mooncake';
+      el.textContent = '🥮';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.setProperty('--drift', (Math.random()*100-50) + 'px');
+      el.style.animationDuration = (8 + Math.random()*7) + 's';
+      el.style.animationDelay = (Math.random()*10) + 's';
+      frag.appendChild(el);
+    }
+    layer.appendChild(frag);
+    // Lồng đèn đung đưa bay tới bay lui
+    for(let i = 0; i < 6; i++){
+      addLanternParticle(layer);
+    }
+    setInterval(() => addLanternParticle(layer), 7000);
+  }
+}
+
 /* ---------------- DATA ---------------- */
 /* =========================================================================
    DỮ LIỆU PHIM — đã "lưu chết" sẵn (không gọi TMDb khi mở trang)
@@ -21538,7 +21889,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/34491ad6-ebc4-4634-96da-975ebbf87b5a/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260722/H4DYlzXV/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260722/H4DYlzXV/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21549,7 +21901,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/b25842d2-42d5-467c-bc5d-509a772ed40c/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260722/JQAFeYk1/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260722/JQAFeYk1/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21560,7 +21913,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/5a2519a8-ef9c-4a4a-a5c8-fb679e6cc552/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260818/wlALlInj/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260818/wlALlInj/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21571,7 +21925,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/ff90c0e9-2687-4cab-9545-574596e152fd/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260730/NoDynHtk/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260730/NoDynHtk/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21582,7 +21937,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/b4e66586-a9ae-4898-8c66-ad36ce7f6461/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260806/6ntpmlgk/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260806/6ntpmlgk/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21593,7 +21949,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/6869c2f4-6370-48cd-a2f6-38b423a07d3e/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260806/iwkqioaO/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260806/iwkqioaO/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21604,7 +21961,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/31e54b80-f660-4f98-86cb-0b5c4fc806fe/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260812/Pnhw6NWv/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260812/Pnhw6NWv/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -21615,7 +21973,8 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/99deb4be-cfa9-4b1f-a0bf-77b76fb071f4/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260812/SzmLZg8d/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260812/SzmLZg8d/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26188,7 +26547,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/eb004113-6f0c-4f93-a8bc-0361ea81ee01/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260802/YhZFMOJO/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260802/YhZFMOJO/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260802/kT4bF2WG/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260802/kT4bF2WG/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26199,7 +26566,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/e498b7e0-3cf1-4461-8b84-cd39fbd8babc/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260802/f0ftuCgg/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260802/f0ftuCgg/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260802/bnKZIRbd/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260802/bnKZIRbd/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26210,7 +26585,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/a523621e-f972-4d23-930b-ead69020221b/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260808/ibfHOhD7/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260808/ibfHOhD7/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260808/laxObwp8/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260808/laxObwp8/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26221,7 +26604,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/5a8d17a8-a7f2-408c-bcea-b0d088632ff7/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260808/SWsmTlWN/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260808/SWsmTlWN/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260808/F093jXas/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260808/F093jXas/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26232,7 +26623,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/20abca34-aae1-4784-8cf8-b576627d0f00/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260814/PY5YeCSp/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260814/PY5YeCSp/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260814/yjSWKrjs/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260814/yjSWKrjs/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26243,7 +26642,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/459c033d-1d10-4a07-b9ab-5bc4cd041302/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260816/QkKHz7ih/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260816/QkKHz7ih/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260816/xD3d8y1c/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260816/xD3d8y1c/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26254,7 +26661,15 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/bf23a302-2efc-49d8-9a30-78e11dc45283/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260822/mwlS3mqP/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260822/mwlS3mqP/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260822/quxNhAYF/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260822/quxNhAYF/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -26265,7 +26680,129 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v1.streamvsmov.com/stream/f7fffb3e-d6ba-49be-b60f-2f47ee800b20/master.m3u8"
+              "https://v7.kkphimplayer7.com/20260822/i83QuyXt/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260822/i83QuyXt/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Thuyết Minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260822/HgLPc3Ot/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260822/HgLPc3Ot/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 9",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260829/PnocvmEe/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260829/PnocvmEe/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260829/E6noQC5T/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260829/E6noQC5T/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 10",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260830/aTcKQDWv/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260830/aTcKQDWv/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260830/ikgEWTd4/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260830/ikgEWTd4/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 11",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260904/sgingVEg/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260904/sgingVEg/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260904/wouiSSWi/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260904/wouiSSWi/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 12",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260905/b5jX9hkV/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260905/b5jX9hkV/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260905/oL6iLtJH/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260905/oL6iLtJH/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 13",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260912/h5av5dJU/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260912/h5av5dJU/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260912/Ucz9XEUN/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260912/Ucz9XEUN/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 14",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260913/2WLhXFbH/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260913/2WLhXFbH/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260913/q3UsGQPV/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260913/q3UsGQPV/3500kb/hls/index.m3u8"
             ]
           }
         ]
@@ -27669,18 +28206,17 @@ const CATALOG = [
     "tmdbId": 41364,
     "versions": [
       {
-        "label": "Thuyết minh",
-        "sources": [
-          "https://v7.kkphimplayer7.com/20260712/pD1shmht/index.m3u8",
-          "https://v7.kkphimplayer7.com/20260712/pD1shmht/3500kb/hls/index.m3u8"
-        ],
-        "subtitleVtt": "WEBVTT\n\n00:01:11.166 --> 00:01:17.125\nCHUYÊN GIA XẢO QUYỆT\n\n\n00:01:21.833 --> 00:01:23.291\nNày nhãi, ông chủ của cậu đâu?\n\n\n00:01:24.416 --> 00:01:25.291\nAi cơ?\n\n\n00:01:25.416 --> 00:01:27.125\nChuyên gia xảo quyệt, Cổ Tinh.\n\n\n00:01:28.833 --> 00:01:29.750\nPHÒNG QUẢN LÝ\n\n\n00:01:36.041 --> 00:01:37.250\nLần sau, nhanh nhẹn lên chút!\n\n\n00:01:37.333 --> 00:01:38.291\nVớ vẩn!\n\n\n00:01:42.458 --> 00:01:44.250\nCứu với!\n\n\n00:01:45.000 --> 00:01:46.208\nSao thế?\n\n\n00:01:48.000 --> 00:01:50.125\nKéo tôi lên với!\n\n\n00:01:50.208 --> 00:01:52.333\nPhiền phức quá. Đến đây!\n\n\n00:01:52.916 --> 00:01:53.791\nCảm ơn!\n\n\n00:01:53.875 --> 00:01:55.708\n- Nào, nắm lấy tay tôi.\n- Được.\n\n\n00:01:57.125 --> 00:01:58.250\nLừa tôi hả?\n\n\n00:01:58.333 --> 00:02:01.541\nĐứt tay tôi rồi, đồ vô nhân đạo.\n\n\n00:02:12.125 --> 00:02:13.166\nĐồ khốn!\n\n\n00:02:16.541 --> 00:02:18.041\nĐồ khốn!\n\n\n00:02:19.625 --> 00:02:20.916\n{\\an8}Bị đâm chết.\n\n\n00:02:21.375 --> 00:02:22.625\n{\\an8}Bị hóc chết.\n\n\n00:02:23.375 --> 00:02:24.458\n{\\an8}Bị độc chết.\n\n\n00:02:25.708 --> 00:02:26.750\n{\\an8}Không chết?\n\n\n00:02:30.791 --> 00:02:31.875\nCậu là ai?\n\n\n00:02:31.958 --> 00:02:34.083\nĐừng lại gần, tôi đánh đấy!\n\n\n00:02:34.791 --> 00:02:35.666\nChào buổi sáng!\n\n\n00:02:35.875 --> 00:02:40.000\nTôi là chuyên gia xảo quyệt đẹp trai,\nCổ Tinh.\n\n\n00:02:41.291 --> 00:02:42.500\nHóa ra là cậu.\n\n\n00:02:43.625 --> 00:02:44.875\nBiết đặt bẫy thật đấy.\n\n\n00:02:45.250 --> 00:02:47.916\nĐương nhiên, chuyên môn của tôi mà.\n\n\n00:02:48.083 --> 00:02:49.916\nTừ bây giờ, tôi sẽ tính tiền.\n\n\n00:02:50.000 --> 00:02:51.125\nGiá khởi điểm là tám đô la.\n\n\n00:02:51.208 --> 00:02:53.541\nĐơn giản!\n\n\n00:02:53.625 --> 00:02:55.166\nCậu để đồng hồ chạy đến mai cũng được.\n\n\n00:02:55.250 --> 00:02:56.625\nÝ tôi là 80.000 đô la.\n\n\n00:02:56.708 --> 00:02:57.833\nTám mươi nghìn?\n\n\n00:02:57.916 --> 00:02:59.125\nKhác gì ăn cướp?\n\n\n00:02:59.291 --> 00:03:01.208\nPhải, còn hơn ăn cướp.\n\n\n00:03:01.333 --> 00:03:03.083\nVậy thì đừng phí thời gian nữa.\nVấn đề là...\n\n\n00:03:05.000 --> 00:03:06.375\n- Rõ chưa?\n- Rõ rồi.\n\n\n00:03:06.458 --> 00:03:08.291\nAnh muốn ly hôn\nnhưng không muốn chia tài sản.\n\n\n00:03:08.375 --> 00:03:10.375\nNên anh muốn thuê chuyên gia\nlàm vợ anh phát điên.\n\n\n00:03:10.458 --> 00:03:11.291\nKhông vấn đề gì.\n\n\n00:03:11.375 --> 00:03:13.333\n<i>Cậu ta giỏi thế thật sao?</i>\n\n\n00:03:13.833 --> 00:03:14.791\nĐương nhiên!\n\n\n00:03:15.125 --> 00:03:15.958\nCái gì?\n\n\n00:03:17.208 --> 00:03:20.541\nPhí là 300.000 đô la,\ntôi sẽ khiến vợ anh phát điên.\n\n\n00:03:20.666 --> 00:03:22.583\nCái gì? Ba trăm nghìn?\n\n\n00:03:23.166 --> 00:03:24.750\nTôi tưởng chỉ 30.000 hay 50.000 thôi chứ.\n\n\n00:03:24.833 --> 00:03:26.083\nBình tĩnh đi! Uống gì vào đã.\n\n\n00:03:26.666 --> 00:03:27.541\nCảm ơn!\n\n\n00:03:28.750 --> 00:03:31.333\nCậu uống của tôi, tôi uống của cậu.\n\n\n00:03:34.958 --> 00:03:36.333\nKhó chịu hả?\n\n\n00:03:37.166 --> 00:03:39.041\nPhải, sao cậu biết?\n\n\n00:03:39.125 --> 00:03:40.458\nVì anh vừa uống thuốc nhuận tràng.\n\n\n00:03:40.541 --> 00:03:41.541\nCậu cũng uống mà.\n\n\n00:03:42.708 --> 00:03:43.833\nKhông phải.\n\n\n00:03:45.208 --> 00:03:46.250\nNhà vệ sinh đằng kia.\n\n\n00:03:46.333 --> 00:03:47.708\n- Cảm ơn!\n- Không có gì.\n\n\n00:03:51.458 --> 00:03:52.458\nĐừng có vào đấy!\n\n\n00:03:52.708 --> 00:03:53.958\nPhải khóa cửa lại.\n\n\n00:03:55.708 --> 00:03:56.833\nNày, đừng có vào!\n\n\n00:03:59.708 --> 00:04:01.375\nNăm trăm nghìn tiền phí thì sao?\n\n\n00:04:01.458 --> 00:04:03.333\nĐã nói là 300.000 rồi mà.\n\n\n00:04:03.416 --> 00:04:05.125\nSai rồi, giờ là 600.000.\n\n\n00:04:05.416 --> 00:04:07.208\nCái gì? Sáu trăm nghìn?\n\n\n00:04:09.583 --> 00:04:10.708\nCậu là đồ ăn cướp.\n\n\n00:04:10.791 --> 00:04:12.750\nTôi chỉ đang cho anh thấy\nkhả năng của mình thôi.\n\n\n00:04:12.875 --> 00:04:14.666\nKhả năng này đáng 700.000 chứ?\n\n\n00:04:14.791 --> 00:04:16.791\nCái gì? Bảy trăm nghìn?\n\n\n00:04:21.000 --> 00:04:24.208\nThả tôi ra, nếu không tôi sẽ băm nát cậu.\n\n\n00:04:24.375 --> 00:04:25.250\nTôi sẽ băm chết cậu.\n\n\n00:04:25.333 --> 00:04:27.916\nĐể không bị nhốt ở đây đến chết\nthì anh không nên chọn trả 70.000,\n\n\n00:04:28.083 --> 00:04:29.458\nmà nên chọn 70 triệu.\n\n\n00:04:30.416 --> 00:04:36.250\nBảy mươi triệu? Tôi trả! Thả tôi ra!\n\n\n00:04:36.333 --> 00:04:39.291\nThả tôi ra, mau lên!\n\n\n00:04:39.375 --> 00:04:40.500\nCảm ơn anh đã hợp tác!\n\n\n00:04:40.583 --> 00:04:42.791\nCứ bình tĩnh, chỉ cần tôi gạt cái cần này,\n\n\n00:04:42.958 --> 00:04:44.333\nmọi cạm bẫy sẽ dừng lại.\n\n\n00:04:48.125 --> 00:04:49.416\nLàm thế nào đây?\n\n\n00:04:50.000 --> 00:04:52.000\nCòn một cách khác.\nTôi phải ngắt nguồn chính.\n\n\n00:04:52.083 --> 00:04:53.791\nNó ở đâu? Mau lên!\n\n\n00:04:54.375 --> 00:04:55.375\nỞ Nguyên Lãng.\n\n\n00:04:55.458 --> 00:04:58.291\nTrời đất ơi! Mau thả tôi ra!\n\n\n00:04:59.250 --> 00:05:00.916\nMau thả tôi ra!\n\n\n00:05:12.750 --> 00:05:15.500\nXấu hổ quá!\n\n\n00:05:18.083 --> 00:05:19.333\nChúc mừng!\n\n\n00:05:25.625 --> 00:05:27.708\nCung hỉ phát tài!\n\n\n00:05:33.791 --> 00:05:36.541\n<i>Đồ ngốc!</i>\n\n\n00:05:37.875 --> 00:05:39.666\nBà Chu, nếu mọi chuyện thuận lợi,\n\n\n00:05:39.791 --> 00:05:42.666\ntrong vòng 15 phút nữa, chồng bà sẽ được\nđưa vào viện tâm thần.\n\n\n00:05:42.958 --> 00:05:45.916\nCái giá 800.000 là quá xứng đáng.\n\n\n00:05:46.041 --> 00:05:48.083\nCậu đúng là xứng danh!\n\n\n00:05:48.416 --> 00:05:50.791\nMay mà tôi đi trước một bước.\n\n\n00:05:51.166 --> 00:05:55.416\nNếu không,\ngiờ có thể tôi mới là người phát điên.\n\n\n00:05:55.708 --> 00:05:59.291\nKhông phải có thể, mà là chắc chắn.\n\n\n00:06:02.250 --> 00:06:03.708\nCậu đúng là chuyên gia xảo quyệt!\n\n\n00:06:04.041 --> 00:06:04.875\nSai rồi!\n\n\n00:06:05.833 --> 00:06:09.416\nLà chuyên gia xảo quyệt đẹp trai.\n\n\n00:06:11.125 --> 00:06:12.541\nTôi có một yêu cầu.\n\n\n00:06:13.041 --> 00:06:15.583\nCó thể hôn tôi một cái không?\n\n\n00:06:15.958 --> 00:06:17.500\nCoi như là kỷ niệm.\n\n\n00:06:19.291 --> 00:06:20.833\nRất hân hạnh.\n\n\n00:06:24.166 --> 00:06:25.708\nCHUYÊN GIA XẢO QUYỆT\n\n\n00:06:28.791 --> 00:06:29.625\nCảm ơn cậu!\n\n\n00:06:29.708 --> 00:06:30.833\nKhông có gì.\n\n\n00:06:30.916 --> 00:06:31.958\nTạm biệt!\n\n\n00:06:32.041 --> 00:06:34.833\nHẹn gặp lại.\n\n\n00:06:36.750 --> 00:06:37.708\nCHUYÊN GIA XẢO QUYỆT\n\n\n00:06:38.666 --> 00:06:40.291\n- Đưa hồ sơ cho tôi sau nhé.\n- Được.\n\n\n00:06:40.750 --> 00:06:41.791\nCòn đồ đạc?\n\n\n00:06:42.166 --> 00:06:43.250\nVào đi!\n\n\n00:06:45.625 --> 00:06:47.125\nSao thế?\n\n\n00:06:47.333 --> 00:06:49.583\nCó một cô gái mất nhẫn kim cương\nrồi gọi cảnh sát.\n\n\n00:06:49.666 --> 00:06:51.333\nHọ đang lục soát phòng chúng ta.\n\n\n00:06:51.416 --> 00:06:53.250\nMang đồ đạc, tài liệu của cậu ra đi.\n\n\n00:06:53.333 --> 00:06:54.583\n- Được, giữ giúp tôi.\n- Này!\n\n\n00:06:57.500 --> 00:06:58.583\nAnh kia!\n\n\n00:06:59.208 --> 00:07:00.041\nLại đây!\n\n\n00:07:00.958 --> 00:07:01.916\nTôi?\n\n\n00:07:02.041 --> 00:07:04.125\nPhải, anh đấy. Lại đây!\n\n\n00:07:04.791 --> 00:07:05.666\nSao thế?\n\n\n00:07:05.750 --> 00:07:07.375\nVào trong cho họ lục soát đi.\n\n\n00:07:08.208 --> 00:07:10.333\n- Bên này là cho nữ mà.\n- Lục soát nữ xong rồi.\n\n\n00:07:10.416 --> 00:07:12.083\nNhanh lên! Sao anh dài dòng thế?\n\n\n00:07:12.166 --> 00:07:14.791\n- Không phải...\n- Có phải đàn ông không thế? Nhanh lên!\n\n\n00:07:18.750 --> 00:07:19.708\nLối này.\n\n\n00:07:22.458 --> 00:07:23.541\nKhông được động đậy!\n\n\n00:07:27.916 --> 00:07:28.958\nCẩn thận chút!\n\n\n00:07:30.541 --> 00:07:32.125\nĐủ rồi đấy.\n\n\n00:07:35.541 --> 00:07:37.833\nCơ bắp thật đấy!\n\n\n00:07:38.833 --> 00:07:39.666\nCảm ơn!\n\n\n00:07:39.791 --> 00:07:41.375\n- Bỏ áo ra!\n- Hả?\n\n\n00:07:41.625 --> 00:07:43.333\nLục soát xong rồi mà,\nlại lục soát nữa sao?\n\n\n00:07:43.416 --> 00:07:45.833\nSao anh sợ phụ nữ vậy hả?\n\n\n00:07:46.916 --> 00:07:48.875\n- Anh là trai tân à?\n- Phải!\n\n\n00:07:49.041 --> 00:07:50.166\nKhông!\n\n\n00:07:51.041 --> 00:07:53.000\nHỏi buồn cười thật đấy!\n\n\n00:07:53.208 --> 00:07:56.166\nĐẹp trai như anh thì phải\ntận dụng lợi thế ngoại hình chứ.\n\n\n00:07:59.833 --> 00:08:02.041\nĐừng lại đây, tôi hét lên đấy.\n\n\n00:08:02.166 --> 00:08:03.875\nĐừng lại đây, tôi hét lên đấy.\n\n\n00:08:07.541 --> 00:08:10.041\nKiệt, chúc mừng anh thăng chức phó phòng.\n\n\n00:08:10.125 --> 00:08:11.291\nChúc mừng!\n\n\n00:08:11.583 --> 00:08:12.708\nMọi người đều biết à?\n\n\n00:08:12.791 --> 00:08:13.666\nĐương nhiên!\n\n\n00:08:13.750 --> 00:08:16.291\nNếu không, chúng tôi đã không thuê\nmột cô xinh như thế để lừa anh.\n\n\n00:08:18.041 --> 00:08:19.041\nSao không nói tôi biết?\n\n\n00:08:19.375 --> 00:08:20.541\nĐây là ý của Banana.\n\n\n00:08:20.625 --> 00:08:22.041\nNếu nói, cô ấy sẽ không hẹn hò tôi.\n\n\n00:08:22.125 --> 00:08:23.000\nNày!\n\n\n00:08:23.583 --> 00:08:25.041\nKiểu gì em cũng sẽ hẹn hò với anh mà.\n\n\n00:08:28.541 --> 00:08:29.958\nMở sâm panh ăn mừng đi.\n\n\n00:08:30.041 --> 00:08:31.916\nCon trai được thăng chức,\nchắc chú ấy vui lắm.\n\n\n00:08:32.041 --> 00:08:33.125\nChúc mừng thôi!\n\n\n00:08:37.291 --> 00:08:40.375\nNày, đừng nói mãi nữa...\n\n\n00:08:40.875 --> 00:08:42.125\nĐồ ăn này!\n\n\n00:08:43.208 --> 00:08:45.125\nCô gái lục soát tôi là ai thế?\n\n\n00:08:46.125 --> 00:08:47.708\nCô ấy là gái bán hoa giá 3.000 đô la đấy.\n\n\n00:08:49.416 --> 00:08:51.125\nBanana đúng là lắm chiêu trò.\n\n\n00:08:51.208 --> 00:08:54.416\nKhét tiếng luôn mà.\n\n\n00:08:54.500 --> 00:08:56.708\nChúng ta ai cũng bị cô ấy lừa hết rồi.\n\n\n00:08:57.166 --> 00:09:00.000\nCô ấy sẽ không lừa ai một lần hết,\n\n\n00:09:00.083 --> 00:09:02.291\nluôn là hơn một lần.\n\n\n00:09:02.416 --> 00:09:03.416\nĐúng là xảo quyệt!\n\n\n00:09:03.500 --> 00:09:05.250\nĐúng thế. Cho nên cậu phải cẩn thận.\n\n\n00:09:05.333 --> 00:09:06.833\n- Hào!\n- Đến đây!\n\n\n00:09:22.958 --> 00:09:25.541\n<i>Cứ tiếp tục lừa đi,</i>\n\n\n00:09:25.625 --> 00:09:27.666\n<i>tôi sẽ không mắc lừa nữa đâu.</i>\n\n\n00:09:35.791 --> 00:09:37.416\nAnh là Xa Văn Kiệt?\n\n\n00:09:38.791 --> 00:09:39.708\nPhải, đúng vậy.\n\n\n00:09:39.791 --> 00:09:41.416\nTôi là đồng nghiệp mới của anh\nbên nhân sự.\n\n\n00:09:41.500 --> 00:09:42.916\nTôi cần thông tin cá nhân của anh.\n\n\n00:09:43.000 --> 00:09:45.166\nPhải rồi, chắc nên đi vào phòng nhỉ?\n\n\n00:09:45.333 --> 00:09:46.708\nCũng được. Ngoài này ồn quá.\n\n\n00:09:48.208 --> 00:09:49.250\nMời cô!\n\n\n00:09:50.541 --> 00:09:51.500\nTôi đóng cửa nhé?\n\n\n00:09:51.625 --> 00:09:52.875\nĐược, bên ngoài ồn quá.\n\n\n00:10:02.208 --> 00:10:03.500\nTôi cũng cởi áo nhé?\n\n\n00:10:03.833 --> 00:10:05.708\nSao? Tùy anh thôi.\n\n\n00:10:10.250 --> 00:10:11.541\nTôi có nên đứng dựa tường không?\n\n\n00:10:13.041 --> 00:10:13.916\nKhông cần.\n\n\n00:10:14.000 --> 00:10:15.208\nLục soát người?\n\n\n00:10:16.041 --> 00:10:17.000\nSao tôi phải làm thế?\n\n\n00:10:17.083 --> 00:10:19.541\nSao cô phải làm công việc này?\n\n\n00:10:20.333 --> 00:10:21.958\n- Không...\n- Để làm gì?\n\n\n00:10:23.375 --> 00:10:26.625\nVới điều kiện của cô,\ncòn rất nhiều công việc tốt hơn mà.\n\n\n00:10:27.375 --> 00:10:30.958\nVí dụ như China City, Volvo, Metropolitan.\n\n\n00:10:31.125 --> 00:10:33.083\nSao phải làm gái bán hoa?\n\n\n00:10:34.750 --> 00:10:37.916\nSao phải làm gái bán hoa hạng thấp?\n\n\n00:10:38.791 --> 00:10:42.875\nSao phải làm\ngái bán hoa hạng thấp đánh người?\n\n\n00:10:44.458 --> 00:10:45.333\nCô đánh tôi.\n\n\n00:10:45.875 --> 00:10:48.000\n- Cô giải thích đi!\n- Lạc Nhi, sao thế?\n\n\n00:10:48.166 --> 00:10:49.041\nHỏi anh ta đi!\n\n\n00:10:49.541 --> 00:10:51.083\n- Đồ điên!\n- Sao thế?\n\n\n00:10:51.166 --> 00:10:54.166\nSao cô lại thuê dạng đánh người thế kia?\n\n\n00:10:54.416 --> 00:10:56.250\nTôi thuê? Ai?\n\n\n00:10:56.666 --> 00:10:57.500\nCô ta.\n\n\n00:10:57.708 --> 00:11:00.041\nCô ấy là bạn cũ của tôi, mới ở Mỹ về,\n\n\n00:11:00.166 --> 00:11:01.458\ncũng làm ở công ty chúng ta mà.\n\n\n00:11:01.583 --> 00:11:02.458\nĐồng nghiệp?\n\n\n00:11:02.875 --> 00:11:04.125\nAnh nghĩ cô ấy là ai?\n\n\n00:11:04.250 --> 00:11:05.250\nChết rồi!\n\n\n00:11:07.916 --> 00:11:09.541\nNày cô!\n\n\n00:11:09.708 --> 00:11:10.666\nNày cô!\n\n\n00:11:17.416 --> 00:11:18.750\nTôi không cố tình.\n\n\n00:12:10.958 --> 00:12:12.500\nAnh có sao không?\n\n\n00:12:16.750 --> 00:12:17.666\nKhông sao.\n\n\n00:12:20.958 --> 00:12:25.125\nCô hiểu lầm rồi. Tôi bất lịch sự như vậy\nthì mới bị bọn họ lừa.\n\n\n00:12:25.250 --> 00:12:26.416\nTôi không phải người như thế.\n\n\n00:12:26.500 --> 00:12:27.583\nThật đấy!\n\n\n00:12:27.666 --> 00:12:29.416\nTôi không nghĩ như thế đâu.\n\n\n00:12:29.500 --> 00:12:31.583\n- Hai người đã gặp nhau rồi à?\n- Không.\n\n\n00:12:33.666 --> 00:12:35.916\nXa Văn Kiệt, Trình Lạc Nhi.\nHai người bắt tay làm quen đi.\n\n\n00:12:51.666 --> 00:12:53.125\n- Này!\n- Sao?\n\n\n00:12:53.416 --> 00:12:54.583\nNhìn kìa.\n\n\n00:12:56.750 --> 00:12:57.625\nEm muốn mua hết hả?\n\n\n00:12:58.208 --> 00:13:00.375\nKhông, chúng ta quen nhau lâu thế rồi\n\n\n00:13:00.500 --> 00:13:02.875\nmà anh vẫn chưa nói câu này với em.\n\n\n00:13:03.291 --> 00:13:04.416\nEm nói gì?\n\n\n00:13:08.708 --> 00:13:09.833\nI, O, U?\n\n\n00:13:09.916 --> 00:13:12.041\nKhông.\n\n\n00:13:13.291 --> 00:13:14.250\nMột, O, U?\n\n\n00:13:14.375 --> 00:13:16.041\nKhông, anh xấu tính thật.\n\n\n00:13:16.125 --> 00:13:17.500\nKhông phải Một, O, U à?\n\n\n00:13:18.083 --> 00:13:21.083\nThế là gì? Phụ nữ phiền phức thật.\n\n\n00:13:28.000 --> 00:13:29.916\nLạc Nhi, tóc em rối rồi.\n\n\n00:13:30.291 --> 00:13:31.916\nHai người quấn quýt thật đấy.\n\n\n00:13:34.291 --> 00:13:35.375\nQua kia đi.\n\n\n00:13:36.291 --> 00:13:37.458\nCậu đang vội à?\n\n\n00:13:38.041 --> 00:13:41.333\nPhải, tôi phải gọi cho Julian\nlúc 6:00 tối.\n\n\n00:13:43.958 --> 00:13:45.041\nJulian là ai?\n\n\n00:13:45.750 --> 00:13:49.125\nVị hôn phu của tôi ở Mỹ,\nLạc Nhi cũng biết anh ấy.\n\n\n00:13:49.541 --> 00:13:51.208\nVậy chắc ít khi được gặp nhau.\n\n\n00:13:53.208 --> 00:13:54.416\nTôi sẽ đi xe buýt về vậy.\n\n\n00:13:55.083 --> 00:13:57.500\n- Được, tạm biệt!\n- Tạm biệt!\n\n\n00:13:57.583 --> 00:13:59.750\n- Tạm biệt!\n- Tạm biệt!\n\n\n00:14:09.583 --> 00:14:10.500\nCúi xuống!\n\n\n00:14:19.208 --> 00:14:20.333\nSuýt nữa thì bị phát hiện.\n\n\n00:14:21.208 --> 00:14:22.208\nCòn chờ gì nữa?\n\n\n00:14:22.666 --> 00:14:24.958\n<i>Cậu định giấu anh Kiệt bao lâu nữa.</i>\n\n\n00:14:25.750 --> 00:14:28.708\nTôi cũng không biết, tôi không dám nghĩ\nanh ấy sẽ phản ứng ra sao.\n\n\n00:14:29.291 --> 00:14:31.250\nKhông biết là ai\nnghĩ ra ý tưởng ngu ngốc này nữa.\n\n\n00:14:31.833 --> 00:14:35.083\nCon gái của ông chủ\ngiả vờ là nhân viên bình thường\n\n\n00:14:35.291 --> 00:14:36.875\nrồi tình cờ yêu đồng nghiệp.\n\n\n00:14:37.791 --> 00:14:40.250\nĐúng là tình huống trớ trêu nhất tôi biết.\n\n\n00:14:40.791 --> 00:14:42.791\n- Hãy xác nhận lại chi tiết hợp đồng nhé.\n- Được!\n\n\n00:14:42.958 --> 00:14:44.333\n- Xin chào!\n- Lạc Nhi!\n\n\n00:14:45.125 --> 00:14:45.958\nLạc Nhi!\n\n\n00:14:46.208 --> 00:14:47.041\nChào!\n\n\n00:14:47.125 --> 00:14:48.041\nBố!\n\n\n00:14:48.625 --> 00:14:51.500\nMacky và bố\nđang bàn về hợp đồng với phía Nhật.\n\n\n00:14:52.125 --> 00:14:54.041\nVậy hai người nói chuyện đi,\ncon lên tầng thay đồ.\n\n\n00:14:56.541 --> 00:14:57.458\nLạc Nhi!\n\n\n00:14:59.500 --> 00:15:01.750\nSao sau khi từ Mỹ về,\nem lại đối xử với anh khác vậy?\n\n\n00:15:03.041 --> 00:15:04.500\nHai chúng ta đều bận mà.\n\n\n00:15:05.041 --> 00:15:06.583\nLạc Nhi, bố muốn nói chuyện với con.\n\n\n00:15:06.666 --> 00:15:07.666\nSao thế bố?\n\n\n00:15:08.500 --> 00:15:12.416\nBố nghe nói con đang đi lại với một người\ntrong công ty tên Kiệt.\n\n\n00:15:13.958 --> 00:15:16.500\nBan đầu, bố đồng ý cho con vào làm\nnhư một nhân viên bình thường\n\n\n00:15:16.583 --> 00:15:20.333\nđể hiểu hơn về công ty.\n\n\n00:15:22.000 --> 00:15:25.000\nNhưng phải cẩn thận với chuyện yêu đương.\n\n\n00:15:25.583 --> 00:15:26.625\nAi đấy?\n\n\n00:15:28.458 --> 00:15:30.375\nNghe lén là không lịch sự đâu.\n\n\n00:15:31.083 --> 00:15:34.208\nXin lỗi, anh muốn nói chuyện với em\nnhưng không có cơ hội.\n\n\n00:15:34.791 --> 00:15:35.916\nGiờ anh sẽ nói luôn.\n\n\n00:15:36.000 --> 00:15:37.041\nKiệt không phải người tốt.\n\n\n00:15:38.166 --> 00:15:39.000\nVớ vẩn!\n\n\n00:15:40.333 --> 00:15:41.750\nAnh biết em lâu rồi.\n\n\n00:15:42.458 --> 00:15:45.583\nAnh chấp nhận cạnh tranh công bằng,\n\n\n00:15:47.083 --> 00:15:48.625\nnhưng anh lo em sẽ bị lừa.\n\n\n00:15:48.708 --> 00:15:49.666\nCậu biết chuyện gì sao?\n\n\n00:15:50.083 --> 00:15:51.333\nQuá khứ của anh ta không tốt.\n\n\n00:15:51.416 --> 00:15:53.125\nAnh ta từng tham gia hội Tam Hoàng\n\n\n00:15:53.333 --> 00:15:54.791\ntrước khi trở lại con đường học hành.\n\n\n00:15:54.875 --> 00:15:56.666\nCũng có thể nói\nlà anh ta đã cải tà quy chính,\n\n\n00:15:57.125 --> 00:15:58.875\nnhưng bản chất con người rất khó thay đổi.\n\n\n00:15:59.625 --> 00:16:01.625\nAnh tin là anh ta\nchỉ thích tiền của em thôi.\n\n\n00:16:02.333 --> 00:16:04.291\nAnh ấy không biết em là ai.\n\n\n00:16:04.375 --> 00:16:06.666\nĐương nhiên, nếu là anh\nthì anh cũng sẽ giả vờ không biết.\n\n\n00:16:07.291 --> 00:16:08.541\nĐừng nói xấu anh ấy!\n\n\n00:16:09.500 --> 00:16:11.416\nAnh thấy em bị tình cảm làm mờ mắt rồi.\n\n\n00:16:12.083 --> 00:16:14.041\nRồi em sẽ sớm nhìn ra\ncon người thật của hắn.\n\n\n00:16:14.166 --> 00:16:16.125\nCHUYÊN GIA XẢO QUYỆT\n\n\n00:16:32.916 --> 00:16:33.833\nAnh Xa!\n\n\n00:16:34.583 --> 00:16:35.583\nCó chuyện gì thế?\n\n\n00:16:36.583 --> 00:16:38.791\nAnh có nhớ trước khi vợ anh mất,\n\n\n00:16:38.958 --> 00:16:41.958\nem đã nói là em có thai không?\n\n\n00:16:42.833 --> 00:16:48.250\nPhải, anh đã vay tiền\ncho em sang Trung Quốc phá thai.\n\n\n00:16:48.416 --> 00:16:50.125\nAnh vẫn còn thấy có lỗi đến bây giờ.\n\n\n00:16:50.208 --> 00:16:52.208\nEm đã nói dối một chuyện.\n\n\n00:16:52.833 --> 00:16:54.750\nCái gì? Đứa bé không phải của anh?\n\n\n00:16:55.541 --> 00:16:57.583\nĐương nhiên là con anh rồi.\n\n\n00:16:58.625 --> 00:16:59.708\nNhưng em không có phá thai.\n\n\n00:17:00.333 --> 00:17:02.750\nEm đã sinh nó ra ở Trung Quốc,\nchị gái em chăm sóc nó.\n\n\n00:17:03.166 --> 00:17:05.583\nÝ em là anh có một đứa con trai nữa?\n\n\n00:17:05.750 --> 00:17:07.291\nNó mới xin được thị thực một lần.\n\n\n00:17:07.541 --> 00:17:08.416\nEm nói thật hả?\n\n\n00:17:08.500 --> 00:17:12.708\nĐương nhiên, tính cách\nvà thói quen của nó giống hệt anh.\n\n\n00:17:12.791 --> 00:17:14.916\n- Nếu không tin, em sẽ đưa nó đến gặp anh.\n- Hay lắm!\n\n\n00:17:16.833 --> 00:17:17.875\nVậy là nó ở đây hả?\n\n\n00:17:18.541 --> 00:17:21.708\nEm nói nó giống hệt anh là sao?\n\n\n00:17:22.000 --> 00:17:24.416\nAnh hay gãi nách khi căng thẳng,\n\n\n00:17:24.500 --> 00:17:26.291\ngãi đùi khi vui vẻ\n\n\n00:17:26.375 --> 00:17:28.708\nvà gãi đầu khi muốn thân mật.\n\n\n00:17:28.791 --> 00:17:30.291\n- Đúng không?\n- Thật hả?\n\n\n00:17:30.375 --> 00:17:32.166\n- Muốn chết hả?\n- Phải!\n\n\n00:17:32.583 --> 00:17:35.333\nNó còn ăn cay giỏi hơn anh nữa đây.\n\n\n00:17:35.541 --> 00:17:37.583\n- Ăn vô cùng cay.\n- Giỏi thế hả?\n\n\n00:17:38.541 --> 00:17:40.666\nCó thể chỉ là trùng hợp thôi,\n\n\n00:17:41.166 --> 00:17:43.916\n- nhưng chắc cũng có chút gen di truyền.\n- Là sao?\n\n\n00:17:44.416 --> 00:17:47.833\nAnh có nhớ là Kiệt đến năm ba tuổi\nmới biết nói không?\n\n\n00:17:47.916 --> 00:17:49.875\nĐúng, hồi đó anh lo lắm.\n\n\n00:17:49.958 --> 00:17:51.958\nCòn tưởng nó bị câm.\n\n\n00:17:52.083 --> 00:17:55.083\nChữ đầu tiên nó nói được là \"bố\".\n\n\n00:17:58.458 --> 00:18:01.125\nBao nhiêu năm rồi mà anh vẫn thế.\n\n\n00:18:01.208 --> 00:18:02.791\nPhải, anh vẫn thế mà.\n\n\n00:18:02.916 --> 00:18:04.166\nLần đầu nó gọi b...\n\n\n00:18:04.291 --> 00:18:05.166\nKhông!\n\n\n00:18:05.541 --> 00:18:07.333\nLúc đó, anh vui như điên vậy.\n\n\n00:18:07.541 --> 00:18:12.333\nNghe thấy nó gọi \"bố\", anh vui đến mức\nkhông kiểm soát nổi cơ thể luôn.\n\n\n00:18:12.708 --> 00:18:16.083\nĐúng, đúng là như thế.\n\n\n00:18:16.750 --> 00:18:18.291\nThằng bé này cũng vậy.\n\n\n00:18:18.375 --> 00:18:19.375\nThật hả?\n\n\n00:18:19.500 --> 00:18:20.583\nTên nó là gì?\n\n\n00:18:21.041 --> 00:18:22.125\nXa Văn Tinh.\n\n\n00:18:22.791 --> 00:18:24.125\nXa Văn...\n\n\n00:18:24.208 --> 00:18:25.333\nNó về rồi.\n\n\n00:18:27.541 --> 00:18:28.875\nTrốn đi!\n\n\n00:19:10.375 --> 00:19:12.125\nNó cũng thích ăn đậu phụ sốt.\n\n\n00:19:21.458 --> 00:19:23.291\nNó thích ăn cay nóng thật.\n\n\n00:19:30.166 --> 00:19:33.125\nThật là! Ăn đậu phụ cay nóng\nkhiến nó muốn thân mật à?\n\n\n00:19:34.750 --> 00:19:35.958\nAi thế?\n\n\n00:19:36.041 --> 00:19:37.125\nKhông có ai hết.\n\n\n00:19:38.708 --> 00:19:40.958\nSao thế hả? Con mình mà cũng sợ à?\n\n\n00:19:52.041 --> 00:19:54.083\nCon trai, ta là bố con.\n\n\n00:20:17.791 --> 00:20:19.250\nÔng ấy là...\n\n\n00:20:19.333 --> 00:20:20.375\n- Bố?\n- Bố?\n\n\n00:20:25.291 --> 00:20:26.500\nBố.\n\n\n00:20:30.583 --> 00:20:31.875\nBố.\n\n\n00:20:34.166 --> 00:20:38.541\n- Bố!\n- Bố!\n\n\n00:20:38.625 --> 00:20:41.708\n- Bố.\n- Cuối cùng hai người cũng đoàn tụ.\n\n\n00:20:43.791 --> 00:20:45.291\nCon trai ngoan!\n\n\n00:20:45.416 --> 00:20:46.250\nBố...\n\n\n00:20:46.541 --> 00:20:48.791\n- Gọi \"bố\" đi!\n- Bố.\n\n\n00:20:48.916 --> 00:20:50.958\n- Gọi nữa đi!\n- Bố!\n\n\n00:20:51.083 --> 00:20:52.208\nCon trai ngoan.\n\n\n00:20:53.291 --> 00:20:55.458\nBao năm qua không gặp,\nbố sẽ tặng con một món quà.\n\n\n00:20:55.583 --> 00:20:56.458\nDây chuyền vàng?\n\n\n00:20:56.541 --> 00:20:59.291\nKhông, thứ này đặc biệt lắm.\n\n\n00:20:59.791 --> 00:21:00.875\nĐeo vào đi!\n\n\n00:21:02.625 --> 00:21:04.708\n- Mùi thơm quá! Làm bằng gì vậy ạ?\n- Đương nhiên rồi.\n\n\n00:21:04.791 --> 00:21:06.500\nSợi tóc đặc biệt của bố đấy.\n\n\n00:21:07.666 --> 00:21:08.583\nCảm ơn bố nhiều lắm!\n\n\n00:21:08.875 --> 00:21:10.166\nCon trai ngoan!\n\n\n00:21:14.000 --> 00:21:15.625\nCon không có gì tặng bố hết,\n\n\n00:21:15.708 --> 00:21:17.458\nchỉ có đậu phụ sốt cay này thôi.\n\n\n00:21:17.541 --> 00:21:19.208\n- Coi như là quà gặp mặt.\n- Được.\n\n\n00:21:19.291 --> 00:21:20.625\nBố ăn hết đi.\n\n\n00:21:21.291 --> 00:21:23.875\nBố, đừng để phí lòng tốt của con.\n\n\n00:21:24.583 --> 00:21:26.041\n- Ngoan lắm!\n- Nào, bố ăn đi.\n\n\n00:21:27.791 --> 00:21:31.375\nMẹ!\n\n\n00:21:31.583 --> 00:21:33.750\nNgày mai,\nnhớ đến văn phòng tôi thanh toán.\n\n\n00:21:36.708 --> 00:21:38.375\nBố, bố không sao chứ?\n\n\n00:21:38.458 --> 00:21:40.708\n- Không sao, nhưng cho bố cốc nước.\n- Được.\n\n\n00:21:41.500 --> 00:21:42.375\nĐây.\n\n\n00:21:42.458 --> 00:21:43.875\nCảm ơn!\n\n\n00:21:45.708 --> 00:21:46.583\nKhá hơn chưa?\n\n\n00:21:46.666 --> 00:21:47.916\nRồi.\n\n\n00:21:48.833 --> 00:21:50.416\nSỐT ỚT CAY\n\n\n00:22:23.750 --> 00:22:24.791\nBố!\n\n\n00:22:25.916 --> 00:22:26.875\nBố!\n\n\n00:22:28.375 --> 00:22:29.750\n- Này!\n- Sao?\n\n\n00:22:29.833 --> 00:22:30.916\n- Ra ngoài đi.\n- Sao?\n\n\n00:22:31.000 --> 00:22:31.875\nRa ngoài!\n\n\n00:22:33.375 --> 00:22:34.375\nSao thế?\n\n\n00:22:34.458 --> 00:22:35.750\nĐừng nhảy nữa!\n\n\n00:22:38.000 --> 00:22:39.333\nCậu ta là em trai con thật hả?\n\n\n00:22:39.416 --> 00:22:40.291\nĐương nhiên rồi!\n\n\n00:22:40.416 --> 00:22:43.666\nThói quen của nó giống hệt bố,\nsao có thể là giả được?\n\n\n00:22:44.375 --> 00:22:48.916\nHai mươi năm biệt tăm,\ngiờ tự nhiên xuất hiện,\n\n\n00:22:49.000 --> 00:22:50.875\ncon thấy lạ lắm.\n\n\n00:22:52.291 --> 00:22:54.791\nCó gì mà lạ? Bố làm gì có tiền.\n\n\n00:22:54.875 --> 00:22:57.458\nNếu có thì còn nói\nlà nó ham tiền của bố được.\n\n\n00:22:58.041 --> 00:22:59.791\nKhông có bằng chứng nào hết.\n\n\n00:23:00.583 --> 00:23:02.625\n- Trừ khi...\n- Sao?\n\n\n00:23:03.083 --> 00:23:06.541\nTrừ khi chúng ta chứng minh được\nbằng cách kiểm tra máu.\n\n\n00:23:06.708 --> 00:23:07.666\nKiểm tra máu?\n\n\n00:23:08.166 --> 00:23:11.250\nĐừng, sẽ khiến nó tủi thân đấy.\n\n\n00:23:11.333 --> 00:23:13.416\nKhông nói cho cậu ta là được.\n\n\n00:23:13.791 --> 00:23:16.041\nCoi như tình cờ\ncắt trúng tay cậu ta để lấy máu,\n\n\n00:23:16.166 --> 00:23:18.708\nrồi trộn máu của bố và cậu ta vào nhau,\nnếu hòa tan thì là đúng.\n\n\n00:23:23.750 --> 00:23:25.833\nSao đung đưa ghê vậy?\n\n\n00:23:27.041 --> 00:23:29.916\nBố, giúp con đi!\n\n\n00:23:32.375 --> 00:23:34.041\n- Con trai!\n- Sao ạ?\n\n\n00:23:35.791 --> 00:23:38.250\nMột bên lông mày của con có màu vàng.\n\n\n00:23:38.333 --> 00:23:39.208\nThật sao?\n\n\n00:23:39.291 --> 00:23:40.958\nĐúng thế, đây là điềm xấu.\n\n\n00:23:41.208 --> 00:23:42.333\nÝ bố là gì?\n\n\n00:23:43.250 --> 00:23:45.250\nNghĩa là con phải đổi màu khác.\n\n\n00:23:45.333 --> 00:23:46.708\n- Thật ạ?\n- Ừ.\n\n\n00:23:46.791 --> 00:23:48.500\nĐể bố giúp con, đừng động đậy.\n\n\n00:23:48.583 --> 00:23:50.958\nBắt đầu nhé! Một, hai...\n\n\n00:23:51.041 --> 00:23:52.333\nCon gián!\n\n\n00:23:56.458 --> 00:23:57.541\n- Bố sao thế?\n- Không sao!\n\n\n00:24:00.333 --> 00:24:01.250\nCó chuyện gì thế?\n\n\n00:24:02.708 --> 00:24:04.750\nBố, sao lại có cái que ở đây?\n\n\n00:24:05.541 --> 00:24:06.958\nĐể trang trí thôi.\n\n\n00:24:07.166 --> 00:24:08.458\n- Thật ạ?\n- Ừ.\n\n\n00:24:08.958 --> 00:24:10.958\n- Nhìn hay đấy.\n- Đương nhiên rồi.\n\n\n00:24:11.041 --> 00:24:11.916\nCon cũng muốn.\n\n\n00:24:12.166 --> 00:24:14.125\nBố, bố không sao chứ?\n\n\n00:24:14.208 --> 00:24:16.916\nAnh Kiệt, đồ trang trí hay quá.\nAnh cũng thử đi.\n\n\n00:24:17.000 --> 00:24:18.541\n- Không cần. Cậu thử đi.\n- Anh thử trước.\n\n\n00:24:18.625 --> 00:24:19.791\n- Cậu trước.\n- Anh trước.\n\n\n00:24:19.875 --> 00:24:20.875\n- Cậu thử trước.\n- Đây này.\n\n\n00:24:20.958 --> 00:24:22.791\n- Thử đi.\n- Cậu thử trước.\n\n\n00:24:22.875 --> 00:24:24.125\n- Không, anh trước.\n- Cậu trước.\n\n\n00:24:24.208 --> 00:24:26.208\nĐược rồi. Đau quá!\n\n\n00:24:27.666 --> 00:24:29.166\n- Móng tay con dài quá!\n- Phải cắt thôi.\n\n\n00:24:29.333 --> 00:24:31.625\n- Tôi giúp.\n- Được rồi, để sau đi.\n\n\n00:24:32.583 --> 00:24:33.500\n- Cắt đi!\n- Không.\n\n\n00:24:35.291 --> 00:24:36.166\nXong rồi.\n\n\n00:24:36.291 --> 00:24:37.250\nKhông phải con.\n\n\n00:24:37.875 --> 00:24:39.166\nKhông phải bố.\n\n\n00:24:39.250 --> 00:24:40.166\nCũng không phải con.\n\n\n00:24:42.416 --> 00:24:45.833\nLà tôi.\nTôi vừa mới đến, sao lại cắt tay tôi?\n\n\n00:24:46.666 --> 00:24:47.916\nCó băng gạc không?\n\n\n00:24:48.000 --> 00:24:49.791\nAnh là ai?\n\n\n00:24:50.583 --> 00:24:51.583\nBạn của tôi.\n\n\n00:24:51.708 --> 00:24:53.416\n- Cậu sợ gián à?\n- Phải.\n\n\n00:24:53.625 --> 00:24:54.833\n- Biết tôi sợ gì không?\n- Sợ gì?\n\n\n00:24:54.916 --> 00:24:56.125\nSợ ruồi. Có một con kìa.\n\n\n00:24:59.666 --> 00:25:01.416\n- Bố!\n- Giết con ruồi.\n\n\n00:25:04.333 --> 00:25:06.541\nBố!\n\n\n00:25:12.666 --> 00:25:14.208\nRuồi ở đây này.\n\n\n00:25:17.875 --> 00:25:19.083\n- Đằng kia!\n- Bắt được rồi.\n\n\n00:25:19.166 --> 00:25:20.125\nĐể con.\n\n\n00:25:25.833 --> 00:25:26.791\nChết rồi.\n\n\n00:25:28.791 --> 00:25:30.958\nTinh, cậu chảy máu rồi.\n\n\n00:25:31.041 --> 00:25:32.833\n- Thật hả? Bảo sao mà đau.\n- Để tôi lau cho.\n\n\n00:25:33.083 --> 00:25:34.083\nĐi giặt khăn thôi bố.\n\n\n00:25:37.375 --> 00:25:38.958\nĐừng cắt nữa đấy.\n\n\n00:25:39.083 --> 00:25:39.916\nCứ đi vệ sinh đi.\n\n\n00:25:48.458 --> 00:25:50.083\nHòa tan rồi.\n\n\n00:25:50.666 --> 00:25:53.666\nThấy chưa? Đã nói nó đúng là con bố mà.\n\n\n00:25:53.750 --> 00:25:56.416\nĐể thằng bé biết được thì xấu hổ lắm.\n\n\n00:25:56.541 --> 00:25:58.541\nCon xin lỗi, là con suy nghĩ nhiều.\n\n\n00:25:58.791 --> 00:26:00.708\nBố, con đền bù cho cậu ta thế nào được?\n\n\n00:26:00.958 --> 00:26:02.833\nSau này đối xử tốt với nó là được.\n\n\n00:26:04.041 --> 00:26:06.041\nSiêu, tìm việc cho em trai tôi đi.\n\n\n00:26:07.166 --> 00:26:09.666\nMình đã chuẩn bị cho tình huống này rồi.\n\n\n00:26:09.750 --> 00:26:11.583\nMáu trong này là nhóm O,\n\n\n00:26:11.666 --> 00:26:13.958\ncó thể hòa tan với mọi nhóm máu.\n\n\n00:26:14.166 --> 00:26:15.208\nTinh!\n\n\n00:26:17.250 --> 00:26:18.291\nTinh!\n\n\n00:26:20.291 --> 00:26:21.125\nĐến đây!\n\n\n00:26:21.208 --> 00:26:22.750\n- Tinh, em không sao chứ?\n- Sao?\n\n\n00:26:22.833 --> 00:26:24.750\nEm đã băng lại rồi.\n\n\n00:26:24.833 --> 00:26:25.791\nThấy rồi.\n\n\n00:26:25.875 --> 00:26:28.708\nCậu ấy là trưởng phòng nhân sự, tên Siêu.\n\n\n00:26:28.791 --> 00:26:30.000\nCậu ấy có một công việc cho em.\n\n\n00:26:30.083 --> 00:26:31.541\nPhải, ngày mai hãy đến nhận việc nhé.\n\n\n00:26:31.625 --> 00:26:33.291\n- Vị trí quản lý?\n- Gì cũng được.\n\n\n00:26:34.708 --> 00:26:35.750\nXin chào!\n\n\n00:26:35.875 --> 00:26:39.375\nChín giờ hơn rồi, em trai cậu đâu?\n\n\n00:26:40.375 --> 00:26:41.833\nNó nói muốn ăn mặc đẹp một chút.\n\n\n00:26:48.166 --> 00:26:50.250\n- Anh Kiệt!\n- Nhìn em còn giống quản lý hơn anh.\n\n\n00:26:50.333 --> 00:26:52.125\nKhỏi phải nói,\nem biết anh đang hâm mộ em rồi.\n\n\n00:26:52.208 --> 00:26:54.000\nÁnh mắt đã phản bội anh.\n\n\n00:26:54.083 --> 00:26:55.666\n- Xin chào!\n- Nhìn gì vậy?\n\n\n00:26:55.958 --> 00:26:58.791\nAnh béo, anh nhìn gì? Chỗ của tôi đâu?\n\n\n00:27:00.291 --> 00:27:03.000\nGHẾ RIÊNG CỦA XA VĂN TINH\nAI NGỒI ĐÂY SẼ CHẾT\n\n\n00:27:16.333 --> 00:27:17.916\n- Điên rồi!\n- Điên rồi!\n\n\n00:27:18.000 --> 00:27:20.333\n- Ngốc quá!\n- Đúng là đồ ngốc!\n\n\n00:27:20.416 --> 00:27:22.791\n- Ngốc thật!\n- Điên rồi hả?\n\n\n00:27:24.875 --> 00:27:26.125\nTránh ra đi!\n\n\n00:27:28.458 --> 00:27:30.791\nNày cô, có một tin tốt và một tin xấu,\n\n\n00:27:30.875 --> 00:27:32.125\ncô muốn nghe tin gì trước?\n\n\n00:27:32.208 --> 00:27:33.125\nTin tốt trước.\n\n\n00:27:33.208 --> 00:27:34.625\nCó một con nhện đực trên bàn cô.\n\n\n00:27:38.041 --> 00:27:39.000\nThế này mà là tin tốt à?\n\n\n00:27:39.083 --> 00:27:40.083\nCon đực không có độc.\n\n\n00:27:40.333 --> 00:27:41.250\nVậy còn tin xấu?\n\n\n00:27:41.333 --> 00:27:43.333\nCon nhện cái có độc đang ở trong nách cô.\n\n\n00:27:45.708 --> 00:27:47.125\nKhông có gì hết.\n\n\n00:27:48.375 --> 00:27:49.750\nTối nay đi xem nhé!\n\n\n00:27:49.833 --> 00:27:53.083\n- Sao phụ nữ ở đây lại như vậy?\n- Đâu rồi? Ai lại mang nhện ra chơi vậy?\n\n\n00:27:53.708 --> 00:27:54.916\nQuyến rũ mà.\n\n\n00:27:55.041 --> 00:27:57.125\nAnh Siêu, tôi phải đi vệ sinh.\n\n\n00:27:58.041 --> 00:27:59.875\nNhà vệ sinh đằng kia.\n\n\n00:28:00.916 --> 00:28:03.458\nAnh Kiệt nói với tôi\nlà bảng tên ngoài cửa dài hơn là của nam,\n\n\n00:28:03.541 --> 00:28:04.916\nngắn hơn là của nữ.\n\n\n00:28:05.000 --> 00:28:05.875\nĐúng thế.\n\n\n00:28:06.875 --> 00:28:08.000\nĐể tôi chỉ cho cậu.\n\n\n00:28:12.000 --> 00:28:13.291\nTự mình đo đi!\n\n\n00:28:22.375 --> 00:28:23.541\nBên này dài hơn.\n\n\n00:28:23.708 --> 00:28:24.708\nVậy là bên này.\n\n\n00:28:30.833 --> 00:28:32.583\nCó biết ai ở trong không?\n\n\n00:28:32.750 --> 00:28:33.833\nBanana!\n\n\n00:28:38.833 --> 00:28:40.791\nLàm cái gì thế hả?\n\n\n00:28:40.958 --> 00:28:41.875\nĐi vệ sinh.\n\n\n00:28:42.000 --> 00:28:44.958\nĐây là nhà vệ sinh nữ.\nTôi sẽ gọi cảnh sát.\n\n\n00:28:45.666 --> 00:28:46.708\nTôi là đồng tính.\n\n\n00:28:47.791 --> 00:28:50.000\nThì sao?\nAnh vẫn không được vào nhà vệ sinh nữ.\n\n\n00:28:50.083 --> 00:28:52.041\nRa ngoài!\n\n\n00:28:53.291 --> 00:28:56.666\nTừ lúc sinh ra, tôi đã dùng\ncả nhà vệ sinh nam và nữ rồi.\n\n\n00:28:56.833 --> 00:28:58.000\nĐâu có ai nói gì đâu.\n\n\n00:28:58.083 --> 00:29:00.708\nĐừng vẽ chuyện nữa,\nnhà vệ sinh nào chẳng như nhau.\n\n\n00:29:02.541 --> 00:29:05.333\nKhông hề. Nhà vệ sinh nam\ncó bồn cầu đứng, ở đây có không?\n\n\n00:29:05.500 --> 00:29:07.791\nCô trêu tôi à? Làm gì có bồn cầu đứng\nở nhà vệ sinh nam.\n\n\n00:29:07.875 --> 00:29:09.125\nĐồ đồng tính, đừng giả ngu nữa.\n\n\n00:29:09.208 --> 00:29:11.083\nNhà vệ sinh nam\ntất nhiên là có bồn cầu đứng rồi.\n\n\n00:29:11.250 --> 00:29:12.875\nKhông có thì sao? Đồ ngốc!\n\n\n00:29:13.083 --> 00:29:14.208\nĐược, anh đi với tôi!\n\n\n00:29:15.125 --> 00:29:16.041\nVào đây!\n\n\n00:29:17.500 --> 00:29:18.958\nĐây là cái gì?\n\n\n00:29:19.250 --> 00:29:21.666\nĐúng rồi, chia ô nữa này.\n\n\n00:29:22.541 --> 00:29:24.666\nSao cô lại vào nhà vệ sinh nam?\n\n\n00:29:24.750 --> 00:29:27.958\nGã ngốc này vào nhà vệ sinh nữ,\nrồi còn nói không biết bồn cầu đứng\n\n\n00:29:28.041 --> 00:29:30.916\nnên tôi mới dắt sang đây chỉ cho.\n\n\n00:29:31.083 --> 00:29:32.208\nAnh nói đi.\n\n\n00:29:32.416 --> 00:29:33.666\nĐể tôi đi vệ sinh đã.\n\n\n00:29:33.875 --> 00:29:35.083\nLàm cái gì thế?\n\n\n00:29:35.625 --> 00:29:37.666\n- Hay cô dạy chúng tôi cách đi vệ sinh đi.\n- Đúng thế.\n\n\n00:29:37.750 --> 00:29:39.333\nChắc cô ấy muốn ngắm chỗ này.\n\n\n00:29:39.416 --> 00:29:40.416\nAnh nhớ đấy!\n\n\n00:29:44.041 --> 00:29:45.291\n- Sao hả?\n- Đi đi!\n\n\n00:29:45.625 --> 00:29:47.583\n- Em không sao chứ?\n- Không sao.\n\n\n00:29:51.250 --> 00:29:52.125\nXin chào!\n\n\n00:29:52.750 --> 00:29:53.875\nĐi xong chưa?\n\n\n00:29:54.000 --> 00:29:56.166\nXong rồi. Anh ổn chứ?\n\n\n00:29:56.250 --> 00:29:57.916\n- Vừa mới bị đá.\n- Đá vào đâu?\n\n\n00:29:58.041 --> 00:29:59.083\nSao tôi phải nói cho cậu?\n\n\n00:29:59.208 --> 00:30:01.041\nCó phải ở đây không?\n\n\n00:30:01.208 --> 00:30:03.083\n- Làm sao cậu biết?\n- Tôi đoán thôi.\n\n\n00:30:19.375 --> 00:30:22.083\nCá mập đang ở trong nhà vệ sinh.\nTin tôi khiến cậu ta vào lần nữa chứ?\n\n\n00:30:22.166 --> 00:30:23.375\n- Không tin.\n- Không tin.\n\n\n00:30:23.708 --> 00:30:26.583\nCá đi. Hai ăn một\nnếu cậu ta ở trong đó 15 giây.\n\n\n00:30:26.708 --> 00:30:30.250\nMột ăn một nếu là 30 giây,\nmột ăn hai nếu là 45 giây.\n\n\n00:30:30.375 --> 00:30:32.875\n- Một ăn bốn nếu là một phút.\n- Một ăn bốn?\n\n\n00:30:33.083 --> 00:30:36.541\nMột ăn 100 nếu cậu ta yên ổn ra ngoài.\n\n\n00:30:40.583 --> 00:30:41.458\nSao thế?\n\n\n00:30:42.250 --> 00:30:45.791\nTôi không có giấy lau mà lại đang bị cảm.\nVào nhà vệ sinh lúc nãy lấy giúp tôi đi.\n\n\n00:30:46.916 --> 00:30:49.083\nTôi nhận ra nhà vệ sinh vừa rồi là cho nữ.\n\n\n00:30:49.291 --> 00:30:52.375\nTôi biết, nhưng cả công ty đều hết\ngiấy lau rồi, chỉ trong đó còn thôi.\n\n\n00:30:52.458 --> 00:30:54.625\nTôi còn đi đâu lấy được nữa?\nMau giúp tôi đi.\n\n\n00:30:54.708 --> 00:30:55.666\nThật hả?\n\n\n00:30:55.750 --> 00:30:57.750\nAnh trai cậu đã nói phải nghe lời tôi mà.\n\n\n00:30:57.875 --> 00:30:58.833\nĐi mau đi!\n\n\n00:30:59.500 --> 00:31:00.458\nĐược thôi.\n\n\n00:31:02.625 --> 00:31:03.875\nNày, cá già hả?\n\n\n00:31:04.000 --> 00:31:04.958\n- Tôi cá.\n- Ba mươi giây?\n\n\n00:31:05.041 --> 00:31:07.666\n- Bốn mươi giây?\n- Ba mươi giây.\n\n\n00:31:09.000 --> 00:31:10.291\nLàm cái gì thế?\n\n\n00:31:10.500 --> 00:31:11.666\nLại đây cá đi!\n\n\n00:31:11.833 --> 00:31:14.125\nCá xem con trai ông ở trong nhà vệ sinh nữ\nđược bao lâu?\n\n\n00:31:14.208 --> 00:31:16.041\nThật hả?\nCác người lôi con trai tôi ra làm trò.\n\n\n00:31:16.125 --> 00:31:17.000\nNày!\n\n\n00:31:17.083 --> 00:31:19.083\n- Im đi!\n- Không cá thì im đi!\n\n\n00:31:19.541 --> 00:31:20.875\n- Cá chứ.\n- Vậy cá đi.\n\n\n00:31:21.000 --> 00:31:22.250\n- Sao không cá?\n- Im đi!\n\n\n00:31:22.333 --> 00:31:26.000\nTôi cá nó sẽ yên ổn ra ngoài,\nmười đô la đây.\n\n\n00:31:28.166 --> 00:31:29.291\nLàm cái gì thế hả?\n\n\n00:31:29.500 --> 00:31:30.625\nTham quan nhà vệ sinh.\n\n\n00:31:30.833 --> 00:31:32.416\nKhông biết đây là nhà vệ sinh nữ à?\n\n\n00:31:32.500 --> 00:31:34.125\nTôi gọi cảnh sát đấy.\n\n\n00:31:35.083 --> 00:31:36.416\nTôi là đồng tính.\n\n\n00:31:38.208 --> 00:31:39.916\nCó biết tôi đã giết bao nhiêu kẻ biến thái\n\n\n00:31:40.000 --> 00:31:43.625\ngiả vờ là đồng tính để vào nhà vệ sinh nữ\ngiở trò đồi bại không?\n\n\n00:31:51.541 --> 00:31:54.333\nĐừng giả vờ nữa. Đứng dậy đi!\n\n\n00:32:09.541 --> 00:32:11.916\nThật hả? Chết rồi?\n\n\n00:32:19.875 --> 00:32:23.666\nTim không đập? Trời ơi, mình xong rồi.\n\n\n00:32:23.875 --> 00:32:27.125\nKhông phải lỗi của tôi,\ncậu tự đâm vào tường chết.\n\n\n00:32:27.208 --> 00:32:29.416\nTôi sẽ đốt nhiều vàng mã cho cậu.\n\n\n00:32:29.500 --> 00:32:32.375\nĐừng đến tìm tôi, tôi vô tội.\n\n\n00:32:34.833 --> 00:32:37.875\nĐược rồi, mình phải bình tĩnh.\n\n\n00:32:37.958 --> 00:32:39.958\nKhông ai biết mình vừa giết người hết.\n\n\n00:32:43.875 --> 00:32:44.791\nSao hả?\n\n\n00:32:45.958 --> 00:32:47.208\nChị có thấy ai bên trong không?\n\n\n00:32:47.291 --> 00:32:50.250\nKhông, không có ai hết.\n\n\n00:32:50.333 --> 00:32:52.166\nNày, có ai trong đó không?\n\n\n00:32:56.000 --> 00:32:57.125\nCậu không thấy ai hả?\n\n\n00:32:57.208 --> 00:32:58.375\nKhông, giấy lau của anh đây.\n\n\n00:33:00.291 --> 00:33:01.291\nKhông xảy ra chuyện gì à?\n\n\n00:33:01.375 --> 00:33:02.666\nBình an vô sự.\n\n\n00:33:03.041 --> 00:33:04.458\nNhưng hết giấy vệ sinh rồi.\n\n\n00:33:04.750 --> 00:33:05.625\nVậy đây là gì?\n\n\n00:33:05.708 --> 00:33:06.958\nTôi lấy lên từ bồn cầu.\n\n\n00:33:07.041 --> 00:33:08.291\nĐừng lo, tôi hong khô rồi.\n\n\n00:33:11.458 --> 00:33:13.500\n- Cảm ơn nhiều!\n- Chẳng có chuyện gì hết.\n\n\n00:33:13.666 --> 00:33:15.208\nTrả đi!\n\n\n00:33:15.958 --> 00:33:17.291\n- Bao nhiêu?\n- Tự nhìn đi.\n\n\n00:33:18.375 --> 00:33:20.458\n- Sao lại là 1.000 đô la?\n- Từ đầu đã là 1.000 rồi.\n\n\n00:33:20.541 --> 00:33:22.166\nĐủ rồi, tôi phải lấy tiền trước.\n\n\n00:33:22.250 --> 00:33:24.458\n- Không đủ, đưa cho tôi.\n- Đừng lừa tôi.\n\n\n00:33:24.583 --> 00:33:26.083\n- Dưới này.\n- Đừng động vào tôi!\n\n\n00:33:31.375 --> 00:33:32.541\nAnh Kiệt đây rồi.\n\n\n00:33:33.083 --> 00:33:34.458\nCẩn thận!\n\n\n00:33:35.333 --> 00:33:37.583\nLại là anh ta? Tên ngốc này!\n\n\n00:33:37.666 --> 00:33:40.958\nHôm nay, anh ta vào nhà vệ sinh nữ\nrồi còn lừa tôi sang nhà vệ sinh nam nữa.\n\n\n00:33:41.416 --> 00:33:42.916\nĐứng lên đi! Họ đến rồi.\n\n\n00:33:44.666 --> 00:33:45.583\nNgồi đi!\n\n\n00:33:49.875 --> 00:33:51.250\nĐể anh giới thiệu.\n\n\n00:33:54.500 --> 00:33:56.041\nĐây là em trai anh, Xa Văn Tinh.\n\n\n00:33:56.208 --> 00:33:59.083\nHôm nay là ngày đầu nó đi làm,\nlàm ở vị trí trợ lý văn phòng.\n\n\n00:33:59.250 --> 00:34:00.333\nVậy là chân sai vặt rồi.\n\n\n00:34:00.500 --> 00:34:01.541\nTa đều là đồng nghiệp.\n\n\n00:34:01.708 --> 00:34:04.291\nTôi là Lạc Nhi. Cô ấy là bạn tôi,\ncứ gọi là Banana Phùng đi.\n\n\n00:34:06.208 --> 00:34:07.333\nCó mùi gì ấy.\n\n\n00:34:13.291 --> 00:34:17.166\nAnh Kiệt, em thấy trung tâm thương mại\ntrên tầng có chiếc áo rất hợp với anh.\n\n\n00:34:17.250 --> 00:34:18.625\nTa lên nhìn một chút được không?\n\n\n00:34:18.708 --> 00:34:19.625\nĐược.\n\n\n00:34:20.833 --> 00:34:22.083\nChúng tôi quay lại ngay.\n\n\n00:34:22.166 --> 00:34:24.041\nLạc Nhi!\n\n\n00:34:31.666 --> 00:34:32.583\nAIDS\n\n\n00:34:42.083 --> 00:34:43.625\nAnh đọc cái gì thế?\n\n\n00:34:43.708 --> 00:34:44.958\nTruyện võ hiệp.\n\n\n00:34:45.250 --> 00:34:47.833\nVõ hiệp gì mà gọi là AIDS?\n\n\n00:34:47.958 --> 00:34:49.375\nIm lặng! Cô nói cái gì thế hả?\n\n\n00:34:49.750 --> 00:34:50.958\nTôi không bị.\n\n\n00:34:51.291 --> 00:34:52.791\nTôi không bị. Cô nói chuyện cẩn thận.\n\n\n00:34:52.875 --> 00:34:53.916\nBình tĩnh!\n\n\n00:34:54.000 --> 00:34:54.958\nTôi đang bình tĩnh đây.\n\n\n00:34:55.416 --> 00:34:57.500\nTôi không bị AIDS, thật đấy!\n\n\n00:34:59.833 --> 00:35:05.541\nTôi...tôi thực sự không bị.\n\n\n00:35:08.958 --> 00:35:11.000\nSao anh lại khóc? Anh...\n\n\n00:35:11.666 --> 00:35:13.875\nĐừng nói cho ai hết, làm ơn đấy.\n\n\n00:35:13.958 --> 00:35:14.958\nTôi không nói đâu.\n\n\n00:35:17.666 --> 00:35:19.375\nCô biết tôi đồng tính mà.\n\n\n00:35:20.875 --> 00:35:23.833\nThực ra, tôi là người thứ 1.001\ncủa Trung Quốc?\n\n\n00:35:24.666 --> 00:35:25.875\nNgười thứ 1.001 là sao?\n\n\n00:35:26.125 --> 00:35:29.583\nBệnh nhân AIDS thứ 1.001.\n\n\n00:35:33.458 --> 00:35:34.708\nTôi cho cô biết một bí mật.\n\n\n00:35:35.708 --> 00:35:38.000\nTôi bị đồng tính cũng vì AIDS đấy.\n\n\n00:35:39.250 --> 00:35:41.125\nCó người nói bệnh này\nlây qua đường nước bọt,\n\n\n00:35:41.416 --> 00:35:42.750\nthậm chí là không khí.\n\n\n00:35:43.458 --> 00:35:44.750\nTôi mắc bệnh chỉ vì cái ghế đẩu.\n\n\n00:35:44.916 --> 00:35:45.791\nGhế đẩu?\n\n\n00:35:45.875 --> 00:35:48.083\nCái ghế đẩu một bệnh nhân AIDS khác\ntừng ngồi.\n\n\n00:35:48.625 --> 00:35:50.083\nCô không sao chứ?\n\n\n00:35:50.166 --> 00:35:52.208\nKhông sao. Chuột rút thôi.\n\n\n00:35:52.291 --> 00:35:53.666\n- Ngồi đi!\n- Ngồi đi!\n\n\n00:35:56.208 --> 00:35:58.458\nUống nước đi!\n\n\n00:35:58.583 --> 00:35:59.958\nCô đang uống bằng ly của tôi đấy.\n\n\n00:36:05.041 --> 00:36:06.041\nTôi sẽ cắn cô.\n\n\n00:36:06.291 --> 00:36:08.250\nTại sao?\n\n\n00:36:08.458 --> 00:36:09.500\nCô kỳ thị tôi.\n\n\n00:36:10.333 --> 00:36:12.208\nKhông, không có.\n\n\n00:36:12.458 --> 00:36:14.125\nNhìn tôi rất chân thành mà.\n\n\n00:36:14.375 --> 00:36:15.583\nNghe giọng của cô là biết.\n\n\n00:36:17.375 --> 00:36:19.000\nAnh nghe xem, giọng tôi rất nhẹ nhàng mà.\n\n\n00:36:19.083 --> 00:36:20.291\nCô phun nước vào mặt tôi.\n\n\n00:36:20.833 --> 00:36:23.958\nTôi không cẩn thận thôi,\nđể tôi lau khô cho anh.\n\n\n00:36:25.083 --> 00:36:25.958\nCảm ơn!\n\n\n00:36:26.750 --> 00:36:29.083\n- Không có gì.\n- Cô là cô gái tốt nhất,\n\n\n00:36:29.166 --> 00:36:32.708\nnhẹ nhàng, thông cảm nhất mà tôi biết.\n\n\n00:36:32.958 --> 00:36:34.791\n- Khi nào mới đi đây?\n- Cảm ơn!\n\n\n00:36:43.791 --> 00:36:44.833\nNhìn cái gì?\n\n\n00:36:47.750 --> 00:36:49.458\nXin lỗi cô! Để tôi lau cho cô.\n\n\n00:36:49.541 --> 00:36:51.375\n- Sao thế?\n- Có chuyện gì?\n\n\n00:36:51.958 --> 00:36:54.208\nAnh ta bị AIDS.\n\n\n00:36:55.041 --> 00:36:56.583\nCô nghe tin đó ở đâu?\n\n\n00:36:56.666 --> 00:36:59.583\nNói chuyện thiếu kiến thức vậy.\n\n\n00:37:00.041 --> 00:37:02.875\nAnh ta là bệnh nhân AIDS thứ 1.001\ncủa Trung Quốc.\n\n\n00:37:03.666 --> 00:37:05.583\n- Ai nói với cô thế?\n- Anh ta nói.\n\n\n00:37:05.875 --> 00:37:08.583\nNếu đúng thì tôi nói ra làm gì? Đồ ngốc!\n\n\n00:37:08.666 --> 00:37:10.625\nAnh ta còn có một cuốn sách về AIDS\ntrong túi nữa.\n\n\n00:37:11.208 --> 00:37:12.958\nThật hả? Cho anh xem.\n\n\n00:37:13.041 --> 00:37:14.166\nAnh có ý gì?\n\n\n00:37:14.583 --> 00:37:16.458\nCó gì phải giấu chứ?\n\n\n00:37:16.791 --> 00:37:18.916\nĐược rồi, lấy đi!\n\n\n00:37:21.416 --> 00:37:22.375\nCậu nhạy cảm quá rồi.\n\n\n00:37:22.958 --> 00:37:24.541\nAnh ta còn hôn tôi.\n\n\n00:37:26.000 --> 00:37:27.625\nTôi thà hôn quả chuối còn hơn hôn cô.\n\n\n00:37:27.791 --> 00:37:30.416\nĐừng tưởng mình là chuối thật.\n\n\n00:37:31.000 --> 00:37:33.083\nVào nhà vệ sinh lau sạch quần áo đã nào.\n\n\n00:37:33.375 --> 00:37:34.250\nĐi thôi!\n\n\n00:37:34.458 --> 00:37:35.416\nTôi còn chưa nói xong.\n\n\n00:37:35.541 --> 00:37:36.500\nTôi không thèm nghe.\n\n\n00:37:37.166 --> 00:37:38.041\nThì thôi.\n\n\n00:37:38.125 --> 00:37:39.875\nEm muốn nói gì?\n\n\n00:37:40.125 --> 00:37:42.333\nEm tình cờ làm hỏng vòi nước\ntrong nhà vệ sinh nữ,\n\n\n00:37:42.416 --> 00:37:44.541\ngiờ chắc trong đó là bể nước rồi.\n\n\n00:37:46.958 --> 00:37:48.333\nCô có cần phao không?\n\n\n00:37:58.333 --> 00:37:59.833\nAi đấy?\n\n\n00:38:00.291 --> 00:38:02.416\nBố ngươi!\n\n\n00:38:04.250 --> 00:38:05.208\nBiến đi!\n\n\n00:38:07.375 --> 00:38:10.416\nBố ta là bò, mẹ ta là bếp lò.\n\n\n00:38:10.500 --> 00:38:14.375\nĂn nói cẩn thận,\nnếu không ta sẽ đánh nát ngươi.\n\n\n00:38:14.541 --> 00:38:15.958\nTrời!\n\n\n00:38:16.500 --> 00:38:20.000\nTa là bố ngươi, ngươi có rất nhiều mẹ.\n\n\n00:38:20.083 --> 00:38:24.750\nTa thà giết ngươi bây giờ,\ncòn hơn để ngươi gây họa về sau.\n\n\n00:38:28.708 --> 00:38:30.583\nNgay cả ở nhà, cũng không được yên.\n\n\n00:38:30.666 --> 00:38:31.958\nEm suýt nữa đã giết anh rồi đấy.\n\n\n00:38:32.041 --> 00:38:34.375\nEm và bố đang diễn kinh kịch\nđến lúc cao trào.\n\n\n00:38:34.458 --> 00:38:35.791\nSao anh không đi thay quần áo\n\n\n00:38:35.875 --> 00:38:38.250\nđể chúng ta cùng nhau diễn nhỉ?\n\n\n00:38:38.750 --> 00:38:39.625\nChờ một chút!\n\n\n00:38:39.708 --> 00:38:42.916\nEm trai của anh, lúc ở nhà hàng,\nem quá bất lịch sự.\n\n\n00:38:43.208 --> 00:38:44.458\nBạn của Lạc Nhi rất giận em.\n\n\n00:38:44.541 --> 00:38:46.375\nCô ấy nói em rất tệ.\n\n\n00:38:46.458 --> 00:38:50.750\nNghe lời anh, hãy làm hòa với cô ấy đi.\n\n\n00:38:53.458 --> 00:38:55.000\n- Thật sao?\n- Đúng vậy.\n\n\n00:38:55.083 --> 00:38:56.791\n- Thật?\n- Thật!\n\n\n00:38:57.250 --> 00:39:03.041\nHãy nói xem em phải làm gì?\n\n\n00:39:03.125 --> 00:39:04.208\nHay lắm!\n\n\n00:39:04.625 --> 00:39:06.916\nNgày mai, hãy mua quà sinh nhật cho cô ấy,\n\n\n00:39:07.000 --> 00:39:11.166\nnhận mọi hình phạt của cô ấy.\n\n\n00:39:11.333 --> 00:39:14.750\nQuá đáng quá rồi!\nEm sẽ không chịu thua cô ta đâu.\n\n\n00:39:14.833 --> 00:39:17.416\nTrời ơi! Em...\n\n\n00:39:18.166 --> 00:39:22.833\nVì chị dâu tương lai,\ndù gì con cũng phải làm.\n\n\n00:39:23.083 --> 00:39:24.291\nKhông!\n\n\n00:39:24.375 --> 00:39:25.791\nĐi đi!\n\n\n00:39:33.291 --> 00:39:40.291\nChóng mặt quá rồi!\n\n\n00:39:43.125 --> 00:39:44.625\nKhoan đã.\n\n\n00:39:45.041 --> 00:39:47.541\nNgày mai, con phải đi đá bóng.\nSau đó rồi đi được không?\n\n\n00:39:49.541 --> 00:39:51.416\n- Sao nói buồn cười thế?\n- Sao nói buồn cười thế?\n\n\n00:39:51.500 --> 00:39:53.500\n- Không giống ta chút nào.\n- Không giống ta chút nào.\n\n\n00:39:53.583 --> 00:39:55.500\n- Giọng cũng không khớp.\n- Giọng cũng không khớp.\n\n\n00:39:55.583 --> 00:39:59.291\n- Không biết là điên hay khùng.\n- Không biết là điên hay khùng.\n\n\n00:40:07.583 --> 00:40:09.291\nSao anh lại ăn lén?\n\n\n00:40:11.333 --> 00:40:12.291\nKhông có.\n\n\n00:40:19.458 --> 00:40:21.875\nChiếc váy này giá 109.700 đô la.\n\n\n00:40:21.958 --> 00:40:23.125\nNếu có người nói nó không đẹp,\n\n\n00:40:23.208 --> 00:40:25.250\ntôi sẽ khiến hắn hóc chết.\n\n\n00:40:26.333 --> 00:40:28.208\nCô muốn nghe nói thật hay nói dối?\n\n\n00:40:28.708 --> 00:40:29.541\nNói thật.\n\n\n00:40:30.208 --> 00:40:31.125\nKhông tệ!\n\n\n00:40:31.208 --> 00:40:32.583\n- Còn nói dối?\n- Rất đẹp!\n\n\n00:40:32.666 --> 00:40:35.333\nĐược lắm, đúng là bạn thân của tôi.\n\n\n00:40:36.375 --> 00:40:38.583\nNhiều hoa hồng quá. Đẹp thật!\n\n\n00:40:38.875 --> 00:40:41.750\nĐương nhiên! 128 bông hồng đấy.\n\n\n00:40:41.833 --> 00:40:43.791\nBạn trai tôi mua cho tôi đấy.\n\n\n00:40:43.875 --> 00:40:46.583\nAnh ấy rất hài hước và quan tâm tôi.\n\n\n00:40:47.083 --> 00:40:50.250\nAnh ấy vẫn nhớ\nsinh nhật cậu dù đang ở New York.\n\n\n00:40:50.500 --> 00:40:52.875\nNăm ngoái, anh ấy đã trở về\nđể khiến tôi bất ngờ đấy.\n\n\n00:40:53.708 --> 00:40:55.750\nChắc là Julian.\n\n\n00:40:56.000 --> 00:40:57.625\nNếu em thích, sau này anh sẽ mua cho em.\n\n\n00:41:02.958 --> 00:41:04.458\nChào! Chúc mừng sinh nhật!\n\n\n00:41:04.541 --> 00:41:05.375\nLà anh?\n\n\n00:41:07.375 --> 00:41:08.541\nTinh, thế này là sao?\n\n\n00:41:09.708 --> 00:41:10.958\nAnh bảo anh ta đến à?\n\n\n00:41:11.125 --> 00:41:12.125\nTôi bảo nó đến xin lỗi cô.\n\n\n00:41:12.208 --> 00:41:13.541\nTôi phải báo thù.\n\n\n00:41:14.500 --> 00:41:15.958\n- Vào đi!\n- Được.\n\n\n00:41:17.500 --> 00:41:19.333\nLàm cái gì thế? Sao nhìn em lại thế này?\n\n\n00:41:19.416 --> 00:41:21.000\nEm vừa đi đá bóng về.\n\n\n00:41:21.083 --> 00:41:23.458\nTrời mưa nên bị ngã vào vũng nước.\n\n\n00:41:23.958 --> 00:41:25.125\nChúc mừng!\n\n\n00:41:25.208 --> 00:41:27.166\nVào trong này thay quần áo đi.\n\n\n00:41:27.250 --> 00:41:28.916\nĐược, em thay đồ trước.\n\n\n00:41:31.458 --> 00:41:32.791\nAnh ấy muốn tỏ lòng thành thôi mà.\n\n\n00:41:35.083 --> 00:41:36.833\nAlô, Julian.\n\n\n00:41:37.083 --> 00:41:38.958\n<i>Chúc mừng sinh nhật!</i>\n\n\n00:41:39.041 --> 00:41:40.000\nCảm ơn anh!\n\n\n00:41:40.208 --> 00:41:43.166\nSao anh gọi muộn thế?\nAnh đang ở Hồng Kông à?\n\n\n00:41:43.458 --> 00:41:44.541\n<i>Anh ở New York.</i>\n\n\n00:41:46.666 --> 00:41:48.125\nHoa hồng trắng đẹp lắm.\n\n\n00:41:48.583 --> 00:41:49.791\n<i>Hoa hồng trắng?</i>\n\n\n00:41:51.083 --> 00:41:53.541\n<i>Anh có chuyện này muốn nói.</i>\n\n\n00:41:54.083 --> 00:41:55.291\nAnh nói đi.\n\n\n00:41:55.708 --> 00:41:57.333\n<i>Chúng ta xa nhau quá lâu,</i>\n\n\n00:41:57.625 --> 00:41:59.666\n<i>anh đã có bạn gái mới rồi.</i>\n\n\n00:42:02.458 --> 00:42:04.125\nThật sao?\n\n\n00:42:04.250 --> 00:42:07.083\n<i>Em hãy bình tĩnh.\nAnh muốn chia tay với em.</i>\n\n\n00:42:08.625 --> 00:42:10.583\nÝ hay đấy!\n\n\n00:42:11.791 --> 00:42:16.416\nJulian, em rất thích anh. Em hứa với anh.\n\n\n00:42:16.875 --> 00:42:18.166\n<i>Em không sao chứ?</i>\n\n\n00:42:19.291 --> 00:42:20.750\nĐương nhiên, em rất vui.\n\n\n00:42:21.750 --> 00:42:22.875\n<i>Em đang làm gì thế?</i>\n\n\n00:42:23.625 --> 00:42:24.791\nQuay về sớm nhé.\n\n\n00:42:25.125 --> 00:42:28.041\n<i>Không, tháng sau anh cưới rồi.</i>\n\n\n00:42:28.166 --> 00:42:29.916\n<i>Em đến New York được không?</i>\n\n\n00:42:30.333 --> 00:42:34.375\n- Tuyệt!\n<i>- Em sẽ đến hả? Vậy tạm biệt!</i>\n\n\n00:42:35.166 --> 00:42:39.791\nNghe nói tuần sau New York sẽ có động đất,\nanh hãy cẩn thận!\n\n\n00:42:40.125 --> 00:42:44.333\nCoi chừng xe cộ khi qua đường.\n\n\n00:42:45.541 --> 00:42:46.458\nTạm biệt!\n\n\n00:42:50.875 --> 00:42:53.625\nTôi đi sửa lại phấn son.\n\n\n00:42:54.458 --> 00:42:56.583\n- Này!\n- Vui quá!\n\n\n00:42:57.083 --> 00:42:58.833\nCó động đất ở New York à?\n\n\n00:42:59.250 --> 00:43:03.875\nĐàn ông thôi mà, ở đâu chẳng có.\n\n\n00:43:06.041 --> 00:43:08.416\nKhông thích tôi hút thuốc cũng mặc kệ.\n\n\n00:43:10.250 --> 00:43:11.750\nTôi sẽ hút hai điếu luôn.\n\n\n00:43:13.041 --> 00:43:14.750\nDù sao cũng không có ai quan tâm.\n\n\n00:43:24.291 --> 00:43:25.416\nAnh làm cái gì thế?\n\n\n00:43:27.291 --> 00:43:28.750\nTôi đang cố gắng\n\n\n00:43:28.833 --> 00:43:30.666\nkhông làm phiền cô nói chuyện.\n\n\n00:43:31.208 --> 00:43:32.083\nCô không chứ?\n\n\n00:43:41.708 --> 00:43:43.791\n- Banana, sao thế?\n- Có chuyện gì?\n\n\n00:43:45.250 --> 00:43:46.125\nAnh Kiệt!\n\n\n00:43:46.333 --> 00:43:47.708\n- Em làm gì cô ấy à?\n- Chưa.\n\n\n00:43:47.791 --> 00:43:48.875\n- Cô ấy làm gì em?\n- Chưa.\n\n\n00:43:49.041 --> 00:43:50.708\nVậy thì tốt, không ai làm gì ai hết.\n\n\n00:43:51.583 --> 00:43:53.250\nAnh nói cái gì thế hả?\n\n\n00:43:54.083 --> 00:43:55.166\nBanana, làm sao vậy?\n\n\n00:43:55.333 --> 00:43:56.750\nLạc Nhi!\n\n\n00:43:59.875 --> 00:44:01.833\nJulian đá tôi rồi.\n\n\n00:44:01.916 --> 00:44:03.541\nHoa của tôi đến chưa thế?\n\n\n00:44:03.625 --> 00:44:04.791\nEm mua hoa hồng cho cô ấy à?\n\n\n00:44:04.875 --> 00:44:06.083\nPhải, hôm nay là 28 tháng 1\n\n\n00:44:06.166 --> 00:44:07.708\nnên em mua 128 bông hồng.\n\n\n00:44:07.791 --> 00:44:09.250\nEm đã tiêu hết sạch tiền vào đó\n\n\n00:44:09.333 --> 00:44:10.791\nnên mới phải đi bộ đến đây\n\n\n00:44:10.875 --> 00:44:11.958\nđể bị ngã vào vũng nước đấy.\n\n\n00:44:12.666 --> 00:44:13.500\nCảm ơn anh!\n\n\n00:44:14.666 --> 00:44:15.666\nVà xin lỗi!\n\n\n00:44:18.291 --> 00:44:19.625\nĐừng khóc nữa!\n\n\n00:44:22.000 --> 00:44:23.041\n- Đây!\n- Không sao.\n\n\n00:44:23.125 --> 00:44:23.958\nXin lỗi!\n\n\n00:44:24.791 --> 00:44:27.750\nBanana, Julian chia tay cậu\nlà thiệt cho anh ta.\n\n\n00:44:28.375 --> 00:44:30.583\nSau khi ăn tối, chúng ta đi nhảy đi.\n\n\n00:44:30.666 --> 00:44:31.791\nÝ hay đấy!\n\n\n00:44:32.083 --> 00:44:34.875\nNhưng áo của anh nhìn ghê quá,\nđể em lấy chiếc khác cho anh thay.\n\n\n00:44:35.250 --> 00:44:37.250\nCái này nhìn khá hơn đấy.\n\n\n00:44:38.833 --> 00:44:42.166\nNày, sao áo này bó vậy?\n\n\n00:44:42.250 --> 00:44:43.375\n- Thật hả?\n- Bó?\n\n\n00:44:43.583 --> 00:44:44.666\nChắc vì toát mồ hôi thôi.\n\n\n00:44:44.750 --> 00:44:46.375\n- Cái gì bó?\n- Để em giúp anh.\n\n\n00:44:46.458 --> 00:44:48.541\nKhông sao, làm thế cũng không đỡ hơn.\n\n\n00:44:48.833 --> 00:44:50.416\n- Gọi gì bây giờ?\n- Muốn uống gì?\n\n\n00:44:50.500 --> 00:44:51.541\nNước khoáng.\n\n\n00:44:51.708 --> 00:44:53.583\nKhông được, uống sâm panh đi.\nTôi trả tiền.\n\n\n00:44:53.666 --> 00:44:55.625\n- Không, để anh trả. Một sâm panh.\n- Được ạ.\n\n\n00:44:55.916 --> 00:44:58.250\nEm gọi bố rồi, ông ấy sẽ trả.\n\n\n00:44:58.541 --> 00:45:00.250\n- Lạc Nhi, nhảy một điệu đi.\n- Được.\n\n\n00:45:00.333 --> 00:45:01.166\nBọn anh ra nhảy đây.\n\n\n00:45:07.041 --> 00:45:08.333\nChúng ta cũng nhảy đi.\n\n\n00:45:08.750 --> 00:45:10.208\nTôi thích ngồi đây nói chuyện hơn.\n\n\n00:45:10.291 --> 00:45:11.541\nTôi chán lắm, nghe tôi đi mà.\n\n\n00:45:11.708 --> 00:45:13.291\nNếu cô muốn thì được thôi.\n\n\n00:45:23.708 --> 00:45:24.666\nĐủ rồi!\n\n\n00:45:24.833 --> 00:45:26.875\nAnh nhảy giỏi lắm.\nQuay về ghế ngồi nói chuyện đi.\n\n\n00:45:26.958 --> 00:45:28.375\nNhưng tự nhiên tôi lại thích nhảy.\n\n\n00:45:28.458 --> 00:45:30.125\nKhông, tự nhiên tôi lại thích nói chuyện.\n\n\n00:45:30.208 --> 00:45:31.208\nĐược, vậy thì về.\n\n\n00:45:33.708 --> 00:45:36.875\nNhảy giỏi cũng cần thời gian.\n\n\n00:45:37.500 --> 00:45:39.458\nTôi đã nhảy nhiều năm rồi.\n\n\n00:45:39.541 --> 00:45:42.208\nPhải tập luyện và chịu đựng rất nhiều\n\n\n00:45:42.291 --> 00:45:43.958\nmới có thành tựu ngày hôm nay.\n\n\n00:45:44.125 --> 00:45:45.458\nVừa rồi cô cũng thấy đấy.\n\n\n00:45:46.000 --> 00:45:46.916\nPhải.\n\n\n00:45:49.125 --> 00:45:51.458\nCười chút đi! Cô đến đây để vui vẻ mà.\n\n\n00:45:57.041 --> 00:45:58.541\nNgười hói kia nhìn đẹp trai quá.\n\n\n00:46:02.375 --> 00:46:03.833\nĐẹp trai? Trông như côn đồ vậy.\n\n\n00:46:04.250 --> 00:46:06.541\nKhông đâu, cô có tin\nlà dù tôi đánh anh ta ba phát,\n\n\n00:46:06.625 --> 00:46:08.291\nanh ta cũng không đánh lại không?\n\n\n00:46:09.666 --> 00:46:12.541\nKhông phải hạng người dễ trêu đâu,\nđừng động vào anh ta.\n\n\n00:46:12.666 --> 00:46:14.166\nNếu tôi thử thì cô có cười không?\n\n\n00:46:14.708 --> 00:46:16.000\nĐừng mà!\n\n\n00:46:16.291 --> 00:46:18.500\n- Nhìn nhé!\n- Này!\n\n\n00:46:27.375 --> 00:46:29.750\n- Sao lại đánh tôi?\n- Vương Hói, cuối cùng cũng tìm được anh.\n\n\n00:46:29.958 --> 00:46:31.125\nTôi không phải Vương Hói.\n\n\n00:46:31.208 --> 00:46:32.041\nAnh không phải?\n\n\n00:46:32.333 --> 00:46:34.708\nAnh giống người bạn đẹp trai đó\ncủa tôi lắm.\n\n\n00:46:34.791 --> 00:46:36.000\nXin lỗi vì nhận nhầm anh!\n\n\n00:46:36.083 --> 00:46:36.958\nAnh bạn, xin lỗi!\n\n\n00:46:37.041 --> 00:46:38.541\nRất xin lỗi anh!\n\n\n00:46:38.625 --> 00:46:39.625\nLần sau, nhớ cẩn thận đấy.\n\n\n00:46:39.708 --> 00:46:41.666\nXin lỗi anh bạn! Tôi sẽ không làm thế nữa.\n\n\n00:46:46.041 --> 00:46:48.250\n- Vương Hói!\n- Làm cái gì thế?\n\n\n00:46:50.000 --> 00:46:51.583\nVừa xong tôi thấy một người giống hệt cậu\n\n\n00:46:51.666 --> 00:46:52.750\nnên đã gõ đầu anh ta đấy.\n\n\n00:46:52.833 --> 00:46:55.708\nXong rồi anh ta nói không phải.\nXấu hổ quá!\n\n\n00:46:55.791 --> 00:46:56.875\nXấu hổ quá!\n\n\n00:46:57.416 --> 00:46:59.083\nLà tôi mà.\n\n\n00:46:59.208 --> 00:47:01.958\nNói dối, làm sao thế được?\n\n\n00:47:03.333 --> 00:47:05.000\nNói cho cậu biết,\ntôi không phải Vương Hói.\n\n\n00:47:05.083 --> 00:47:07.333\nLàm sao thế? Chúng tôi không biết anh.\n\n\n00:47:07.416 --> 00:47:09.291\n- Anh ấy là bạn trai tôi.\n- Nghe thấy chưa?\n\n\n00:47:09.625 --> 00:47:11.791\nXin lỗi, anh bạn!\n\n\n00:47:12.125 --> 00:47:13.208\nNhìn kỹ tôi đi!\n\n\n00:47:13.291 --> 00:47:14.458\nĐể tôi nhìn.\n\n\n00:47:14.541 --> 00:47:16.583\nAnh không phải Vương Hói, tôi nhận ra rồi.\n\n\n00:47:16.708 --> 00:47:18.250\n- Nhớ lấy!\n- Xin lỗi, là tôi sai.\n\n\n00:47:18.333 --> 00:47:19.458\nĐiên rồi!\n\n\n00:47:28.375 --> 00:47:31.333\nVương Hói, sao mày dám quyến rũ vợ tao?\nTao sẽ băm vằm mày ra.\n\n\n00:47:31.791 --> 00:47:33.416\nNày, nhầm người rồi. Không phải Vương Hói.\n\n\n00:47:33.500 --> 00:47:35.958\n- Là Vương Hói, hắn quyến rũ vợ tao.\n- Bác đang dọa người đấy.\n\n\n00:47:36.041 --> 00:47:37.291\n- Bỏ dao xuống!\n- Phải giết hắn.\n\n\n00:47:37.375 --> 00:47:38.500\n- Bỏ xuống!\n- Đừng nói nhiều!\n\n\n00:47:38.583 --> 00:47:40.291\nNhìn kỹ đi\nxem tôi có phải Vương Hói không.\n\n\n00:47:42.916 --> 00:47:44.458\nNghe thấy chưa?\n\n\n00:47:44.541 --> 00:47:48.416\nÂm thanh này khác đầu Vương Hói.\n\n\n00:47:48.625 --> 00:47:49.625\nChưa nghe rõ.\n\n\n00:47:51.083 --> 00:47:52.166\nGiờ nghe rõ chưa?\n\n\n00:47:52.416 --> 00:47:53.375\nĐúng rồi.\n\n\n00:47:53.458 --> 00:47:55.666\nKhông phải Vương Hói\nthì đội mũ bảo hiểm làm gì?\n\n\n00:47:55.750 --> 00:47:57.416\nNhận nhầm người rồi. Đi đi!\n\n\n00:47:58.791 --> 00:47:59.666\nAi thế?\n\n\n00:47:59.750 --> 00:48:01.416\nBác tôi, bà ấy bị điên.\n\n\n00:48:01.541 --> 00:48:03.291\nAnh không nhận ra\nvì bác ấy dán râu giả thôi.\n\n\n00:48:03.541 --> 00:48:04.416\nCảm ơn cậu!\n\n\n00:48:04.500 --> 00:48:07.041\nKhông có gì. Tôi đã nói sẽ không nhận nhầm\nanh là Vương Hói nữa mà.\n\n\n00:48:07.125 --> 00:48:09.000\n- Cảm ơn!\n- Được, không có gì.\n\n\n00:48:11.541 --> 00:48:13.875\n- Tôi đã đánh anh ta bốn lần rồi đó.\n- Anh xấu tính thật đấy.\n\n\n00:48:13.958 --> 00:48:15.125\nLà tại bố tôi đấy chứ.\n\n\n00:48:15.875 --> 00:48:18.458\nCó tờ báo thôi mà cũng sợ,\nđúng là đồ trẻ con.\n\n\n00:48:19.416 --> 00:48:21.500\nÔng nói tôi là trẻ con?\n\n\n00:48:21.583 --> 00:48:23.583\nNhìn anh giống trẻ con thật mà.\n\n\n00:48:24.041 --> 00:48:25.583\nĐừng nghĩ các người đông thì tôi sợ.\n\n\n00:48:25.791 --> 00:48:29.250\nPhải đấy, chúng tôi có ba nam hai nữ.\nChơi khăm cậu đấy thì sao?\n\n\n00:48:31.208 --> 00:48:33.208\nBiết rồi. Hóa ra là thế hả?\n\n\n00:48:36.458 --> 00:48:37.708\nSao lại nói như thế?\n\n\n00:48:37.791 --> 00:48:39.583\nCon không biết họ,\nchỉ ngồi chung bàn thôi mà.\n\n\n00:48:39.666 --> 00:48:40.666\nPhải, không biết họ.\n\n\n00:48:40.791 --> 00:48:41.958\nNày!\n\n\n00:48:42.708 --> 00:48:45.291\nPhải tôn trọng số ít.\n\n\n00:48:45.375 --> 00:48:46.291\nĐánh hắn!\n\n\n00:48:58.333 --> 00:49:00.000\n- Anh Kiệt, anh không sao chứ?\n- Tinh!\n\n\n00:49:00.125 --> 00:49:02.208\n- Không sao chứ? Có bị thương không?\n- Có sao không?\n\n\n00:49:02.291 --> 00:49:03.250\nĐau quá!\n\n\n00:49:03.333 --> 00:49:05.125\nBố sẽ đuổi chúng đi, đừng lo.\n\n\n00:49:06.791 --> 00:49:08.125\nĐể hôm khác nói chuyện đi.\n\n\n00:49:08.208 --> 00:49:09.333\nKhông tìm được thì cứ gọi em.\n\n\n00:49:09.416 --> 00:49:10.291\nĐược!\n\n\n00:49:16.458 --> 00:49:17.750\nĐi đâu hả?\n\n\n00:49:23.791 --> 00:49:25.583\nKhông được chạy! Mày nữa.\n\n\n00:49:25.708 --> 00:49:26.625\nĐể tao đánh đã.\n\n\n00:49:30.958 --> 00:49:33.416\n- Trời ơi, anh ta làm cái gì thế?\n- Không thể tin được.\n\n\n00:49:34.041 --> 00:49:34.958\nNhìn cái gì?\n\n\n00:49:35.083 --> 00:49:36.333\nChưa thấy đánh nhau bao giờ à?\n\n\n00:49:38.375 --> 00:49:40.208\nBố, sao bố lại quỳ xuống?\n\n\n00:49:40.291 --> 00:49:41.541\nBố bị đánh.\n\n\n00:49:41.625 --> 00:49:43.208\nAi đánh bố? Nói con biết đi.\n\n\n00:49:43.791 --> 00:49:45.333\nBố không nhận ra hắn.\n\n\n00:49:45.458 --> 00:49:47.666\nKhông nhận ra? Vậy bố nghỉ chút đi.\n\n\n00:49:48.041 --> 00:49:50.375\nBố phải đi.\n\n\n00:49:52.208 --> 00:49:53.583\n- Đánh hắn!\n- Nhiều người quá.\n\n\n00:49:55.958 --> 00:49:57.875\nXin lỗi anh bạn!\n\n\n00:49:58.083 --> 00:49:58.916\nThằng khốn!\n\n\n00:49:59.000 --> 00:50:00.666\n- Tôi sai rồi.\n- Muốn gì hả?\n\n\n00:50:00.750 --> 00:50:02.333\nTôi chỉ đến chơi thôi mà, tôi vô tội.\n\n\n00:50:02.416 --> 00:50:04.375\nTôi sẽ không làm thế nữa, đừng đánh tôi.\n\n\n00:50:04.458 --> 00:50:05.916\nThằng khốn, đừng khóc nữa!\n\n\n00:50:06.958 --> 00:50:10.041\nTôi biết rồi, tôi là thằng khốn.\n\n\n00:50:10.125 --> 00:50:12.083\nCho nên tôi sẽ đánh anh một phát nữa.\n\n\n00:50:15.458 --> 00:50:16.666\nBắt chúng!\n\n\n00:50:26.083 --> 00:50:27.083\nRa ngoài đi!\n\n\n00:50:28.833 --> 00:50:30.083\n- Bố!\n- Lạc Nhi!\n\n\n00:50:30.416 --> 00:50:31.791\n- Con không sao chứ?\n- Không sao.\n\n\n00:50:32.666 --> 00:50:34.750\nCảm ơn bố đã bảo lãnh\ncho anh Kiệt và bọn con,\n\n\n00:50:34.833 --> 00:50:36.916\nhọ sắp ra rồi đấy.\n\n\n00:50:37.000 --> 00:50:38.083\nHọ vẫn chưa biết con là...\n\n\n00:50:38.166 --> 00:50:39.875\nĐược rồi! Sao lại ra nông nỗi này?\n\n\n00:50:40.458 --> 00:50:42.500\nTôi đã nói ba người họ là côn đồ rồi mà.\n\n\n00:50:42.583 --> 00:50:45.625\nChú Xa và Văn Kiệt\nlà thành viên hội Tam Hoàng.\n\n\n00:50:45.750 --> 00:50:47.041\nAnh nói chuyện cẩn thận!\n\n\n00:50:47.166 --> 00:50:48.500\nAnh ta không sai đâu,\n\n\n00:50:48.583 --> 00:50:52.166\nđúng là anh ta đang cố tình\nbôi nhọ người khác mà.\n\n\n00:50:58.583 --> 00:51:01.250\nChắc là do thằng nhãi\nngười Trung Quốc này gây chuyện.\n\n\n00:51:01.416 --> 00:51:04.833\nKiệt là người lịch sự,\nngay thẳng và biết giới hạn.\n\n\n00:51:05.666 --> 00:51:06.708\nAnh Kiệt!\n\n\n00:51:09.083 --> 00:51:11.416\nGiám đốc, cảm ơn ông đã bảo lãnh cho tôi.\n\n\n00:51:11.500 --> 00:51:13.791\nĐược rồi, nghỉ ngơi trước đi.\n\n\n00:51:20.958 --> 00:51:22.750\nAnh Kiệt có hình xăm sao?\n\n\n00:51:23.000 --> 00:51:24.041\nIm lặng đi!\n\n\n00:51:24.458 --> 00:51:26.625\nNếu đáng tin\nthì sẽ không xăm hình trên lưng.\n\n\n00:51:27.541 --> 00:51:30.166\nTôi sẽ không nói gì nữa,\nkẻo Lạc Nhi hiểu lầm.\n\n\n00:51:30.708 --> 00:51:32.541\nHọ vẫn còn trẻ.\n\n\n00:51:32.708 --> 00:51:35.500\nÔng Xa là người chín chắn,\ndạy con rất nghiêm.\n\n\n00:51:35.583 --> 00:51:38.833\nChờ ông ấy dạy dỗ lại, bọn họ\nsẽ không còn xốc nổi thế nữa đâu.\n\n\n00:51:38.916 --> 00:51:40.083\nSếp!\n\n\n00:51:42.083 --> 00:51:43.041\nÔng là ai?\n\n\n00:51:43.291 --> 00:51:44.708\nTôi là Xa Thân Nhân đây.\n\n\n00:51:46.625 --> 00:51:47.750\nSao ông lại thế này?\n\n\n00:51:47.833 --> 00:51:48.750\nKhông hiểu tại sao\n\n\n00:51:48.833 --> 00:51:51.375\nlại bị một đám người đánh.\n\n\n00:51:51.458 --> 00:51:52.916\nTôi còn không biết lý do vì sao.\n\n\n00:51:53.000 --> 00:51:54.583\nÔng có nhìn thấy gì không vậy?\n\n\n00:51:54.708 --> 00:51:57.583\nMắt thế này thì nhìn thấy gì?\n\n\n00:51:58.375 --> 00:51:59.833\nCha nào con nấy!\n\n\n00:52:02.791 --> 00:52:03.958\nGiám đốc, tôi xin lỗi!\n\n\n00:52:04.291 --> 00:52:05.458\nQuên đi!\n\n\n00:52:06.791 --> 00:52:09.833\nCậu là người trẻ tuổi\nđáng tin nhất công ty,\n\n\n00:52:10.333 --> 00:52:11.791\nsau này phải tự răn dạy lấy mình.\n\n\n00:52:12.041 --> 00:52:15.166\nTừ giờ, đừng gây chuyện nữa.\nTránh xa đám côn đồ ra, biết chưa?\n\n\n00:52:15.583 --> 00:52:18.750\nCon nghĩ rồi. Con sẽ gọi bạn ở Trung Quốc\nsang đánh họ một trận.\n\n\n00:52:18.833 --> 00:52:19.791\nBọn con có súng.\n\n\n00:52:20.333 --> 00:52:21.291\nCó gì sai sao?\n\n\n00:52:22.375 --> 00:52:24.958\nSếp, ông hiểu lầm rồi.\nThằng bé nói linh tinh thôi.\n\n\n00:52:25.041 --> 00:52:27.500\nKhông phải thật đâu,\nnó không biết mình đang nói gì đâu.\n\n\n00:52:28.500 --> 00:52:29.541\nHi vọng là thế.\n\n\n00:52:38.791 --> 00:52:39.833\nAnh Kiệt!\n\n\n00:52:40.666 --> 00:52:41.958\nEm đi đâu cả đêm thế?\n\n\n00:52:42.166 --> 00:52:44.791\nEm xem mèo đuổi chuột ở rạp chiếu phim.\n\n\n00:52:45.791 --> 00:52:47.000\nXem cả đêm sao?\n\n\n00:52:47.541 --> 00:52:50.166\nBiết sao được, chúng đuổi nhau cả đêm mà.\n\n\n00:52:53.416 --> 00:52:54.875\nTất chân của em đâu?\n\n\n00:52:55.500 --> 00:52:56.791\nCũng không tệ mà.\n\n\n00:52:57.375 --> 00:52:58.375\nTóc tai kiểu gì đây?\n\n\n00:52:58.666 --> 00:52:59.750\nCắt tóc mất thời gian lắm.\n\n\n00:53:01.000 --> 00:53:02.125\nSao em đi đứng như mèo vậy?\n\n\n00:53:02.375 --> 00:53:03.458\nĐể không đánh nhau đấy mà.\n\n\n00:53:05.125 --> 00:53:06.375\nNói chuyện như người điên vậy.\n\n\n00:53:06.666 --> 00:53:08.250\nGiống hệt bố mà.\n\n\n00:53:11.958 --> 00:53:14.291\nTinh, không nên cư xử như thế đâu.\n\n\n00:53:14.375 --> 00:53:15.958\nNếu không, sẽ không thành công được.\n\n\n00:53:16.416 --> 00:53:17.250\nBỏ xuống đi!\n\n\n00:53:17.583 --> 00:53:20.000\nEm phải giống như anh\nthì mới thành công được à?\n\n\n00:53:20.083 --> 00:53:22.750\nAnh trai con đã là quản lý rồi đấy.\n\n\n00:53:22.833 --> 00:53:23.958\nCon nói nhé,\n\n\n00:53:24.041 --> 00:53:26.083\nchuyện anh ấy làm, con cũng làm được.\n\n\n00:53:26.166 --> 00:53:30.166\nNhưng chuyện con làm,\nanh ấy chưa chắc làm được đâu.\n\n\n00:53:30.583 --> 00:53:31.583\nThật hả?\n\n\n00:53:31.666 --> 00:53:33.208\nKhông tin em? Vậy thì làm theo em đi!\n\n\n00:53:33.291 --> 00:53:34.250\nĐược!\n\n\n00:53:43.291 --> 00:53:44.208\nĐược!\n\n\n00:53:49.500 --> 00:53:50.458\nÔi không.\n\n\n00:53:55.541 --> 00:53:56.500\nÔi không.\n\n\n00:54:26.541 --> 00:54:30.625\nKhông thể nào! Sao quần em không bị rách?\n\n\n00:54:31.083 --> 00:54:32.458\nVì em có mặc đâu.\n\n\n00:54:33.458 --> 00:54:35.958\nEm mua quần lót mới\nnhét trong quần dài mà.\n\n\n00:54:38.291 --> 00:54:39.500\nEm ăn gian!\n\n\n00:54:39.916 --> 00:54:42.666\nKhông tính, chơi lại đi!\n\n\n00:54:42.750 --> 00:54:44.958\nHai ngày tới, chúng ta đổi vai cho nhau\n\n\n00:54:45.041 --> 00:54:46.291\nđể xem ai giỏi hơn.\n\n\n00:54:46.375 --> 00:54:48.541\nNgười thua sẽ phải nghe lời,\nkhông được phàn nàn.\n\n\n00:54:48.625 --> 00:54:49.458\nĐược!\n\n\n00:54:52.791 --> 00:54:53.625\nMắt Chột đâu rồi?\n\n\n00:54:53.916 --> 00:54:56.458\nBị đuổi rồi, tôi cũng là Mắt Chột này.\n\n\n00:54:56.666 --> 00:54:57.750\nAnh là Mắt Cận.\n\n\n00:54:57.833 --> 00:54:59.708\nTôi luôn nháy mắt này.\n\n\n00:55:00.166 --> 00:55:01.125\nTại sao?\n\n\n00:55:01.291 --> 00:55:04.458\nNgười lạ đến tìm Mắt Chột,\n\n\n00:55:04.541 --> 00:55:06.458\nchắc anh đến mua đồ của cậu ta.\n\n\n00:55:06.541 --> 00:55:07.541\nSao anh biết?\n\n\n00:55:08.833 --> 00:55:10.291\nVì gương mặt ham muốn của anh.\n\n\n00:55:12.333 --> 00:55:13.708\nAnh hiểu biết nhỉ?\n\n\n00:55:14.125 --> 00:55:16.583\n- Giỏi lắm!\n- Anh cũng thế.\n\n\n00:55:16.666 --> 00:55:19.875\nĐã hiểu nhau rồi thì tôi sẽ nói thẳng.\n\n\n00:55:20.791 --> 00:55:25.791\nTôi đến mua\nmột liều thuốc kích dục loại mạnh,\n\n\n00:55:25.875 --> 00:55:30.375\nloại hàng đầu thế giới,\n\"viên ham muốn tối cao\".\n\n\n00:55:30.833 --> 00:55:32.000\nTôi biết.\n\n\n00:55:32.083 --> 00:55:33.125\nVậy thì nhanh lên!\n\n\n00:55:33.208 --> 00:55:36.166\nỞ đây chúng tôi kinh doanh chân chính,\nkhông bán thứ đó.\n\n\n00:55:36.375 --> 00:55:37.791\nVậy sao anh còn nháy mắt?\n\n\n00:55:37.958 --> 00:55:39.708\nTự nhiên lương tâm trỗi dậy.\n\n\n00:55:40.458 --> 00:55:41.666\nGiết lương tâm của anh đi!\n\n\n00:55:42.541 --> 00:55:44.083\nChỗ này không đủ để giết lương tâm.\n\n\n00:55:44.375 --> 00:55:45.875\nVậy còn thế này?\n\n\n00:55:46.541 --> 00:55:48.083\nKhá hơn rồi đấy.\n\n\n00:55:50.166 --> 00:55:53.625\nĐây là \"viên ham muốn tối cao\".\n\n\n00:55:53.791 --> 00:55:54.708\nTốt!\n\n\n00:55:55.375 --> 00:55:57.666\nAnh có gì trong miệng kìa.\n\n\n00:55:57.833 --> 00:55:58.791\nThật hả?\n\n\n00:56:01.333 --> 00:56:02.208\nCái gì?\n\n\n00:56:02.416 --> 00:56:04.416\nTôi chỉ muốn kiểm tra xem\ncó phải thuốc thật không.\n\n\n00:56:10.750 --> 00:56:12.166\nThuốc tốt đấy.\n\n\n00:56:12.666 --> 00:56:14.500\nNày, giữ mình chút đi.\n\n\n00:56:14.750 --> 00:56:16.416\nKhông được! Tôi muốn hôn anh.\n\n\n00:56:17.000 --> 00:56:17.958\nHôn?\n\n\n00:56:18.750 --> 00:56:20.875\nHôn tôi? Đi chết đi!\n\n\n00:56:21.458 --> 00:56:23.166\nĐể tôi hôn anh đi.\n\n\n00:56:24.916 --> 00:56:26.833\nĐúng là thuốc tiên.\n\n\n00:56:30.916 --> 00:56:32.625\nBỘT SIÊU NGỨA\n\n\n00:56:39.708 --> 00:56:40.666\nSao thế?\n\n\n00:56:40.750 --> 00:56:42.708\nKhông có gì.\nHôm nay, anh phải biến thành em mà.\n\n\n00:56:42.791 --> 00:56:45.083\nEm đưa anh quần áo của em đó.\nMặc vào rồi ra ngoài đi!\n\n\n00:56:58.916 --> 00:57:00.500\nGiờ đến lúc thuốc phát huy tác dụng rồi.\n\n\n00:57:03.541 --> 00:57:04.375\nĐồng hồ của cậu đâu?\n\n\n00:57:04.458 --> 00:57:05.833\nTôi không có. Anh muốn gì?\n\n\n00:57:06.083 --> 00:57:07.625\nĐi xem phim mà không có đồng hồ là sao?\n\n\n00:57:09.041 --> 00:57:10.250\n- Đồ điên!\n- Đến giờ rồi.\n\n\n00:57:16.458 --> 00:57:17.791\n- Anh có thấy ngứa không?\n- Có.\n\n\n00:57:18.041 --> 00:57:19.000\nGãi đi!\n\n\n00:57:19.083 --> 00:57:21.000\nKhông, không được gãi chỗ đông người.\n\n\n00:57:21.500 --> 00:57:23.166\nVậy đi qua góc kia kìa.\n\n\n00:57:23.375 --> 00:57:25.583\nÝ hay! Chờ anh!\n\n\n00:57:33.500 --> 00:57:34.750\nTôi đã nói không rồi mà.\n\n\n00:57:35.125 --> 00:57:37.583\nTôi đồng ý đi ăn tối,\nchứ không phải xem phim.\n\n\n00:57:38.166 --> 00:57:40.125\nChỉ là một một phim thôi mà.\n\n\n00:57:40.416 --> 00:57:42.375\nEm không đồng ý với anh lần cuối được sao?\n\n\n00:57:42.833 --> 00:57:44.333\nĐược không? Để anh đi mua vé.\n\n\n00:57:59.833 --> 00:58:01.333\nAnh Kiệt, nhìn kìa.\n\n\n00:58:06.458 --> 00:58:07.791\nAnh Kiệt, em tìm được cái gương.\n\n\n00:58:09.291 --> 00:58:10.500\nAnh Kiệt, em sẽ đi bán gương.\n\n\n00:58:12.166 --> 00:58:13.208\nĐồ điên!\n\n\n00:58:14.458 --> 00:58:15.333\nThông minh quá!\n\n\n00:58:16.208 --> 00:58:19.458\nỞ kia có người điên.\nRạp chiếu phim kiểu gì vậy?\n\n\n00:58:19.958 --> 00:58:22.125\nVào trong thôi.\n\n\n00:58:22.458 --> 00:58:25.916\nTự nhiên không thấy ngứa nữa. Đi thôi!\n\n\n00:58:26.000 --> 00:58:30.125\n- Khoan đã, em mới gặp hai cô gái này.\n- Anh ta nhìn ngốc quá.\n\n\n00:58:30.208 --> 00:58:32.791\nSao không mua thêm hai vé nữa\nđể đi xem chung?\n\n\n00:58:32.875 --> 00:58:33.791\nĐừng mà!\n\n\n00:58:33.875 --> 00:58:37.125\nTại sao? Em đã mua một vé rồi.\n\n\n00:58:37.208 --> 00:58:40.166\nAnh không đi là thua đấy.\n\n\n00:58:40.250 --> 00:58:41.625\n- Này!\n- Anh nên nghĩ kỹ đi.\n\n\n00:58:41.708 --> 00:58:43.291\nĐừng mà!\n\n\n00:58:43.791 --> 00:58:45.000\nĐi thôi!\n\n\n00:58:57.458 --> 00:58:58.750\nLại là cô ấy.\n\n\n00:59:06.250 --> 00:59:07.833\n- Uống nước ngọt đi!\n- Cảm ơn!\n\n\n00:59:08.208 --> 00:59:10.208\nNày!\n\n\n00:59:10.291 --> 00:59:11.333\nSau chúng ta.\n\n\n00:59:14.500 --> 00:59:17.208\nThanh niên thời nay cởi mở thật.\nNhìn bọn họ kìa!\n\n\n00:59:17.500 --> 00:59:19.583\nYên lặng xem phim đi!\n\n\n00:59:54.083 --> 00:59:55.291\n- Quên đi!\n- Quên đi!\n\n\n00:59:55.500 --> 00:59:57.041\nHai người đàn ông với nhau.\n\n\n00:59:57.666 --> 00:59:59.083\nĐừng quản chuyện người khác.\n\n\n01:00:18.458 --> 01:00:19.833\nChết tiệt!\n\n\n01:00:37.000 --> 01:00:37.958\nKhông chịu được nữa.\n\n\n01:00:38.541 --> 01:00:39.875\n- Là anh?\n- Phải, là anh.\n\n\n01:00:42.000 --> 01:00:43.916\nĐúng, anh đi theo em.\n\n\n01:00:44.000 --> 01:00:45.458\nAnh biết em đi xem phim với anh ta.\n\n\n01:00:45.541 --> 01:00:47.291\n- Để em giải thích.\n- Không cần giải thích.\n\n\n01:00:48.291 --> 01:00:50.041\nTình yêu khiến anh đánh mất bản thân.\n\n\n01:00:50.958 --> 01:00:53.708\n- Ghen tuông khiến anh tức giận.\n- Nhưng...\n\n\n01:00:53.791 --> 01:00:55.541\nAnh không biết mình đang làm gì nữa.\n\n\n01:00:57.708 --> 01:00:59.500\nAnh chỉ biết là anh em yêu.\n\n\n01:01:02.208 --> 01:01:03.833\nNày!\n\n\n01:01:05.458 --> 01:01:06.791\nBắt lấy anh ta!\n\n\n01:01:07.125 --> 01:01:08.041\nIm đi!\n\n\n01:01:08.375 --> 01:01:10.583\nAnh dám đưa bạn gái tôi đi xem phim.\n\n\n01:01:10.916 --> 01:01:13.416\nAnh sẽ ăn nói với mẹ tôi thế nào đây?\n\n\n01:01:14.375 --> 01:01:17.375\nHóa ra là quyến rũ em dâu?\n\n\n01:01:18.166 --> 01:01:21.791\n- Đúng là người xấu.\n- Không, đừng hiểu lầm.\n\n\n01:01:21.875 --> 01:01:22.750\nSao anh dám?\n\n\n01:01:23.958 --> 01:01:26.791\nMọi người,\ncông lý trong trái tim chúng ta.\n\n\n01:01:26.916 --> 01:01:29.083\nTôi không muốn nhìn nữa,\nmọi người muốn làm gì thì tùy.\n\n\n01:01:29.750 --> 01:01:30.708\nĐi thôi!\n\n\n01:01:32.500 --> 01:01:34.583\n- Chờ anh với!\n- Muốn đi đâu hả?\n\n\n01:01:34.666 --> 01:01:36.208\n- Nói gì đi!\n- Anh không được đi đâu hết.\n\n\n01:01:36.791 --> 01:01:37.708\nĐể tôi giải thích.\n\n\n01:01:38.041 --> 01:01:40.166\nMọi người hãy nghe tôi nói.\n\n\n01:01:40.500 --> 01:01:42.791\nTôi là người giới thiệu cô ấy cho anh ta.\n\n\n01:01:42.875 --> 01:01:44.291\nHóa ra là tại anh.\n\n\n01:01:44.375 --> 01:01:47.250\nNhưng tôi không ngờ anh ta làm thật.\n\n\n01:01:47.333 --> 01:01:50.625\nTên khốn, đánh đi, đánh đi!\n\n\n01:01:53.333 --> 01:01:56.541\nSao anh dám đánh tôi?\nAnh làm việc như thế đấy à?\n\n\n01:01:57.916 --> 01:02:00.958\nMay cho anh\nđó là tôi nên mới nhẹ tay thế đấy.\n\n\n01:02:01.041 --> 01:02:03.583\nNếu để bọn họ đánh,\ngiờ anh không còn ngồi ở đây được đâu.\n\n\n01:02:03.666 --> 01:02:04.958\nCó thể còn nặng hơn nhiều ấy.\n\n\n01:02:05.666 --> 01:02:08.166\nVẫn là lỗi của anh\nvì không lừa được Xa Văn Kiệt.\n\n\n01:02:09.375 --> 01:02:11.208\nĐiều tám, chương ba của Luật chơi khăm.\n\n\n01:02:11.291 --> 01:02:13.875\nNgười bỏ chạy sẽ bị hại nặng hơn.\n\n\n01:02:14.250 --> 01:02:16.166\nNhưng gã Xa Văn Kiệt này\n\n\n01:02:16.833 --> 01:02:19.666\nđúng là rất nhiệt huyết và ngây thơ.\n\n\n01:02:20.083 --> 01:02:21.250\nHại hắn càng khó hơn.\n\n\n01:02:21.458 --> 01:02:23.666\nBị đần hả? Quan tâm hắn là ai làm gì?\n\n\n01:02:23.750 --> 01:02:25.708\nTôi trả tiền anh để chơi khăm hắn cơ mà.\n\n\n01:02:25.791 --> 01:02:28.000\nĐương nhiên.\nTừ mai, tôi sẽ giả vờ làm hắn.\n\n\n01:02:28.166 --> 01:02:30.916\nTôi sẽ hủy hoại hắn, đừng lo.\n\n\n01:02:35.083 --> 01:02:39.208\nAnh Kiệt, hôm nay em sẽ đi làm\nvới phong cách của anh.\n\n\n01:02:39.458 --> 01:02:41.083\nEm thấy vui lắm.\n\n\n01:02:41.208 --> 01:02:43.333\nTốt, cuối cùng\nem cũng biết cách cư xử rồi.\n\n\n01:02:43.666 --> 01:02:45.708\nAnh Kiệt, em muốn...\n\n\n01:02:45.791 --> 01:02:47.833\nLại muốn gì nữa?\n\n\n01:02:49.041 --> 01:02:54.208\n<i>Em muốn làm việc chăm chỉ\nKhông khiến mọi người thất vọng</i>\n\n\n01:02:54.291 --> 01:02:59.541\n<i>Em muốn làm việc chăm chỉ\nKhiến tất cả vui vẻ</i>\n\n\n01:02:59.750 --> 01:03:05.208\n<i>Thanh niên phải làm việc chăm chỉ\nĐừng buồn bã, nhụt chí</i>\n\n\n01:03:05.291 --> 01:03:10.291\n<i>Phải dùng hết sức mình\nĐặt ra mục tiêu</i>\n\n\n01:03:10.375 --> 01:03:15.125\n<i>Nếu gặp khó khăn\nPhải cố hết sức</i>\n\n\n01:03:15.208 --> 01:03:19.791\n<i>Vượt qua nỗi buồn và trở nên vui vẻ</i>\n\n\n01:03:20.541 --> 01:03:22.625\n<i>Bạn tốt, bạn lâu năm</i>\n\n\n01:03:22.708 --> 01:03:25.000\n<i>Bạn tốt sẽ khiến ta vui vẻ</i>\n\n\n01:03:25.083 --> 01:03:27.708\n<i>Bạn tốt là người để dựa vào</i>\n\n\n01:03:28.166 --> 01:03:29.541\n- Khoan, sẵn sàng chưa?\n- Sẵn sàng!\n\n\n01:03:29.625 --> 01:03:34.666\n<i>Bạn tốt sẽ khiến ta vui vẻ\nXua tan rắc rối của ta</i>\n\n\n01:03:39.541 --> 01:03:40.625\nNgã lên người em rồi.\n\n\n01:03:40.708 --> 01:03:42.458\n- Điên rồi!\n- Điên rồi!\n\n\n01:03:42.541 --> 01:03:44.500\n- Vậy đừng nhìn, đồ ngốc!\n- Vậy đừng nhìn, đồ ngốc!\n\n\n01:03:47.541 --> 01:03:48.958\nHôm nay,\n\n\n01:03:49.291 --> 01:03:51.833\nhợp đồng với ông Cát Thôn rất quan trọng.\n\n\n01:03:52.333 --> 01:03:54.083\nAnh đã xin ông Trình cho em dự thính rồi.\n\n\n01:03:54.166 --> 01:03:55.125\nEm hiểu rồi.\n\n\n01:03:56.541 --> 01:03:59.500\nÔng Trình, em trai tôi đến rồi.\n\n\n01:04:00.000 --> 01:04:02.541\nThanh niên thì nên học hỏi\nhơn là đánh đấm.\n\n\n01:04:02.666 --> 01:04:06.958\nKiệt, lần này phải nhờ cậu\nbảo cậu ta giữ miệng.\n\n\n01:04:07.500 --> 01:04:10.333\nHợp đồng này rất quan trọng\nvới việc kinh doanh năm sau của công ty.\n\n\n01:04:10.791 --> 01:04:12.083\n- Cảm ơn ông!\n- Cảm ơn ông!\n\n\n01:04:12.916 --> 01:04:13.875\nĐể tôi!\n\n\n01:04:24.250 --> 01:04:25.875\nAnh Kiệt, anh uống đi!\n\n\n01:04:26.291 --> 01:04:27.166\nĐược.\n\n\n01:04:35.625 --> 01:04:38.375\nÔng Trình, ông Cát Thôn\nvà phái đoàn đến rồi ạ.\n\n\n01:04:38.875 --> 01:04:39.875\nMời họ vào đi.\n\n\n01:04:40.833 --> 01:04:42.583\nTôi thấy khó chịu quá.\n\n\n01:04:43.666 --> 01:04:45.958\n- Tôi cũng thế.\n- Trùng hợp vậy?\n\n\n01:04:46.041 --> 01:04:46.916\nTôi nữa.\n\n\n01:04:47.000 --> 01:04:49.125\nKhông ổn, người Nhật sắp đến rồi.\n\n\n01:04:49.208 --> 01:04:51.083\nCậu mau giữ chân họ một lát.\n\n\n01:04:51.166 --> 01:04:52.791\n- Tôi phải đi vệ sinh.\n- Tôi nữa.\n\n\n01:04:55.500 --> 01:04:56.458\nThông minh lên chút nhé.\n\n\n01:04:58.625 --> 01:04:59.458\nXin lỗi!\n\n\n01:05:05.333 --> 01:05:06.250\nÔng Trình đâu rồi?\n\n\n01:05:07.375 --> 01:05:08.791\nÔng ấy nhờ cô xuống tầng\n\n\n01:05:08.875 --> 01:05:11.166\nlấy tài liệu ba năm qua\ncho ông Cát Thôn xem.\n\n\n01:05:11.416 --> 01:05:12.291\nĐược, cảm ơn anh!\n\n\n01:05:12.375 --> 01:05:13.416\nMời cứ tự nhiên!\n\n\n01:05:18.375 --> 01:05:20.083\nKhông được cười, nghiêm túc đi!\nNgồi xuống!\n\n\n01:05:22.208 --> 01:05:23.208\nCô đi đâu thế?\n\n\n01:05:23.333 --> 01:05:26.125\nÔng Trình bảo tôi\nđi lấy hồ sơ của ông Cát Thôn.\n\n\n01:05:26.291 --> 01:05:28.375\n- Ông ấy đi vệ sinh mà.\n- Sao cơ?\n\n\n01:05:28.458 --> 01:05:30.625\nÔng ấy bảo tôi tiếp ông Cát Thôn.\n\n\n01:05:30.833 --> 01:05:31.875\nGiờ ai đang ở trong đó?\n\n\n01:05:31.958 --> 01:05:34.416\nTôi ở đây để bàn hợp đồng với ông.\nÔng có quyền nói\n\n\n01:05:34.500 --> 01:05:37.333\nnhưng tôi sẽ không nghe một lời nào đâu.\n\n\n01:05:37.958 --> 01:05:39.791\nÔng biết hợp đồng này\ntrị giá bao nhiêu không?\n\n\n01:05:39.875 --> 01:05:42.375\nĐương nhiên! 118 tỷ đô la Hồng Kông.\n\n\n01:05:42.458 --> 01:05:44.000\n- Ông có trả không?\n- Có chứ.\n\n\n01:05:44.083 --> 01:05:45.416\n- Đưa tôi!\n- Bây giờ?\n\n\n01:05:45.500 --> 01:05:47.875\n- Không mang sao? Vậy thì bàn gì nữa?\n- Có, có mang.\n\n\n01:05:47.958 --> 01:05:49.166\nXin lỗi, anh là...\n\n\n01:05:49.250 --> 01:05:52.333\nĐàn ông đang nói chuyện\nmà phụ nữ lại xen vào.\n\n\n01:05:52.666 --> 01:05:54.041\n<i>Tôi đã chết một cách đau đớn.</i>\n\n\n01:05:57.500 --> 01:05:59.125\nTôi phạt cô đông cứng ở đó tám tiếng.\n\n\n01:05:59.208 --> 01:06:00.541\nĐộng một cái là đánh một cái.\n\n\n01:06:04.041 --> 01:06:05.041\nChúng ta nói đến đâu rồi?\n\n\n01:06:05.500 --> 01:06:08.125\nNhìn xem ông chủ ở Hồng Kông\n\n\n01:06:08.208 --> 01:06:09.458\nmạnh mẽ chưa kìa.\n\n\n01:06:09.541 --> 01:06:11.041\nKhông ngờ ngoài đàn ông Nhật Bản ra,\n\n\n01:06:11.125 --> 01:06:13.125\nđàn ông Hồng Kông\ncũng có thể nam tính như thế.\n\n\n01:06:13.208 --> 01:06:14.041\nGiỏi lắm!\n\n\n01:06:14.458 --> 01:06:15.416\nKhông có gì.\n\n\n01:06:15.791 --> 01:06:16.833\nQuay lại chuyện chính.\n\n\n01:06:17.541 --> 01:06:20.500\nChúng tôi muốn\ngiảm giá hợp đồng xuống 111 tỷ\n\n\n01:06:20.583 --> 01:06:22.166\nvà mong công ty các anh có thể\n\n\n01:06:22.250 --> 01:06:25.041\nxây dựng một trung tâm phúc lợi\ncho nhân viên của chúng tôi\n\n\n01:06:25.125 --> 01:06:26.916\nbên cạnh xây dựng\nmột trung tâm kinh doanh lớn\n\n\n01:06:27.000 --> 01:06:29.375\nmà không có thêm điều kiện gì khác.\n\n\n01:06:29.458 --> 01:06:31.458\nTrung tâm phúc lợi? Ý ông là nhà thổ?\n\n\n01:06:31.875 --> 01:06:34.375\nÔng nghĩ người Trung Quốc\nsẽ vì tiền mà làm nhục phụ nữ?\n\n\n01:06:34.458 --> 01:06:35.416\nÝ tôi là...\n\n\n01:06:35.500 --> 01:06:37.458\nMuốn chúng tôi tìm phụ nữ cho nữa?\n\n\n01:06:37.833 --> 01:06:38.708\nĐi chết đi!\n\n\n01:06:42.833 --> 01:06:45.500\nĐể trừng phạt hành vi biến thái này,\ntôi sẽ nâng hợp đồng lên hai tỷ.\n\n\n01:06:45.583 --> 01:06:48.041\n- Tôi không phải biến thái.\n- Vậy sao có nhiều phim heo thế?\n\n\n01:06:48.125 --> 01:06:49.250\nTôi không có.\n\n\n01:06:50.250 --> 01:06:52.875\n- Nhưng ông có xem.\n- Đúng, nhưng mà...\n\n\n01:06:52.958 --> 01:06:53.875\nHai tỷ nữa.\n\n\n01:06:54.625 --> 01:06:57.083\n- Sao lại xâm lược Trung Quốc?\n- Không phải tôi, là ông tôi.\n\n\n01:06:57.166 --> 01:06:58.416\nThêm hai tỷ nữa vì ông của ông.\n\n\n01:07:03.250 --> 01:07:04.875\nÔng cũng tham dự vụ thảm sát Nam Kinh?\n\n\n01:07:04.958 --> 01:07:06.625\nKhi đó tôi còn chưa sinh ra.\n\n\n01:07:06.708 --> 01:07:08.250\nHai tỷ nữa vì sinh ra quá muộn.\n\n\n01:07:09.083 --> 01:07:10.333\n- Ông Cát Thôn!\n- Ông Cát Thôn!\n\n\n01:07:11.833 --> 01:07:13.833\nSao người Nhật lại xâm lược đất nước tôi?\n\n\n01:07:14.208 --> 01:07:16.125\n- Tôi không phải người Nhật.\n- Vậy là người gì?\n\n\n01:07:16.208 --> 01:07:18.000\nMẹ tôi cưới người nước ngoài.\n\n\n01:07:18.083 --> 01:07:19.000\nVậy là con lai?\n\n\n01:07:19.083 --> 01:07:20.833\nCon lai mà đòi bàn chuyện làm ăn?\n\n\n01:07:20.916 --> 01:07:22.166\nThêm bảy tỷ.\n\n\n01:07:25.750 --> 01:07:26.791\nChúc mừng!\n\n\n01:07:26.875 --> 01:07:28.458\n- Sao rồi?\n- Bàn hợp đồng xong rồi.\n\n\n01:07:28.541 --> 01:07:31.583\nTập đoàn Cát Thôn đã đồng ý chi 150 tỷ\nđể xây một trung tâm kinh doanh hai tầng.\n\n\n01:07:31.666 --> 01:07:34.083\nCó thang máy,\nnhà vệ sinh hay không đều được,\n\n\n01:07:34.166 --> 01:07:35.750\nchỉ cần không sập trong vòng sáu tháng.\n\n\n01:07:35.833 --> 01:07:36.791\nHợp đồng đây.\n\n\n01:07:37.750 --> 01:07:39.458\nÔng Cát Thôn!\n\n\n01:07:42.333 --> 01:07:44.083\nÔng Trình, cứu với!\n\n\n01:07:44.541 --> 01:07:46.416\nEm làm cái gì thế?\n\n\n01:07:46.833 --> 01:07:48.791\nEm chỉ muốn tốt cho công ty thôi,\n\n\n01:07:48.875 --> 01:07:49.833\nnhư những gì anh dạy em.\n\n\n01:07:49.916 --> 01:07:51.958\n- Anh không bảo em đánh người.\n- Em không đánh.\n\n\n01:07:52.041 --> 01:07:53.583\n- Này, cậu ấy có đánh ông không?\n- Có.\n\n\n01:07:53.833 --> 01:07:54.666\n- Tôi đánh?\n- Có đánh?\n\n\n01:07:54.750 --> 01:07:57.083\nNói lại! Tôi có đánh không?\n\n\n01:07:57.250 --> 01:07:59.291\n- Có đánh không?\n- Thả ông ấy ra!\n\n\n01:07:59.583 --> 01:08:00.958\n- Buông ra!\n- Sao lại đánh ông ấy?\n\n\n01:08:01.041 --> 01:08:03.166\n- Nghe thấy chưa? Ông ấy nói không mà.\n- Ông Cát Thôn!\n\n\n01:08:03.375 --> 01:08:04.458\nÔng Cát Thôn!\n\n\n01:08:05.625 --> 01:08:07.250\nBắt đồ điên này lại!\n\n\n01:08:07.333 --> 01:08:08.458\nAi điên? Tôi sẽ bắt hắn.\n\n\n01:08:09.500 --> 01:08:11.625\nÔng Trình, tôi xin lỗi vì chuyện vừa rồi.\n\n\n01:08:11.708 --> 01:08:12.916\nĐủ rồi!\n\n\n01:08:13.000 --> 01:08:14.250\nHai cậu bị đuổi việc.\n\n\n01:08:14.333 --> 01:08:16.333\nNói chuyện cẩn thận chút đi!\n\n\n01:08:16.416 --> 01:08:18.125\nNghe rồi đấy. Tôi cũng không giúp gì được.\n\n\n01:08:18.208 --> 01:08:21.291\nSao thế? Có chuyện gì? Sao lại thế này?\n\n\n01:08:21.375 --> 01:08:23.750\nHọ chọc giận khách hàng.\nBố em gọi cảnh sát rồi.\n\n\n01:08:23.833 --> 01:08:25.333\nKhông nói chuyện này nữa.\n\n\n01:08:25.458 --> 01:08:28.875\nÔng Trình,\ntôi biết tôi dạy em trai chưa tốt.\n\n\n01:08:29.333 --> 01:08:32.541\nKể cả không bị đuổi việc,\ntôi cũng sẽ xin thôi việc.\n\n\n01:08:33.083 --> 01:08:35.000\nTôi xin lỗi! Đi thôi!\n\n\n01:08:35.375 --> 01:08:37.083\nNói bảo vệ canh chừng họ lúc dọn đồ.\n\n\n01:08:37.958 --> 01:08:38.791\nÔng Trình!\n\n\n01:08:39.208 --> 01:08:42.875\nXa, ông không phải nói gì hết.\nÔng là nhân viên cấp cao ở đây.\n\n\n01:08:43.250 --> 01:08:45.833\nÔng đã làm cho tôi nhiều năm,\ntôi sẽ không đổ lỗi cho ông.\n\n\n01:08:46.041 --> 01:08:47.250\nNhưng đừng nói gì thêm nữa.\n\n\n01:08:47.458 --> 01:08:50.041\nLà con tôi sai, tôi sẽ không nói gì.\n\n\n01:08:50.333 --> 01:08:51.625\nNhưng tôi phải nói một câu cuối.\n\n\n01:08:51.916 --> 01:08:53.166\n- Là gì?\n- Tôi xin thôi việc.\n\n\n01:08:53.333 --> 01:08:56.666\nBố, còn hai tháng nữa bố mới nghỉ hưu mà.\n\n\n01:08:56.791 --> 01:08:58.500\nBố sẽ mất 200.000 đô đấy.\n\n\n01:08:58.583 --> 01:08:59.833\nBố không mong chuyện sẽ thế này.\n\n\n01:08:59.916 --> 01:09:03.458\nNhưng không sao,\nchúng ta không thiếu tiền.\n\n\n01:09:03.791 --> 01:09:06.000\nHai đứa đi rồi, bố cũng không còn lý do gì\nđể ở lại nữa.\n\n\n01:09:06.083 --> 01:09:09.083\nTiêu ít đi một chút là được mà.\n\n\n01:09:09.166 --> 01:09:11.583\nQuan trọng là gia đình hạnh phúc.\n\n\n01:09:12.083 --> 01:09:12.958\nÔng Trình!\n\n\n01:09:15.541 --> 01:09:16.541\nÔng Trình!\n\n\n01:09:18.041 --> 01:09:20.250\nĐã xong việc, đi thôi!\n\n\n01:09:21.541 --> 01:09:23.041\n- Ai thế?\n- Bố đây.\n\n\n01:09:25.625 --> 01:09:26.791\nAnh Kiệt, bố.\n\n\n01:09:26.875 --> 01:09:28.958\n- Vẫn chưa ngủ à?\n- Ngủ rồi.\n\n\n01:09:31.875 --> 01:09:34.208\nCon xin lỗi vì chuyện hôm nay.\n\n\n01:09:34.291 --> 01:09:36.583\nCon buồn quá, không ngủ nổi.\n\n\n01:09:36.875 --> 01:09:40.333\n- Vậy nghỉ đi.\n- Cũng muốn rồi.\n\n\n01:09:42.458 --> 01:09:43.291\nNgủ ngon!\n\n\n01:09:46.000 --> 01:09:50.166\nMình bị lộ rồi sao?\n\n\n01:09:50.791 --> 01:09:52.750\nMày sẽ làm gì nếu mày là họ?\n\n\n01:09:53.625 --> 01:09:54.958\nTao sẽ giết Cổ Tinh.\n\n\n01:09:56.791 --> 01:09:58.041\nNghe nguy hiểm quá.\n\n\n01:09:59.291 --> 01:10:01.875\nPhải chuẩn bị mới được.\n\n\n01:10:22.625 --> 01:10:24.000\nKhông được động đậy!\n\n\n01:10:25.791 --> 01:10:32.583\n<i>- Chúc mừng sinh nhật!\n- Chúc mừng sinh nhật!</i>\n\n\n01:10:33.291 --> 01:10:37.291\n<i>- Chúc mừng sinh nhật!\n- Chúc mừng sinh nhật!</i>\n\n\n01:10:37.375 --> 01:10:41.791\n<i>- Chúc mừng!\n- Chúc mừng!</i>\n\n\n01:10:42.583 --> 01:10:44.291\nSao mọi người biết\nhôm nay là sinh nhật con?\n\n\n01:10:44.375 --> 01:10:47.000\nBố hỏi mẹ con giấy khai sinh,\n\n\n01:10:47.083 --> 01:10:49.708\nbà ấy không có,\nchỉ biết hôm nay là sinh nhật con thôi.\n\n\n01:10:52.958 --> 01:10:54.458\nSao lại mím môi?\n\n\n01:10:54.541 --> 01:10:56.416\nKhông, chỉ là\nmọi người đối xử với em tốt thật,\n\n\n01:10:56.500 --> 01:10:58.000\nnhư bố và anh trai thật vậy.\n\n\n01:10:58.375 --> 01:11:01.333\nNgốc gì thế?\nĐúng là bố và anh trai thật mà.\n\n\n01:11:01.416 --> 01:11:02.250\nĐúng thế!\n\n\n01:11:02.416 --> 01:11:04.666\nNào, ước đi!\n\n\n01:11:04.750 --> 01:11:06.750\nƯớc xong rồi uống chút rượu.\n\n\n01:12:37.958 --> 01:12:40.375\n<i>Hai bố con nhà này\nđúng là hiếm có khó tìm.</i>\n\n\n01:12:40.833 --> 01:12:42.750\n<i>Xin lỗi vì khiến hai người thất vọng.</i>\n\n\n01:12:43.500 --> 01:12:45.625\n<i>Hi vọng hai người bình an,</i>\n\n\n01:12:46.291 --> 01:12:48.791\n<i>khỏe mạnh mãi mãi.</i>\n\n\n01:12:49.041 --> 01:12:52.791\n<i>Và đừng gặp phải kẻ xấu như tôi nữa.</i>\n\n\n01:12:56.791 --> 01:12:57.750\n- Xin chào!\n- Xin chào!\n\n\n01:12:57.833 --> 01:13:00.416\nAnna, tôi vào trong gọi điện,\nđừng chuyển máy cho tôi nhé.\n\n\n01:13:00.500 --> 01:13:01.583\n- Nhé?\n- Vâng, anh Kim!\n\n\n01:13:04.708 --> 01:13:05.666\n- Xin chào!\n- Xin chào!\n\n\n01:13:05.750 --> 01:13:06.750\nBanana, đường dây số một.\n\n\n01:13:06.833 --> 01:13:09.041\nCảm ơn!\nTôi dùng điện thoại của cô được chứ?\n\n\n01:13:14.125 --> 01:13:15.916\nNhờ anh mà tôi đuổi được Xa Văn Kiệt đi.\n\n\n01:13:16.000 --> 01:13:17.791\nAnh đúng là không hổ danh\nchuyên gia xảo quyệt.\n\n\n01:13:18.000 --> 01:13:20.583\n<i>Đừng nói nhiều nữa,\nmau chuyển tiền cho tôi đi.</i>\n\n\n01:13:20.666 --> 01:13:23.166\n- Xin lỗi Banana, là đường dây số hai.\n- Không sao, cảm ơn!\n\n\n01:13:23.291 --> 01:13:25.125\nĐược, tôi sẽ gửi séc ngay.\n\n\n01:13:25.208 --> 01:13:27.208\nPhòng 6B, tòa nhà Phát Đạt đúng không?\n\n\n01:13:28.083 --> 01:13:31.000\nNhưng tôi muốn chơi khăm hắn một lần nữa\n\n\n01:13:31.083 --> 01:13:32.458\nđể hắn không còn cơ hội quay lại.\n\n\n01:13:32.583 --> 01:13:34.541\nKhông được, tôi không muốn lừa họ nữa.\n\n\n01:13:34.625 --> 01:13:35.750\nAnh có thể tìm người khác.\n\n\n01:13:35.833 --> 01:13:37.250\nĐừng hối hận đấy!\n\n\n01:13:37.333 --> 01:13:39.875\nTôi chưa từng hối hận. Thế nhé!\n\n\n01:13:43.875 --> 01:13:46.666\nNghe giọng giống Xa Văn Tinh quá.\n\n\n01:13:51.708 --> 01:13:53.833\nChuyên gia xảo quyệt có đây không?\n\n\n01:13:55.041 --> 01:13:55.875\nAi thế?\n\n\n01:13:57.083 --> 01:13:58.000\nAnh là ai?\n\n\n01:13:58.791 --> 01:13:59.625\nCô?\n\n\n01:14:00.416 --> 01:14:01.375\nTôi đây.\n\n\n01:14:01.708 --> 01:14:03.875\nĐúng là anh thật.\n\n\n01:14:06.375 --> 01:14:10.500\nSao anh lại giúp Macky\nlừa gia đình ông Xa?\n\n\n01:14:10.583 --> 01:14:11.500\nNói đi!\n\n\n01:14:12.291 --> 01:14:13.333\nChết đi!\n\n\n01:14:13.625 --> 01:14:14.500\nCảm ơn!\n\n\n01:14:16.583 --> 01:14:17.833\nUống một ly đã!\n\n\n01:14:19.000 --> 01:14:20.125\n- Đây!\n- Không.\n\n\n01:14:22.500 --> 01:14:24.541\nCô không giỏi dùng vũ khí đâu,\ndùng tay không ấy.\n\n\n01:14:24.625 --> 01:14:26.791\nTốt thôi!\nNói tôi nghe sao anh lại làm thế?\n\n\n01:14:28.750 --> 01:14:32.000\nKhông có lý do gì hết.\nTôi được trả tiền để làm việc.\n\n\n01:14:32.083 --> 01:14:33.500\nChỉ có thế thôi.\n\n\n01:14:33.708 --> 01:14:35.625\nMất công họ đối xử với anh tốt như vậy.\n\n\n01:14:35.708 --> 01:14:37.958\nHọ coi anh là người nhà\nnên đi khắp nơi tìm anh.\n\n\n01:14:38.250 --> 01:14:39.708\nAnh là quái vật!\n\n\n01:14:43.416 --> 01:14:44.625\nCô có thể coi tôi là quái vật.\n\n\n01:14:45.041 --> 01:14:46.791\nTôi sẽ không bao giờ động vào họ nữa,\n\n\n01:14:47.250 --> 01:14:48.750\nđó là tất cả những gì tôi có thể làm.\n\n\n01:14:48.916 --> 01:14:50.750\nNghĩ thử xem\nhọ tốt với anh đến mức nào đi.\n\n\n01:14:50.833 --> 01:14:52.666\nHọ mất việc chỉ vì anh.\n\n\n01:14:53.000 --> 01:14:54.041\nCô muốn làm gì?\n\n\n01:14:54.125 --> 01:14:56.166\nĐi giải thích với họ, rồi xử lý Macky đi.\n\n\n01:14:56.250 --> 01:14:57.791\n- Không được.\n- Tại sao?\n\n\n01:14:59.416 --> 01:15:01.500\nĐiều chín, chương tám của Luật chơi khăm.\n\n\n01:15:01.750 --> 01:15:04.833\nTôi phải cứng rắn và không hối hận.\n\n\n01:15:04.916 --> 01:15:06.375\nTên ngốc nào đặt ra luật đó?\n\n\n01:15:06.458 --> 01:15:07.333\nTôi.\n\n\n01:15:07.416 --> 01:15:09.125\nAnh viết ra thì anh cũng có thể thay đổi.\n\n\n01:15:09.208 --> 01:15:12.625\nTôi cũng muốn lắm, nhưng tôi đã thề là\n\n\n01:15:13.375 --> 01:15:16.958\nnếu phá vỡ bất kỳ điều luật nào,\n\n\n01:15:17.416 --> 01:15:19.500\ntôi sẽ bị trừng phạt nặng nề.\n\n\n01:15:20.666 --> 01:15:21.875\nTrừng phạt kiểu gì?\n\n\n01:15:22.541 --> 01:15:24.250\nTôi sẽ không bao giờ được có bạn gái nữa.\n\n\n01:15:24.708 --> 01:15:26.666\nNếu anh không có\nthì tôi sẽ làm bạn gái anh.\n\n\n01:15:26.750 --> 01:15:28.583\nCái gì? Cô?\n\n\n01:15:28.875 --> 01:15:30.041\nPhải, tôi.\n\n\n01:15:33.500 --> 01:15:34.875\nLỡ cô hối hận thì sao?\n\n\n01:15:35.333 --> 01:15:36.833\nTôi thề, nếu anh không tìm được bạn gái\n\n\n01:15:36.916 --> 01:15:39.333\nmà tôi không đi với anh\nthì tôi sẽ không bao giờ có bạn trai.\n\n\n01:15:39.416 --> 01:15:40.458\nTốt! Rất thẳng thắn.\n\n\n01:15:40.916 --> 01:15:42.250\n- Đồng ý!\n- Đồng ý!\n\n\n01:15:43.166 --> 01:15:44.375\nNhưng có một điều kiện.\n\n\n01:15:44.458 --> 01:15:45.416\nĐiều kiện gì?\n\n\n01:15:45.500 --> 01:15:47.041\nCô có thể phẫu thuật thẩm mỹ không?\n\n\n01:15:49.416 --> 01:15:50.291\nAi đấy?\n\n\n01:15:51.500 --> 01:15:53.500\nNày, chú phải bình tĩnh.\n\n\n01:15:53.791 --> 01:15:54.833\nBình tĩnh đây.\n\n\n01:15:54.916 --> 01:15:56.041\nĐừng hưng phấn quá.\n\n\n01:15:56.291 --> 01:15:57.208\nCó hưng phấn đâu.\n\n\n01:15:58.416 --> 01:15:59.833\nChú có bị bệnh tim không?\n\n\n01:16:00.166 --> 01:16:01.166\nKhông.\n\n\n01:16:01.583 --> 01:16:03.250\nVậy lùi lại hai bước đi.\n\n\n01:16:03.583 --> 01:16:04.500\nĐược.\n\n\n01:16:04.833 --> 01:16:05.833\nXa nữa.\n\n\n01:16:07.250 --> 01:16:08.125\nLàm cái gì thế?\n\n\n01:16:08.500 --> 01:16:09.458\nNhanh lên!\n\n\n01:16:09.541 --> 01:16:10.958\nĐây, đừng giục!\n\n\n01:16:12.000 --> 01:16:15.250\nBố, bố giết con đi.\n\n\n01:16:16.208 --> 01:16:17.666\nCon đã làm bố buồn.\n\n\n01:16:20.208 --> 01:16:22.958\nCon trai, con không phải\nkiểu người đó thật chứ?\n\n\n01:16:23.041 --> 01:16:23.875\nKiểu gì?\n\n\n01:16:24.333 --> 01:16:25.583\nKiểu đó?\n\n\n01:16:25.708 --> 01:16:26.666\nKhông, không phải.\n\n\n01:16:27.000 --> 01:16:28.541\nĐừng nói con là kiểu người đó nhé.\n\n\n01:16:28.791 --> 01:16:30.083\nKhông, không phải.\n\n\n01:16:30.291 --> 01:16:32.791\nTốt quá! Vậy là kiểu nào?\n\n\n01:16:32.875 --> 01:16:35.583\nChúng ta là bố con, con nói đi.\n\n\n01:16:35.666 --> 01:16:38.166\nCon không phải con của bố.\n\n\n01:16:38.291 --> 01:16:39.125\nHả?\n\n\n01:16:39.208 --> 01:16:41.375\nCon nói dối. Con không nói sự thật.\n\n\n01:16:47.125 --> 01:16:49.000\nKhông quan trọng.\n\n\n01:16:49.083 --> 01:16:51.250\n- Bố hiểu chứ?\n- Bố hiểu.\n\n\n01:16:51.416 --> 01:16:53.458\nBố biết con cần tình thương của bố.\n\n\n01:16:53.541 --> 01:16:55.708\nBố không trách con.\n\n\n01:16:55.791 --> 01:16:59.875\nBố thích cả trai, cả gái mà,\ncon gái ngoan của bố.\n\n\n01:17:00.375 --> 01:17:03.250\nCon không phải con gái,\ný con không phải thế.\n\n\n01:17:03.666 --> 01:17:05.125\nVậy ý con là gì?\n\n\n01:17:06.458 --> 01:17:07.708\nBố nhìn kìa!\n\n\n01:17:10.291 --> 01:17:11.125\nCó gì đâu.\n\n\n01:17:11.666 --> 01:17:14.291\nSao đẹp trai nhanh vậy?\n\n\n01:17:16.541 --> 01:17:20.250\nDanh tính thật của con\nlà người tạo xu hướng xã hội,\n\n\n01:17:20.333 --> 01:17:22.791\nkhuyến khích phong cách\nvà hình ảnh trẻ trung,\n\n\n01:17:22.875 --> 01:17:25.875\nchuyên gia xảo quyệt đẹp trai, Cổ Tinh.\n\n\n01:17:26.333 --> 01:17:28.083\nTên tiếng Anh của con là Jing Koo.\n\n\n01:17:28.333 --> 01:17:29.333\nLà ý gì?\n\n\n01:17:29.416 --> 01:17:31.208\nCon không phải con của bố.\n\n\n01:17:31.291 --> 01:17:33.625\nBố con là Cố Cửu Hàn, mẹ con là Ngô Hệ Ba.\n\n\n01:17:33.875 --> 01:17:36.333\nMacky thuê con lừa bố và con trai bố\n\n\n01:17:36.416 --> 01:17:38.666\nđể tách Lạc Nhi ra khỏi hai người.\n\n\n01:17:40.166 --> 01:17:41.125\nBố!\n\n\n01:17:41.833 --> 01:17:43.375\nBố!\n\n\n01:17:44.166 --> 01:17:46.250\nĐủ rồi, con chỉ diễn trò thôi.\n\n\n01:17:46.541 --> 01:17:47.500\nNhìn kìa!\n\n\n01:17:50.250 --> 01:17:52.541\nLần này bố nhanh quá,\nnhìn lâu hơn chút đi.\n\n\n01:17:52.791 --> 01:17:53.750\nĐược!\n\n\n01:17:54.708 --> 01:17:56.583\n- Xong chưa?\n- Rồi, bắt đầu!\n\n\n01:17:58.416 --> 01:17:59.500\nBố hiểu chưa?\n\n\n01:18:00.916 --> 01:18:03.750\nĐương nhiên, tất cả chỉ là lừa gạt.\n\n\n01:18:04.458 --> 01:18:06.500\nKhông sao, có chết người đâu.\n\n\n01:18:07.083 --> 01:18:08.750\nThằng khốn, dám lừa bố?\n\n\n01:18:09.041 --> 01:18:10.166\nDám lừa bố?\n\n\n01:18:10.416 --> 01:18:11.375\nBố!\n\n\n01:18:14.416 --> 01:18:15.958\nSao chú lại đánh bạn trai cháu?\n\n\n01:18:18.000 --> 01:18:18.875\nĐánh bạn trai cháu?\n\n\n01:18:20.708 --> 01:18:22.000\n- Anh có sao không?\n- Không sao.\n\n\n01:18:22.250 --> 01:18:23.708\nCổ Tinh hối hận rồi.\n\n\n01:18:23.958 --> 01:18:25.708\nAnh ấy không ngờ\nhai người lại tốt như vậy.\n\n\n01:18:25.958 --> 01:18:27.708\nAnh ấy đã quyết định\nkhông giúp Macky nữa rồi.\n\n\n01:18:27.791 --> 01:18:28.625\nThật chứ?\n\n\n01:18:29.458 --> 01:18:31.958\nHi vọng anh Kiệt sẽ tha thứ cho con.\n\n\n01:18:32.125 --> 01:18:34.375\nCon sẽ giúp hai người đối phó Macky.\n\n\n01:18:34.625 --> 01:18:38.541\nNhưng mà cổ của Kiệt như làm bằng sắt ấy,\n\n\n01:18:38.666 --> 01:18:40.541\nnó cứng đầu lắm.\n\n\n01:18:40.625 --> 01:18:43.000\nNó tin con là em trai ruột của nó,\n\n\n01:18:43.083 --> 01:18:45.375\nnếu nói thật, nó sẽ phát điên đấy.\n\n\n01:18:45.458 --> 01:18:46.791\nCổ làm bằng sắt?\n\n\n01:18:46.875 --> 01:18:48.666\nĐương nhiên! Còn gì nữa?\n\n\n01:18:48.875 --> 01:18:50.375\nNghĩ ra cách khác đi.\n\n\n01:18:57.125 --> 01:19:01.166\nBố ơi, sắp có sấm đấy.\n\n\n01:19:04.416 --> 01:19:05.708\nTệ quá!\n\n\n01:19:07.708 --> 01:19:10.208\nKhông thấy em ấy đâu hết.\n\n\n01:19:14.750 --> 01:19:16.416\nTinh vừa về rồi.\n\n\n01:19:18.041 --> 01:19:19.041\nThật sao?\n\n\n01:19:21.000 --> 01:19:23.250\nNó kể cho bố một bí mật.\n\n\n01:19:24.208 --> 01:19:25.541\nBí mật?\n\n\n01:19:29.333 --> 01:19:30.500\nChuyện dài lắm.\n\n\n01:19:33.708 --> 01:19:37.000\nKhông ngờ con lại bị coi như đồ ngốc.\n\n\n01:19:37.750 --> 01:19:41.041\nKhông đâu, chuyện gì cũng có lý do của nó.\n\n\n01:19:41.333 --> 01:19:42.750\nTha thứ cho nó đi.\n\n\n01:19:44.416 --> 01:19:45.708\nCon sẽ không tha thứ,\n\n\n01:19:47.125 --> 01:19:48.166\nkhông bao giờ tha thứ.\n\n\n01:19:55.333 --> 01:19:59.541\nKiệt, nếu nó chân thành xin lỗi,\n\n\n01:19:59.958 --> 01:20:01.958\ncon có đồng ý cho nó một cơ hội không?\n\n\n01:20:02.333 --> 01:20:05.500\nĐược, nếu con đếm đến ba mà nó xuất hiện,\n\n\n01:20:05.750 --> 01:20:06.875\ncon sẽ tha thứ.\n\n\n01:20:08.000 --> 01:20:10.541\nMột, hai...\n\n\n01:20:11.375 --> 01:20:14.250\nTha thứ rồi, tốt quá!\n\n\n01:20:14.333 --> 01:20:15.916\n- Cảm ơn anh!\n- Ừ.\n\n\n01:20:16.333 --> 01:20:18.333\nBố, bố giúp nó.\n\n\n01:20:18.416 --> 01:20:21.041\nKhông, bố chỉ nghĩ là...\n\n\n01:20:21.125 --> 01:20:22.500\n- Đừng nói chuyện với con.\n- Kiệt!\n\n\n01:20:22.583 --> 01:20:24.416\nAnh Kiệt, lần này anh ấy thật lòng mà.\n\n\n01:20:24.750 --> 01:20:26.541\nLàm sao biết được thật lòng hay không?\n\n\n01:20:26.916 --> 01:20:29.708\nNếu em quay về để lừa anh,\nem sẽ bị sét đánh.\n\n\n01:20:32.916 --> 01:20:34.416\nThấy chưa?\n\n\n01:20:34.500 --> 01:20:36.041\nAnh Kiệt, anh ấy thật lòng thật mà.\n\n\n01:20:36.583 --> 01:20:38.458\nNó bị sét đánh rồi mà cô còn bênh nó?\n\n\n01:20:38.958 --> 01:20:40.375\nKhông phải, tình cờ thôi.\n\n\n01:20:40.458 --> 01:20:41.666\nAnh nghĩ kỹ đi.\n\n\n01:20:41.791 --> 01:20:43.291\nNếu lần này em còn lừa anh,\n\n\n01:20:43.375 --> 01:20:45.083\nem sẽ bị sét đánh liên hoàn đến chết.\n\n\n01:20:51.458 --> 01:20:52.458\nTinh!\n\n\n01:20:53.000 --> 01:20:56.291\nCứ thề tiếp đi,\ncậu sẽ bị sét đánh chết thật đấy.\n\n\n01:20:56.416 --> 01:20:57.625\nTinh, anh không sao chứ?\n\n\n01:20:57.708 --> 01:20:58.541\nSao lại thế?\n\n\n01:20:58.625 --> 01:21:00.500\nÔng trời hiểu lầm anh rồi.\n\n\n01:21:00.583 --> 01:21:01.958\nAnh không nên bị sét đánh.\n\n\n01:21:06.458 --> 01:21:09.166\nSao tôi lại bị sét đánh ngoài cửa?\n\n\n01:21:09.708 --> 01:21:10.583\nTôi không rảnh.\n\n\n01:21:11.541 --> 01:21:12.500\nNày!\n\n\n01:21:13.333 --> 01:21:14.791\nThấy chưa?\n\n\n01:21:14.875 --> 01:21:15.875\nĐủ rồi!\n\n\n01:21:16.625 --> 01:21:18.250\nChuyện trước đây coi như xong.\n\n\n01:21:18.583 --> 01:21:20.958\nTừ giờ, tôi không muốn nhìn thấy cậu nữa.\n\n\n01:21:21.041 --> 01:21:21.916\nLàm ơn đi cho!\n\n\n01:21:22.000 --> 01:21:24.416\nKiệt, đừng thế mà.\n\n\n01:21:24.541 --> 01:21:28.625\nTốt, mọi người đã về phe cậu ta\nthì hãy để cậu ta ở lại, con đi.\n\n\n01:21:35.958 --> 01:21:37.666\nCuối cùng cũng có người đáng tin.\n\n\n01:21:39.416 --> 01:21:40.250\nAnh Kiệt!\n\n\n01:21:40.333 --> 01:21:42.583\nLạc Nhi, đừng dựa vào xe người khác.\n\n\n01:21:43.166 --> 01:21:45.166\nTrên nhà chán quá, chúng ta đi dạo đi.\n\n\n01:21:46.458 --> 01:21:48.625\nTiểu thư, cô cần ô không?\n\n\n01:21:50.375 --> 01:21:51.708\nSao anh ta lại gọi em là tiểu thư?\n\n\n01:21:53.083 --> 01:21:55.375\nAnh Kiệt, em có chuyện giấu anh.\n\n\n01:21:56.375 --> 01:21:57.458\nEm cũng lừa anh?\n\n\n01:21:58.791 --> 01:21:59.916\nĐược, em nói đi!\n\n\n01:22:00.541 --> 01:22:02.125\nEm là con gái của Trình Vận Đào, Selena.\n\n\n01:22:02.791 --> 01:22:03.875\nEm là con gái của ông chủ?\n\n\n01:22:08.750 --> 01:22:10.833\nEm giả vờ là nhân viên bình thường\nđể lừa anh?\n\n\n01:22:12.875 --> 01:22:14.500\nEm là vị hôn thê của Macky?\n\n\n01:22:16.208 --> 01:22:18.375\nTốt lắm!\n\n\n01:22:19.666 --> 01:22:21.500\nTừ khi được thăng chức,\nanh liên tục bị lừa\n\n\n01:22:22.375 --> 01:22:24.375\ncho đến tận ngày hôm nay.\n\n\n01:22:26.750 --> 01:22:28.208\nEm muốn anh làm gì?\n\n\n01:22:31.166 --> 01:22:33.333\nLàm sao để em vui đây?\n\n\n01:22:35.666 --> 01:22:36.875\nAnh có nên một mực tuân lệnh em\n\n\n01:22:36.958 --> 01:22:38.541\nnhư một con chó không?\n\n\n01:22:38.625 --> 01:22:40.916\nAnh đừng như thế! Ý em không phải vậy.\n\n\n01:22:41.000 --> 01:22:42.875\nEm nói \"tay\" thì anh phải đưa tay ra?\n\n\n01:22:42.958 --> 01:22:44.916\nKhông nghe lời thì em sẽ đánh?\n\n\n01:22:45.333 --> 01:22:46.750\nTay anh đây này.\n\n\n01:22:46.833 --> 01:22:48.375\nDừng lại đi!\n\n\n01:22:50.666 --> 01:22:51.833\nAnh Kiệt!\n\n\n01:22:53.625 --> 01:22:54.500\nLạc Nhi!\n\n\n01:22:58.750 --> 01:23:00.083\nXin lỗi vì đã gây rắc rối.\n\n\n01:23:00.416 --> 01:23:01.625\nXin lỗi, tôi đi đây!\n\n\n01:23:02.583 --> 01:23:05.166\n- Tạm biệt!\n- Kiệt!\n\n\n01:23:05.583 --> 01:23:06.916\nĐi theo anh ấy đi!\n\n\n01:23:07.000 --> 01:23:09.833\nAnh ấy không cho tôi cơ hội,\ntôi phải làm sao?\n\n\n01:23:10.291 --> 01:23:11.125\nTôi đi đây.\n\n\n01:23:11.708 --> 01:23:13.291\nCậu đi thật hả?\n\n\n01:23:13.500 --> 01:23:14.750\nNày, Lạc Nhi!\n\n\n01:23:18.000 --> 01:23:20.833\nAnh vô dụng thật đấy!\nAnh là chuyên gia kiểu gì thế?\n\n\n01:23:20.916 --> 01:23:22.708\nChuyên gia xảo quyệt đẹp trai.\n\n\n01:23:22.791 --> 01:23:24.541\nAnh phải giải quyết chuyện này đi chứ.\n\n\n01:23:25.166 --> 01:23:26.333\nQuay về nghĩ thôi.\n\n\n01:23:28.916 --> 01:23:30.458\n- Văn phòng của con hả?\n- Chính xác?\n\n\n01:23:31.291 --> 01:23:33.250\nBiển tên là\nchuyên gia xảo quyệt đệ nhất hả?\n\n\n01:23:33.416 --> 01:23:34.333\nChuyên gia xảo quyệt.\n\n\n01:23:34.416 --> 01:23:36.125\nKhông, chuyên gia xảo quyệt đệ nhất.\n\n\n01:23:36.416 --> 01:23:38.250\nBố thấy ở đâu thế?\n\n\n01:23:38.416 --> 01:23:40.750\nỞ đâu cũng thế mà.\n\n\n01:23:43.875 --> 01:23:45.750\n\"Chuyên gia xảo quyệt đệ nhất\" ư?\n\n\n01:23:47.791 --> 01:23:49.125\nChắc là người hâm mộ gửi\n\n\n01:23:49.333 --> 01:23:51.458\nđể vinh danh thành tựu của con.\n\n\n01:23:55.625 --> 01:23:57.666\n\"Chuyên gia xảo quyệt đệ nhất\".\n\n\n01:23:58.166 --> 01:24:00.375\nHợp với con quá.\n\n\n01:24:02.916 --> 01:24:04.708\nAnh gửi đến hả? Cảm ơn!\n\n\n01:24:05.166 --> 01:24:07.333\nMuốn chụp ảnh với tôi không?\nẢnh màu hay đen trắng?\n\n\n01:24:07.416 --> 01:24:11.291\nKhông, tôi là người\nhợp với danh hiệu này hơn anh.\n\n\n01:24:15.208 --> 01:24:16.583\nChúng tôi mở cửa từ hôm nay.\n\n\n01:24:16.666 --> 01:24:20.125\nCùng là người trong ngành,\nsau này mong anh giúp đỡ.\n\n\n01:24:21.041 --> 01:24:21.875\nKhông có gì.\n\n\n01:24:29.291 --> 01:24:33.958\nĐây là thiết bị kích điện loại nhỏ\ncó thể khiến người ta tự động hát.\n\n\n01:24:34.375 --> 01:24:36.416\nPhát minh mới nhất của Mỹ.\n\n\n01:24:36.708 --> 01:24:37.625\nẤn tượng đấy!\n\n\n01:24:43.875 --> 01:24:47.083\nTôi có Bàn Tay Tốc Độ\ncó thể cởi quần trong nháy mắt.\n\n\n01:24:47.166 --> 01:24:49.625\nĐây là sản phẩm của bố tôi\ntừ 25 năm trước.\n\n\n01:24:54.625 --> 01:24:56.375\nCó giỏ hoa quả.\n\n\n01:24:56.541 --> 01:24:57.958\n- Dừng tay!\n- Sao thế?\n\n\n01:24:58.208 --> 01:24:59.541\n{\\an8}\"Chuyên gia xảo quyệt đệ nhất\" ư?\n\n\n01:24:59.791 --> 01:25:00.666\n{\\an8}Cẩn thận!\n\n\n01:25:13.750 --> 01:25:15.166\nY như con nghĩ.\n\n\n01:25:16.500 --> 01:25:19.166\nKhông dễ lừa con đâu.\n\n\n01:25:19.583 --> 01:25:20.708\nBố lấy quả nho đó ở đâu ra?\n\n\n01:25:21.000 --> 01:25:22.125\nTừ giỏ hoa quả vừa rồi.\n\n\n01:25:22.708 --> 01:25:23.708\nCó bom đấy, cẩn thận!\n\n\n01:25:24.458 --> 01:25:25.375\nChẳng có gì hết.\n\n\n01:25:26.458 --> 01:25:27.458\nTrừ khi hạt nho là bom.\n\n\n01:25:34.083 --> 01:25:35.541\nMay mà hắn không dùng vũ khí hóa học.\n\n\n01:25:36.291 --> 01:25:38.666\nNhưng hắn xảo quyệt quá,\nchúng ta phải đặc biệt cẩn thận.\n\n\n01:25:39.583 --> 01:25:41.333\nBố có cần đi bệnh viện không?\n\n\n01:25:41.833 --> 01:25:42.791\nChúng ta là người thân,\n\n\n01:25:42.875 --> 01:25:44.625\nđương nhiên con\nphải chỉ bố đến bệnh viện rồi.\n\n\n01:25:44.708 --> 01:25:46.958\nĐi xe số bảy ngay trạm xe buýt dưới tầng,\nqua tám điểm dừng\n\n\n01:25:47.041 --> 01:25:48.541\nsẽ đến bệnh viện Quảng Hoa.\n\n\n01:25:49.166 --> 01:25:50.916\nCon tốt với bố quá, bố cảm động lắm.\n\n\n01:25:51.000 --> 01:25:51.833\nKhông có gì.\n\n\n01:25:52.958 --> 01:25:53.875\nKinh doanh thế nào?\n\n\n01:25:54.083 --> 01:25:55.166\nMacky, sao anh lại đến đây?\n\n\n01:25:55.250 --> 01:25:56.666\nTôi đã nói sẽ không giúp anh nữa mà.\n\n\n01:25:56.791 --> 01:25:59.500\nTôi biết. Cho nên tôi đã tìm được\nchuyên gia xảo quyệt đệ nhất rồi.\n\n\n01:26:00.750 --> 01:26:01.625\nTôi chưa nói sao?\n\n\n01:26:03.666 --> 01:26:05.625\nĐi thôi! Tạm biệt!\n\n\n01:26:06.708 --> 01:26:08.250\nTối nay, Lạc Nhi sẽ đính hôn.\n\n\n01:26:08.333 --> 01:26:09.416\nNhanh thế hả?\n\n\n01:26:10.125 --> 01:26:11.625\nMacky muốn tránh phiền phức.\n\n\n01:26:11.708 --> 01:26:13.375\nTệ là anh Kiệt làm Lạc Nhi giận rồi.\n\n\n01:26:13.458 --> 01:26:15.166\nHọ chỉ cãi nhau một trận thôi mà.\n\n\n01:26:15.416 --> 01:26:16.666\nPhải làm sao đây?\n\n\n01:26:16.750 --> 01:26:17.791\nPhải mau tìm ra anh Kiệt,\n\n\n01:26:17.875 --> 01:26:19.583\nbảo anh ấy đi xin lỗi Lạc Nhi là ổn rồi.\n\n\n01:26:19.666 --> 01:26:21.291\nHôm nay, con chắc chắn sẽ tìm được anh ấy.\n\n\n01:26:21.416 --> 01:26:23.750\nCon có đối phó được\nvới chuyên gia xảo quyệt đệ nhất không?\n\n\n01:26:23.833 --> 01:26:24.875\nĐương nhiên rồi.\n\n\n01:26:24.958 --> 01:26:27.416\nChuyên gia xảo quyệt\nđâu phải hữu danh vô thực.\n\n\n01:26:27.500 --> 01:26:29.041\nCon không chỉ có một vũ khí bí mật.\n\n\n01:26:29.125 --> 01:26:29.958\nLà gì thế?\n\n\n01:26:30.083 --> 01:26:31.541\nBí mật.\n\n\n01:26:33.583 --> 01:26:35.500\nĐã là bí mật thì không nên hỏi.\n\n\n01:26:35.583 --> 01:26:36.833\nMấy tuổi rồi vậy?\n\n\n01:26:44.000 --> 01:26:44.958\nAnh Kiệt kia kìa.\n\n\n01:26:46.208 --> 01:26:47.125\nSao con biết?\n\n\n01:26:47.208 --> 01:26:50.333\nNhìn tóc là con biết.\n\n\n01:26:51.041 --> 01:26:51.958\nThật hả?\n\n\n01:26:52.666 --> 01:26:54.416\nXA VĂN KIỆT\n\n\n01:26:54.500 --> 01:26:59.166\nKiệt...\n\n\n01:26:59.791 --> 01:27:02.083\nKiệt.\n\n\n01:27:02.791 --> 01:27:06.375\nĐủ rồi đấy!\nLạc Nhi và Macky tối nay sẽ đính hôn.\n\n\n01:27:06.458 --> 01:27:08.875\nChỉ là đính hôn thôi mà, đã cưới đâu.\n\n\n01:27:09.416 --> 01:27:10.875\nNhưng họ có thể lên giường rồi.\n\n\n01:27:10.958 --> 01:27:12.041\nSao phải lên giường?\n\n\n01:27:12.500 --> 01:27:14.208\nĐó là lẽ dĩ nhiên mà.\n\n\n01:27:14.541 --> 01:27:17.625\nNam nữ khi hứng lên\n\n\n01:27:17.708 --> 01:27:20.625\nthì sau màn dạo đầu, người nam sẽ...\n\n\n01:27:20.708 --> 01:27:21.708\nSẽ sao?\n\n\n01:27:22.166 --> 01:27:23.333\n- Sẽ sao?\n- Chính xác là gì?\n\n\n01:27:23.708 --> 01:27:25.166\nTháo thắt lưng.\n\n\n01:27:25.916 --> 01:27:28.208\nCòn người nữ, sẽ rút...\n\n\n01:27:28.416 --> 01:27:29.875\n- Rút gì?\n- Gì vậy?\n\n\n01:27:31.000 --> 01:27:33.916\nRút khăn tay đỏ ra. Sau đó, họ sẽ...\n\n\n01:27:34.000 --> 01:27:36.166\n- Tiếp theo là gì?\n- Tiếp theo là gì?\n\n\n01:27:36.250 --> 01:27:38.500\nSẽ bắt đầu lên giường.\n\n\n01:27:38.583 --> 01:27:40.458\n- Thế thôi?\n- Thế thôi?\n\n\n01:27:41.375 --> 01:27:42.333\nNó cái gì thế hả?\n\n\n01:27:42.458 --> 01:27:46.291\nGấp lắm! Con mau đi xin lỗi Lucy đi.\n\n\n01:27:46.416 --> 01:27:47.333\nĐúng thế!\n\n\n01:27:47.666 --> 01:27:50.458\nTôi không tin cậu,\ncậu thuê người đeo mặt nạ đánh người.\n\n\n01:27:50.791 --> 01:27:52.208\nNgười đeo mặt nạ là bố mà.\n\n\n01:27:52.291 --> 01:27:53.916\nBố còn bị con đánh mấy phát nữa.\n\n\n01:27:54.000 --> 01:27:55.791\nMọi người chỉ muốn con vui lên thôi,\n\n\n01:27:55.875 --> 01:27:57.166\nai ngờ lại tác dụng ngược.\n\n\n01:27:57.250 --> 01:27:58.166\n- Thật sao?\n- Thật.\n\n\n01:27:58.416 --> 01:27:59.625\n- Đúng vậy?\n- Đi thôi!\n\n\n01:28:00.250 --> 01:28:01.333\nNhưng quên chuyện phụ nữ đi.\n\n\n01:28:01.500 --> 01:28:04.000\nKhông được, quên chuyện gì\nchứ không được quên chuyện phụ nữ.\n\n\n01:28:04.083 --> 01:28:05.541\nPhải cưới cô ấy về rồi hành hạ cô ấy,\n\n\n01:28:05.625 --> 01:28:07.708\nbiến cô ấy thành người của anh.\n\n\n01:28:07.791 --> 01:28:11.208\nĐừng đưa cô ấy cho kẻ khác.\n\n\n01:28:11.291 --> 01:28:12.541\nBình tĩnh đi!\n\n\n01:28:12.750 --> 01:28:15.291\n- Bạn gái của anh mà.\n- Không phải của em?\n\n\n01:28:15.375 --> 01:28:16.833\n- Không.\n- Đi thôi!\n\n\n01:28:27.416 --> 01:28:29.958\nSếp, ngoài vườn đã sắp xếp xong rồi.\n\n\n01:28:30.916 --> 01:28:31.833\nCẩn thận đấy!\n\n\n01:28:32.083 --> 01:28:34.416\nBằng mọi giá phải giết ba kẻ đó.\n\n\n01:28:37.750 --> 01:28:40.000\nSếp, một nhóm múa lân đang đi vào.\n\n\n01:28:40.333 --> 01:28:43.166\nCó phải có hai con lân và một gã hề\n\n\n01:28:43.250 --> 01:28:44.416\nche mặt không?\n\n\n01:28:44.583 --> 01:28:45.708\nVâng, đúng rồi!\n\n\n01:28:45.833 --> 01:28:46.791\nChắc là bọn chúng đấy.\n\n\n01:28:51.875 --> 01:28:52.875\nĐúng là chúng rồi.\n\n\n01:29:07.750 --> 01:29:10.541\nĐừng đánh! Là tôi, là tôi.\n\n\n01:29:10.625 --> 01:29:11.791\nTrời ơi!\n\n\n01:29:12.333 --> 01:29:13.875\nÔng Trình, ông không sao chứ?\n\n\n01:29:13.958 --> 01:29:17.166\nKhông sao. Sao lại đánh chúng tôi?\n\n\n01:29:17.416 --> 01:29:19.000\n- Bị làm sao thế hả?\n- Xin lỗi!\n\n\n01:29:19.625 --> 01:29:23.041\nHai người còn lại là bạn lâu năm của tôi.\n\n\n01:29:23.333 --> 01:29:26.625\nChúng tôi đang ăn mừng bằng\nmàn múa lân, ai ngờ lại thành ra thế này.\n\n\n01:29:26.708 --> 01:29:27.791\nTôi xin lỗi! Tôi không cố ý.\n\n\n01:29:27.875 --> 01:29:29.291\nRất xin lỗi hai vị!\n\n\n01:29:29.375 --> 01:29:30.375\nĐể tôi đỡ.\n\n\n01:29:32.708 --> 01:29:34.791\nLạc Nhi, nghĩ lại đi.\n\n\n01:29:36.958 --> 01:29:38.333\nTình yêu không thể đùa giỡn được.\n\n\n01:29:39.541 --> 01:29:40.916\nTôi có thể làm gì?\n\n\n01:29:41.791 --> 01:29:44.458\nNếu yêu tôi, anh Kiệt sẽ đến.\n\n\n01:29:45.791 --> 01:29:48.208\nBọn tôi yêu nhau bao lâu rồi,\n\n\n01:29:48.291 --> 01:29:50.291\nanh ấy chưa từng nói yêu tôi.\n\n\n01:29:51.708 --> 01:29:53.791\nTình yêu không thể đùa giỡn,\n\n\n01:29:53.875 --> 01:29:55.791\nnhưng cũng không thể mù quáng vì yêu được.\n\n\n01:29:55.875 --> 01:29:57.333\nĐương nhiên là anh Kiệt yêu cậu rồi.\n\n\n01:29:57.416 --> 01:30:00.083\nVậy sao anh ấy không nói ra?\nĐâu có khó thế đâu.\n\n\n01:30:03.583 --> 01:30:04.875\nĐể tôi xem anh ấy đến chưa.\n\n\n01:30:21.166 --> 01:30:22.125\nRa đi!\n\n\n01:30:27.541 --> 01:30:28.416\nRa đi!\n\n\n01:31:06.375 --> 01:31:07.666\n- Chào!\n- Chào!\n\n\n01:31:09.625 --> 01:31:10.708\nXin chào!\n\n\n01:31:12.583 --> 01:31:14.500\n- Cứ tự nhiên nhé.\n- Được.\n\n\n01:31:14.583 --> 01:31:16.000\n- Cứ tự nhiên.\n- Chúc mừng!\n\n\n01:31:19.875 --> 01:31:21.666\n- Lạc Nhi kìa.\n- Đúng vậy.\n\n\n01:31:21.750 --> 01:31:22.583\nQua đó đi!\n\n\n01:31:24.333 --> 01:31:25.500\nXa Văn Kiệt!\n\n\n01:31:26.666 --> 01:31:28.250\nTôi sẽ xử lý hắn.\n\n\n01:31:28.333 --> 01:31:31.000\nCẩn thận, khách khứa rất nhiều,\nđừng để họ phát hiện.\n\n\n01:31:39.291 --> 01:31:41.208\n- Có làm được nữa không vậy?\n- Đương nhiên rồi.\n\n\n01:31:48.166 --> 01:31:49.041\nKiệt!\n\n\n01:31:49.333 --> 01:31:52.458\nLạc Nhi, em làm gì thế?\nĐừng quan tâm đến hắn.\n\n\n01:31:52.541 --> 01:31:53.416\nQua đây!\n\n\n01:32:00.791 --> 01:32:02.291\nĐã xong chưa?\n\n\n01:32:09.666 --> 01:32:11.291\n- Kiệt, đùi trái.\n- Rõ!\n\n\n01:32:26.791 --> 01:32:27.750\nĐi thôi!\n\n\n01:32:31.958 --> 01:32:34.916\nAnh Kiệt, mang nhẫn đính hôn\nđến cho Lạc Nhi đi.\n\n\n01:32:35.000 --> 01:32:36.958\nEm sẽ lo cho đám người này.\n\n\n01:32:44.333 --> 01:32:46.666\nAnh Kiệt, không được để hắn lấy nhẫn.\n\n\n01:32:46.875 --> 01:32:47.958\nVô dụng thôi.\n\n\n01:32:53.416 --> 01:32:57.958\nĐã bảo tránh ra rồi mà.\n\n\n01:32:58.375 --> 01:33:00.583\nĐánh hắn!\n\n\n01:33:04.458 --> 01:33:06.708\nSếp, bột này lau không đi đâu.\n\n\n01:33:06.791 --> 01:33:08.791\nSao thứ này có thể ngăn được tôi?\n\n\n01:33:08.958 --> 01:33:11.708\nBình tĩnh đi!\nBắt lấy hắn, rồi tôi sẽ từ từ xử lý hắn.\n\n\n01:33:26.041 --> 01:33:30.125\n{\\an8}KEO SIÊU DÍNH\n\n\n01:33:43.083 --> 01:33:46.208\nTrời, sao lại dính lại? Có ai không?\n\n\n01:33:46.291 --> 01:33:47.208\nCó ai không?\n\n\n01:33:47.291 --> 01:33:48.416\nSao vậy sếp?\n\n\n01:33:48.500 --> 01:33:50.416\nTôi không lấy tay ra khỏi đầu được.\n\n\n01:33:50.500 --> 01:33:51.333\nAnh đang đùa sao?\n\n\n01:33:51.416 --> 01:33:52.750\nĐương nhiên là không rồi, đồ ngu.\n\n\n01:33:52.833 --> 01:33:54.083\nĐể tôi ra ngoài hỏi.\n\n\n01:33:54.250 --> 01:33:56.791\nLấy khăn quấn người cho tôi\n\n\n01:33:56.875 --> 01:33:58.125\nvà xả tóc giúp tôi đã.\n\n\n01:33:58.208 --> 01:33:59.083\nĐược.\n\n\n01:34:00.541 --> 01:34:01.875\nNhanh lên!\n\n\n01:34:05.333 --> 01:34:06.625\nSao lại đưa tôi ra phòng khách?\n\n\n01:34:06.708 --> 01:34:07.583\nVì tôi phải trả thù.\n\n\n01:34:07.666 --> 01:34:08.833\nAnh là ai?\n\n\n01:34:08.916 --> 01:34:11.083\nChuyên gia xảo quyệt đẹp trai.\n\n\n01:34:15.375 --> 01:34:16.791\nSếp!\n\n\n01:34:17.458 --> 01:34:19.291\n- Đưa tôi ra khỏi đây.\n- Vào trong này!\n\n\n01:34:19.666 --> 01:34:22.625\nAi thế? Cậu ta đang làm cái gì vậy?\n\n\n01:34:22.875 --> 01:34:24.208\nMất mặt với khách khứa quá.\n\n\n01:34:24.291 --> 01:34:26.958\nCậu ta là bảo vệ mới thuê,\nchắc là điên rồi.\n\n\n01:34:27.791 --> 01:34:29.458\nÔng Trình, tôi vừa nghe thấy một tin đồn.\n\n\n01:34:29.541 --> 01:34:30.416\nTin gì?\n\n\n01:34:30.500 --> 01:34:34.125\nNghe buồn cười lắm, nghe nói anh Kim\nvà gã đó là đồng tính.\n\n\n01:34:55.708 --> 01:34:56.666\nAnh Kiệt!\n\n\n01:35:04.625 --> 01:35:05.916\nAnh nói gì?\n\n\n01:35:25.416 --> 01:35:26.291\nAnh Kiệt!\n\n\n01:35:36.166 --> 01:35:38.750\n- Lạc Nhi, em đi đâu?\n- Tôi phải đi tìm anh Kiệt.\n\n\n01:35:38.833 --> 01:35:41.500\n- Đừng đi, hắn đến gây chuyện thôi.\n- Không, tôi phải đi tìm anh ấy.\n\n\n01:35:41.583 --> 01:35:42.791\nKhông cần đâu, em nghỉ ngơi đi.\n\n\n01:35:42.875 --> 01:35:43.791\nVề nghỉ đi.\n\n\n01:35:43.875 --> 01:35:44.750\nAnh sẽ quay lại ngay.\n\n\n01:35:45.250 --> 01:35:48.000\nKhoan đã!\n\n\n01:35:57.083 --> 01:36:00.041\nCẩn thận chiếc áo\ncủa chuyên gia xảo quyệt đệ nhất.\n\n\n01:36:00.875 --> 01:36:02.958\nĐây là chiếc áo chơi khăm cay đỏ.\n\n\n01:36:03.125 --> 01:36:05.333\n- Đưa đồ đây!\n- Đây!\n\n\n01:36:06.166 --> 01:36:07.416\nÝ là vũ khí bí mật của con.\n\n\n01:36:07.625 --> 01:36:09.250\nCon nói là bí mật mà.\nLàm sao bố biết được.\n\n\n01:36:09.958 --> 01:36:11.583\n- Chiếc hộp kim loại trên xe.\n- Được.\n\n\n01:36:11.666 --> 01:36:13.750\nKhoan đã, bố gọi cảnh sát nữa đi.\n\n\n01:36:14.625 --> 01:36:16.416\nCổ Tinh, hôm nay\nmày không chạy được nữa rồi.\n\n\n01:36:16.500 --> 01:36:17.541\nLàm gì bây giờ?\n\n\n01:36:18.958 --> 01:36:22.208\nEm sẽ xử lý hắn,\nphần còn lại giao cho anh.\n\n\n01:36:23.541 --> 01:36:25.291\n- Chỉ thế thôi?\n- Còn cả chiếc áo này nữa.\n\n\n01:36:25.416 --> 01:36:26.250\nCảm ơn!\n\n\n01:36:28.375 --> 01:36:29.625\nLũ khốn, lại đây!\n\n\n01:36:29.958 --> 01:36:31.166\nĐông quá!\n\n\n01:36:31.250 --> 01:36:32.166\nQua đó đi!\n\n\n01:36:32.250 --> 01:36:34.541\nCảm ơn đã hợp tác! Qua đó, qua đó!\n\n\n01:36:34.625 --> 01:36:36.208\nTên khốn phải qua bên đó.\n\n\n01:36:36.291 --> 01:36:37.333\nTao không phải tên khốn.\n\n\n01:36:37.416 --> 01:36:39.083\nMày nghĩ mày không phải tên khốn?\n\n\n01:36:39.708 --> 01:36:41.166\nTự nhìn đi.\n\n\n01:36:42.166 --> 01:36:43.333\nNhìn cũng khá giống tên khốn.\n\n\n01:36:43.416 --> 01:36:45.333\nTự thừa nhận rồi đấy, qua bên kia đi.\n\n\n01:36:45.458 --> 01:36:46.375\nTrả gương lại đây!\n\n\n01:36:46.583 --> 01:36:47.708\nĐúng là tên khốn.\n\n\n01:36:52.958 --> 01:36:55.875\nNếu mày rút lui, tao sẽ tha cho mày\n\n\n01:36:55.958 --> 01:36:57.541\nđến ngày 15 tháng 1 năm sau.\n\n\n01:36:57.625 --> 01:36:59.500\nĐừng phí thời gian nữa, lại đây đi.\n\n\n01:36:59.666 --> 01:37:01.958\nĐược, đếm đến ba rồi tao sẽ ra tay.\n\n\n01:37:02.041 --> 01:37:03.000\nMột.\n\n\n01:37:11.583 --> 01:37:12.500\nTao vẫn ổn.\n\n\n01:37:17.125 --> 01:37:18.375\nVẫn ổn.\n\n\n01:37:32.583 --> 01:37:33.916\n- Vẫn ổn.\n- Vẫn ổn?\n\n\n01:37:51.333 --> 01:37:54.208\nViên ham muốn tối cao? Nâng hắn dậy!\n\n\n01:37:59.458 --> 01:38:00.791\n- Đừng làm thế!\n- Mở miệng ra!\n\n\n01:38:01.666 --> 01:38:03.291\nThử viên kích dục loại mạnh này đi.\n\n\n01:38:07.541 --> 01:38:08.541\nCảm ơn!\n\n\n01:38:21.083 --> 01:38:22.916\nCòn nhìn cái gì? Bắt lấy hắn!\n\n\n01:39:07.125 --> 01:39:09.833\nTất cả đứng yên!\nĐây là chuyện của hai chúng tôi.\n\n\n01:39:14.958 --> 01:39:17.125\nThử Mũ Đầy Máu này đi!\n\n\n01:39:32.083 --> 01:39:34.916\nMày biết sức mạnh của nó rồi đấy.\n\n\n01:39:35.708 --> 01:39:36.916\n<i>Mũ Đầy Máu.</i>\n\n\n01:39:37.000 --> 01:39:38.958\n<i>Chỉ cần chạm vào\ncũng sẽ khiến kem bắn đầy mặt.</i>\n\n\n01:39:39.083 --> 01:39:42.416\n<i>Một trong những vũ khí lợi hại\ncủa chuyên gia xảo quyệt đệ nhất.</i>\n\n\n01:39:44.708 --> 01:39:46.083\nSợ chưa hả?\n\n\n01:39:47.416 --> 01:39:49.458\nSao tao phải sợ kem?\n\n\n01:39:49.541 --> 01:39:51.000\nĐó là kem từ tối qua.\n\n\n01:39:51.166 --> 01:39:52.208\nHả?\n\n\n01:39:58.958 --> 01:40:00.875\nTừ tối qua cũng không có gì phải sợ.\n\n\n01:40:00.958 --> 01:40:04.291\nAi bảo mày sợ đâu, mày bị lừa rồi.\n\n\n01:40:04.791 --> 01:40:06.291\n- Nhìn hắn đi!\n- Mày!\n\n\n01:40:06.583 --> 01:40:08.000\nTao phải cho cả thế giới biết rằng\n\n\n01:40:08.083 --> 01:40:10.125\ntao mới là chuyên gia xảo quyệt hàng đầu.\n\n\n01:40:10.208 --> 01:40:11.166\nChết đi!\n\n\n01:40:12.458 --> 01:40:14.791\nTinh, bắt lấy!\n\n\n01:40:19.541 --> 01:40:21.166\nHộp siêu chơi khăm!\n\n\n01:40:21.541 --> 01:40:23.208\nCHUỐI ĐIỆN TỪ XA\n\n\n01:40:25.083 --> 01:40:26.083\nChuối!\n\n\n01:40:27.500 --> 01:40:28.333\nChuối thật sao?\n\n\n01:40:28.416 --> 01:40:29.666\n{\\an8}<i>Chuối Điện Từ Xa.</i>\n\n\n01:40:29.750 --> 01:40:31.458\n{\\an8}<i>Nó có sức mạnh siêu điện\nkhiến mày phát điên.</i>\n\n\n01:40:31.541 --> 01:40:33.875\n{\\an8}<i>Một vũ khí chơi khăm vô cùng mạnh.</i>\n\n\n01:40:40.541 --> 01:40:42.208\nChết tiệt!\n\n\n01:40:42.791 --> 01:40:44.041\nNữa này.\n\n\n01:40:48.291 --> 01:40:49.583\nBánh Bao Đậu Đỏ Nói Thật!\n\n\n01:40:50.958 --> 01:40:52.250\n<i>Bánh Bao Đậu Đỏ Nói Thật.</i>\n\n\n01:40:52.333 --> 01:40:55.166\n<i>Ăn đầy một miệng sẽ khiến người ăn\nphải nói sự thật trong vòng 30 giây.</i>\n\n\n01:40:55.250 --> 01:40:57.458\n<i>Phát minh mới của thập kỷ 90.</i>\n\n\n01:41:02.083 --> 01:41:04.166\nTôi là Cổ Tinh,\ntôi phụ giúp gia đình từ năm lên sáu.\n\n\n01:41:04.250 --> 01:41:05.583\nTôi bán máu để chữa bệnh cho mẹ.\n\n\n01:41:05.666 --> 01:41:07.208\nTôi kiểm tra được điểm cao khi lên mười.\n\n\n01:41:07.291 --> 01:41:08.875\nTôi trở thành thiếu niên tài năng khi 15.\n\n\n01:41:08.958 --> 01:41:11.291\nTôi thấy mình rất đẹp trai và thông minh.\n\n\n01:41:11.375 --> 01:41:12.958\nMichael Jackson thông minh nhất thế giới.\n\n\n01:41:13.041 --> 01:41:15.541\nNhà lãnh đạo của chúng ta hiện nay\nlà vĩ đại nhất thế giới.\n\n\n01:41:15.625 --> 01:41:16.541\nBÁNH BAO ĐẬU ĐỎ NÓI DỐI\n\n\n01:41:16.625 --> 01:41:18.208\nLấy nhầm Bánh Bao Đậu Đỏ Nói Dối?\n\n\n01:41:18.833 --> 01:41:19.666\nChết tiệt!\n\n\n01:41:22.458 --> 01:41:24.041\nKẹo Xấu Hổ!\n\n\n01:41:24.125 --> 01:41:25.583\n<i>Kẹo Xấu Hổ.</i>\n\n\n01:41:25.666 --> 01:41:28.833\n<i>Nó khiến người ăn phải thấy xấu hổ\nvề những việc làm không tốt của mình.</i>\n\n\n01:41:28.916 --> 01:41:30.958\n<i>Đây là loại vũ khí chơi khăm hàng đầu.</i>\n\n\n01:41:37.333 --> 01:41:38.583\nTôi sai rồi.\n\n\n01:41:39.583 --> 01:41:41.333\nTôi xấu hổ quá.\n\n\n01:41:42.625 --> 01:41:44.541\nĐến chín tuổi, tôi vẫn còn tè dầm.\n\n\n01:41:45.041 --> 01:41:47.041\nNăm 12 tuổi, tôi đã bước chân vào nhà thổ.\n\n\n01:41:47.500 --> 01:41:50.041\nNăm 13 tuổi thì mắc bệnh hoa liễu.\n\n\n01:41:50.916 --> 01:41:53.750\nTôi đưa mẹ đến Philippines\nlàm giúp việc năm 15 tuổi.\n\n\n01:41:53.833 --> 01:41:54.958\nĐược rồi!\n\n\n01:41:55.583 --> 01:42:00.250\nĐến giờ tôi vẫn chưa làm được\nviệc tốt nào, và tôi đồng tính.\n\n\n01:42:02.416 --> 01:42:04.000\nTôi xấu hổ quá.\n\n\n01:42:04.083 --> 01:42:05.416\nTôi không nên sống nữa.\n\n\n01:42:05.500 --> 01:42:07.291\n- Đúng vậy.\n- Sao mày không xuống địa ngục đi?\n\n\n01:42:07.375 --> 01:42:09.416\n- Tôi đáng chết.\n- Tao sẽ giúp mày.\n\n\n01:42:10.250 --> 01:42:11.166\n- Nhanh lên!\n- Cảm ơn!\n\n\n01:42:11.250 --> 01:42:12.333\nTự sát đi!\n\n\n01:42:19.416 --> 01:42:20.791\nỐng Tiêm Cứng Cơ.\n\n\n01:42:29.416 --> 01:42:30.333\nMuốn chạy?\n\n\n01:42:31.541 --> 01:42:33.333\n{\\an8}Keo Siêu Dính!\n\n\n01:42:48.666 --> 01:42:51.208\nMày tự tìm rắc rối rồi. Mày chết chưa?\n\n\n01:42:53.375 --> 01:42:57.875\nPhát điên mất! Vẫn chưa hạ được hắn.\n\n\n01:42:58.083 --> 01:43:01.208\nHắn muốn chết rồi.\n\n\n01:43:04.333 --> 01:43:06.125\nNắm Đấm Vàng!\n\n\n01:43:10.208 --> 01:43:12.041\nSao lại có thứ thế này?\n\n\n01:43:20.083 --> 01:43:22.125\n{\\an8}Súng Bột Đỏ!\n\n\n01:43:43.041 --> 01:43:45.958\nMày vẫn là chuyên gia xảo quyệt số một.\n\n\n01:43:46.625 --> 01:43:47.833\nChúc mừng!\n\n\n01:43:53.125 --> 01:43:55.708\nCó người gọi điện báo nhìn thấy\nkẻ cướp ngân hàng mặc đồ đỏ.\n\n\n01:43:55.791 --> 01:43:57.750\nVừa đúng lúc,\nđám người này đang làm loạn nhà tôi.\n\n\n01:43:57.833 --> 01:43:58.666\nBắt lấy chúng đi!\n\n\n01:43:59.083 --> 01:44:00.500\nSao có nhiều kẻ mặc đồ đỏ vậy?\n\n\n01:44:04.875 --> 01:44:06.333\n- Bắt hết chúng lại!\n- Vâng!\n\n\n01:44:06.416 --> 01:44:07.375\nMau lên!\n\n\n01:44:11.583 --> 01:44:13.250\nCứu với!\n\n\n01:44:13.791 --> 01:44:15.291\nĐừng đuổi theo tôi!\n\n\n01:44:15.416 --> 01:44:16.708\nLạc Nhi, cứu anh!\n\n\n01:44:16.791 --> 01:44:17.625\nAnh Kiệt!\n\n\n01:44:17.708 --> 01:44:19.041\nĐừng để hắn đến gần!\n\n\n01:44:21.833 --> 01:44:23.791\nTôi vô tội, đừng đánh tôi.\n\n\n01:44:28.125 --> 01:44:30.166\nĐừng, đừng đánh tôi.\n\n\n01:44:31.166 --> 01:44:32.125\nAnh Kiệt!\n\n\n01:44:34.083 --> 01:44:37.083\nLạc Nhi, anh đã làm tất cả để được gặp em.\n\n\n01:44:37.166 --> 01:44:39.375\nTốt rồi, chúng ta đi xuống\nnói chuyện với bố em đi.\n\n\n01:44:39.458 --> 01:44:41.333\n- Đi thôi!\n- Đi lối này.\n\n\n01:44:41.416 --> 01:44:42.250\nĐược.\n\n\n01:44:51.250 --> 01:44:52.541\nĐến rồi.\n\n\n01:45:01.583 --> 01:45:03.208\nĐã xong chưa?\n\n\n01:45:05.000 --> 01:45:07.583\nBố, con muốn cưới anh Kiệt.\n\n\n01:45:08.166 --> 01:45:10.291\nĐúng vậy!\nÔng Trình, xin hãy cho phép chúng tôi.\n\n\n01:45:11.125 --> 01:45:15.458\nCậu có thể trở nên to lớn như thế này,\nsao tôi từ chối được?\n\n\n01:45:39.125 --> 01:45:40.583\nĐúng là một cặp đầy ham muốn.\n\n\n01:45:41.791 --> 01:45:43.083\nSao lại nói Kiệt như thế?\n\n\n01:45:43.416 --> 01:45:44.250\nVậy thì nói gì?\n\n\n01:45:45.041 --> 01:45:46.583\nMột cặp gian phu dâm phụ.\n\n\n01:45:46.666 --> 01:45:48.041\nPhải, bố nói đúng.\n\n\n01:45:50.458 --> 01:45:51.416\nChúng ta làm gì bây giờ?\n\n\n01:45:51.500 --> 01:45:52.583\nEm muốn làm gì?\n\n\n01:45:52.916 --> 01:45:54.166\nMuốn làm đám cưới.\n\n\n01:45:54.791 --> 01:45:56.041\nEm phải hỏi ý kiến mẹ anh đã.\n\n\n01:45:56.250 --> 01:45:57.500\nBà ấy ở ngay kia kìa.\n\n\n01:45:59.833 --> 01:46:00.833\nMẹ!\n\n\n01:46:05.916 --> 01:46:07.250\nĐây là...\n\n\n01:46:09.375 --> 01:46:11.666\nMaggie, là em sao?\n\n\n01:46:12.083 --> 01:46:13.333\nAnh Xa!\n\n\n01:46:16.083 --> 01:46:17.208\nLâu rồi không gặp.\n\n\n01:46:18.083 --> 01:46:20.875\nVào một đêm mưa gió 20 năm trước,\nchúng ta...\n\n\n01:46:22.416 --> 01:46:24.916\nĐừng nhắc nữa. Chúng ta già rồi mà.\n\n\n01:46:26.541 --> 01:46:29.458\nSau đêm đó, em sống ra sao?\n\n\n01:46:29.875 --> 01:46:32.875\nEm mang thai con của anh.\n\n\n01:46:33.125 --> 01:46:35.375\nThật sao? Giờ nó ở đâu?\n\n\n01:46:37.083 --> 01:46:38.166\nTinh chính là con anh.\n\n\n01:46:38.291 --> 01:46:39.166\n- Hả?\n- Hả?\n\n\n01:46:39.916 --> 01:46:41.041\nLà bố?\n\n\n01:46:41.125 --> 01:46:43.208\n- Vậy bố chính là...\n- Bố?\n\n\n01:47:17.083 --> 01:47:22.083\nHẾT\n\n\n01:47:24.208 --> 01:47:26.916\nBiên dịch: Bùi Phương Thanh\n"
-      },
-      {
         "label": "Phụ đề",
         "sources": [
           "https://v7.kkphimplayer7.com/20260712/aiBeOpiu/index.m3u8",
           "https://v7.kkphimplayer7.com/20260712/aiBeOpiu/3500kb/hls/index.m3u8"
+        ]
+      },
+      {
+        "label": "Thuyết Minh",
+        "sources": [
+          "https://v7.kkphimplayer7.com/20260712/pD1shmht/index.m3u8",
+          "https://v7.kkphimplayer7.com/20260712/pD1shmht/3500kb/hls/index.m3u8"
         ]
       }
     ]
@@ -28056,7 +28592,119 @@ const CATALOG = [
         ]
       }
     ]
-  } // Kẻ thao Túng Mạng Xã Hội 1
+  }, // Kẻ thao Túng Mạng Xã Hội 1
+  {
+    "id": 523,
+    "title": "Furious",
+    "poster": "https://image.tmdb.org/t/p/w500/xnxxrEKtBaIcI1ewq50pLkOMU6u.jpg",
+    "desc": "FBI agent Alice Black is on the hunt for a mysterious and calculating female serial killer. Both walk their own paths toward justice, and as their lives start to intertwine, the line between right and wrong begins to blur.",
+    "rating": 7.296,
+    "year": "2026",
+    "genre": [
+      "Chính Kịch",
+      "Tội Phạm"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 287238,
+    "episodes": [
+      {
+        "label": "Tập 1",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260807/uv3jOE1J/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260807/uv3jOE1J/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 2",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260807/R0J1b4HO/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260807/R0J1b4HO/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 3",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260807/wyWiyTsj/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260807/wyWiyTsj/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 4",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260807/ZxzOWTWq/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260807/ZxzOWTWq/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 5",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260812/THnwlec2/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260812/THnwlec2/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 6",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260818/8tbPOkhG/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260818/8tbPOkhG/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 7",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260905/GBm3By0m/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260905/GBm3By0m/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 8",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260905/PXoG77nw/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260905/PXoG77nw/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      }
+    ]
+  } // Furious
 ];
 
 let hls = null;
@@ -28070,7 +28718,8 @@ function cardHtml(m){
   const epBadge = m.type === "bo" ? `<span class="badge ep">${m.episodes.length} tập</span>` : "";
   const hotBadge = m.hot ? `<span class="badge">HOT</span>` : "";
   return `
-    <div class="movie-card" onclick="openPlayer(${m.id})">
+    <div class="movie-card" tabindex="0" role="button" aria-label="${m.title}"
+         onclick="openPlayer(${m.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer(${m.id});}">
       <div class="poster-wrap">
         <img src="${m.poster}" alt="${m.title}" loading="lazy">
         ${hotBadge}${epBadge}
@@ -28092,18 +28741,40 @@ function renderGrid(elId, list){
 
 function renderGenreChips(){
   const genres = ["Tất cả", ...new Set(movies.flatMap(m => m.genre))];
-  const el = document.getElementById("genreSelect");
-  el.innerHTML = genres.map(g => `<option value="${g}" ${g===activeGenre?'selected':''}>${g}</option>`).join("");
+  document.getElementById("genreDropdownList").innerHTML = genres.map(g =>
+    `<li><button type="button" class="${g===activeGenre?'current':''}" onclick="setGenre('${g.replace(/'/g,"\\'")}')">${g}</button></li>`
+  ).join("");
+  document.getElementById("genreDropdownText").textContent = activeGenre === "Tất cả" ? "Thể loại" : activeGenre;
 }
 
 function renderCountryChips(){
   const countries = ["Tất cả", ...new Set(movies.map(m => m.country))];
-  const el = document.getElementById("countrySelect");
-  el.innerHTML = countries.map(c => `<option value="${c}" ${c===activeCountry?'selected':''}>${c}</option>`).join("");
+  document.getElementById("countryDropdownList").innerHTML = countries.map(c =>
+    `<li><button type="button" class="${c===activeCountry?'current':''}" onclick="setCountry('${c.replace(/'/g,"\\'")}')">${c}</button></li>`
+  ).join("");
+  document.getElementById("countryDropdownText").textContent = activeCountry === "Tất cả" ? "Quốc gia" : activeCountry;
 }
 
-function setGenre(g){ activeGenre = g; applyFilters(); }
-function setCountry(c){ activeCountry = c; applyFilters(); }
+function setGenre(g){ activeGenre = g; renderGenreChips(); closeAllDropdowns(); applyFilters(); }
+function setCountry(c){ activeCountry = c; renderCountryChips(); closeAllDropdowns(); applyFilters(); }
+
+// Dropdown tự làm (không dùng <select> gốc) — bấm nút là hiện danh sách ngay, hoạt động giống nhau
+// trên mọi trình duyệt/TV, không phụ thuộc cách mỗi hãng TV tự hiển thị <select> gốc.
+function toggleDropdown(id){
+  const dd = document.getElementById(id);
+  const isOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if(!isOpen) dd.classList.add('open');
+}
+function closeAllDropdowns(){
+  document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+}
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.dropdown')) closeAllDropdowns();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeAllDropdowns();
+});
 
 function applyFilters(){
   const filtered = movies.filter(m =>
@@ -28292,9 +28963,9 @@ function showSourceError(video){
 // - Nếu không có "versions" -> coi như phim chỉ có 1 bản duy nhất (không hiện tab chọn)
 function getVersions(obj){
   if(Array.isArray(obj.versions) && obj.versions.length){
-    return obj.versions.map(v => ({ label: v.label, sources: getSources(v) }));
+    return obj.versions.map(v => ({ label: v.label, sources: getSources(v), subtitleVtt: v.subtitleVtt || null }));
   }
-  return [{ label: null, sources: getSources(obj) }];
+  return [{ label: null, sources: getSources(obj), subtitleVtt: obj.subtitleVtt || null }];
 }
 
 let currentMovieId = null;
@@ -28323,6 +28994,23 @@ function selectEpisode(epIndex){
 function selectVersion(vIndex){
   currentVersionIndex = vIndex;
   renderPlayerState();
+}
+
+// Gắn/gỡ phụ đề (.vtt đã lưu chết sẵn trong data phim) vào video đang phát
+let currentSubtitleBlobUrl = null;
+function applySubtitleTrack(video, vttText){
+  [...video.querySelectorAll('track')].forEach(t => t.remove());
+  if(currentSubtitleBlobUrl){ URL.revokeObjectURL(currentSubtitleBlobUrl); currentSubtitleBlobUrl = null; }
+  if(!vttText) return;
+  const blob = new Blob([vttText], { type: 'text/vtt' });
+  currentSubtitleBlobUrl = URL.createObjectURL(blob);
+  const track = document.createElement('track');
+  track.kind = 'subtitles';
+  track.label = 'Phụ đề';
+  track.srclang = 'vi';
+  track.src = currentSubtitleBlobUrl;
+  track.default = true;
+  video.appendChild(track);
 }
 
 function renderPlayerState(){
@@ -28356,14 +29044,8 @@ function renderPlayerState(){
   }
 
   const idx = Math.min(currentVersionIndex, versions.length - 1);
+  applySubtitleTrack(video, versions[idx].subtitleVtt);
   tryPlaySources(video, versions[idx].sources);
-
-}
-
-async function tryPlaySources(video, sources){
-  currentSources = sources;
-  currentSourceIndex = 0;
-  await loadSource(video, sources[0]);
 }
 
 async function loadSource(video, src){
@@ -28389,6 +29071,7 @@ function closePlayer(){
   video.onerror = null;
   video.pause();
   video.removeAttribute('src');
+  applySubtitleTrack(video, null);
   video.load();
   if(hls){ hls.destroy(); hls = null; }
   document.getElementById('modalOverlay').classList.remove('open');
@@ -28402,6 +29085,7 @@ document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape') closePlayer();
 });
 
+applyTheme();
 loadHome();
 </script>
 </body>
