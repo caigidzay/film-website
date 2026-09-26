@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js" defer></script>
+<!-- canvas-confetti: thư viện hiệu ứng pháo giấy/pháo hoa mã nguồn mở (MIT license), dùng cho theme Năm Mới -->
 <!-- hls.js được tải sẵn ngay từ đầu (không chặn hiển thị trang nhờ "defer") để đảm bảo ổn định trên
      mọi trình duyệt/thiết bị — kể cả Chrome (Chrome KHÔNG hỗ trợ phát HLS bằng phần cứng nên luôn cần
      hls.js). Xem hàm loadSource() ở cuối file: với thiết bị nào hỗ trợ phát HLS bằng phần cứng (nhiều
@@ -326,21 +328,29 @@
     100%{transform:translate(var(--drift,20px), 105vh) rotate(200deg); opacity:0;}
   }
 
-  /* Bay khắp màn hình theo đường chéo ngẫu nhiên — dùng chung cho bí ngô/phù thuỷ/ông già Noel */
-  .fly-random{animation:flyrandom linear infinite;}
+  /* Bay khắp màn hình theo đường chéo ngẫu nhiên — dùng chung cho bí ngô/phù thuỷ/ông già Noel
+     LƯU Ý: không đặt "infinite" — mỗi hạt chạy 1 lần rồi bị JS xoá + tạo hạt mới thay thế
+     (xem addFlyParticle) để tránh phình bộ nhớ theo thời gian, đỡ nặng máy/TV yếu khi mở lâu. */
+  .fly-random{animation:flyrandom linear;}
   @keyframes flyrandom{
     0%{transform:translate(var(--sx), var(--sy)) rotate(var(--r1,0deg)) scale(var(--sc,1)); opacity:0;}
     8%{opacity:1;}
     92%{opacity:1;}
     100%{transform:translate(var(--ex), var(--ey)) rotate(var(--r2,0deg)) scale(var(--sc,1)); opacity:0;}
   }
-  .pumpkin-wing{font-size:38px; filter:drop-shadow(0 4px 10px rgba(255,138,43,.45));}
+  .pumpkin-wing{font-size:38px;}
   .witch-fly{font-size:34px; filter:drop-shadow(0 4px 10px rgba(138,63,252,.4));}
   .santa-fly{font-size:36px; filter:drop-shadow(0 4px 10px rgba(232,184,75,.4)); white-space:nowrap;}
   .pumpkin-glow{font-size:16px; opacity:.7; animation:flicker 2.4s ease-in-out infinite;}
   @keyframes flicker{0%,100%{opacity:.35;} 50%{opacity:.85;}}
+  /* Bí ngô bay chớp sáng cam đỏ liên tục — tạo cảm giác ghê rợn, tách riêng khỏi animation vị trí */
+  .pumpkin-flicker{display:inline-block; animation:pumpkinflicker .5s ease-in-out infinite alternate;}
+  @keyframes pumpkinflicker{
+    0%{filter:drop-shadow(0 0 6px rgba(255,150,40,.55)) brightness(1);}
+    100%{filter:drop-shadow(0 0 20px rgba(255,70,10,.95)) brightness(1.4);}
+  }
 
-  /* Năm mới: pháo giấy rơi + pháo hoa nổ ngẫu nhiên */
+  /* Năm mới: pháo giấy rơi + ngôi sao lấp lánh rơi xen kẽ + pháo hoa nổ ngẫu nhiên */
   .confetti{width:8px; height:12px; animation:confettifall linear infinite;}
   @keyframes confettifall{
     0%{transform:translate(0,-10vh) rotate(0deg); opacity:0;}
@@ -348,18 +358,18 @@
     92%{opacity:1;}
     100%{transform:translate(var(--drift,30px), 105vh) rotate(540deg); opacity:0;}
   }
-  .firework-wrap{position:absolute;}
-  .firework-spark{
-    position:absolute; top:0; left:0; width:5px; height:5px; border-radius:50%;
-    animation:fwspark 1s ease-out forwards;
+  .ny-star{font-size:16px; animation:starfall linear infinite, twinkle 1s ease-in-out infinite alternate;}
+  @keyframes starfall{
+    0%{transform:translate(0,-10vh) rotate(0deg); opacity:0;}
+    8%{opacity:1;}
+    92%{opacity:1;}
+    100%{transform:translate(var(--drift,30px), 105vh) rotate(180deg); opacity:0;}
   }
-  @keyframes fwspark{
-    0%{transform:translate(0,0) scale(1); opacity:1;}
-    100%{transform:translate(var(--fx), var(--fy)) scale(.2); opacity:0;}
-  }
+  @keyframes twinkle{0%{filter:brightness(1) drop-shadow(0 0 2px #fff6);} 100%{filter:brightness(1.6) drop-shadow(0 0 8px #fffb);}}
 
-  /* Trung Thu: lồng đèn đung đưa bay tới bay lui + bánh trung thu rơi */
-  .lantern{filter:drop-shadow(0 4px 12px rgba(255,178,56,.5)); animation:lanternsway ease-in-out infinite;}
+  /* Trung Thu: lồng đèn đung đưa bay tới bay lui, chớp sáng huyền bí + bánh trung thu rơi
+     (cũng bỏ "infinite" ở đường bay, xem addLanternParticle để hiểu cơ chế tự thay hạt) */
+  .lantern{font-size:34px; animation:lanternsway ease-in-out;}
   @keyframes lanternsway{
     0%{transform:translate(var(--sx), var(--sy)) rotate(-7deg); opacity:0;}
     10%{opacity:1;}
@@ -367,7 +377,13 @@
     90%{opacity:1;}
     100%{transform:translate(var(--sx), var(--ey)) rotate(-7deg); opacity:0;}
   }
+  .lantern-flicker{display:inline-block; animation:lanternflicker 1.4s ease-in-out infinite alternate;}
+  @keyframes lanternflicker{
+    0%{filter:drop-shadow(0 0 8px rgba(255,178,56,.5)) brightness(1);}
+    100%{filter:drop-shadow(0 0 24px rgba(255,120,30,.95)) brightness(1.3);}
+  }
   .mooncake{font-size:20px; animation:snowfall linear infinite;}
+  .ornament-fall{font-size:19px; animation:snowfall linear infinite;}
 
   /* dải ruy băng theo mùa, thay cho sprockets phim khi có theme */
   .theme-banner-accent{height:4px; background:linear-gradient(90deg, var(--theme-accent-1,var(--gold)), var(--theme-accent-2,var(--crimson)), var(--theme-accent-1,var(--gold)));}
@@ -532,7 +548,9 @@ function applyTheme(){
   }
 }
 
-// Thêm 1 "vật bay" theo đường chéo ngẫu nhiên, xuất hiện rồi biến mất, lặp lại ngẫu nhiên
+// Thêm 1 "vật bay" theo đường chéo ngẫu nhiên. Khi bay xong (animationend) sẽ TỰ XOÁ khỏi trang
+// rồi mới tạo 1 hạt mới thay thế — nhờ vậy số lượng phần tử luôn cố định, không phình to theo
+// thời gian mở trang (tránh rò rỉ bộ nhớ, đỡ nặng máy/TV yếu khi mở nhiều giờ liền).
 function addFlyParticle(container, className, html, opts={}){
   const el = document.createElement('div');
   el.className = 'theme-particle fly-random ' + className;
@@ -545,15 +563,23 @@ function addFlyParticle(container, className, html, opts={}){
   el.style.setProperty('--r2', (Math.random()*26-13) + 'deg');
   el.style.setProperty('--sc', (0.85 + Math.random()*0.5).toFixed(2));
   el.style.animationDuration = ((opts.minDur||16) + Math.random()*(opts.durRange||12)) + 's';
-  el.style.animationDelay = (Math.random()*(opts.maxDelay||16)) + 's';
+  el.style.animationDelay = (Math.random()*(opts.maxDelay!=null ? opts.maxDelay : 16)) + 's';
   container.appendChild(el);
+  el.addEventListener('animationend', function onEnd(){
+    el.removeEventListener('animationend', onEnd);
+    el.remove();
+    if(document.body.contains(container)){
+      addFlyParticle(container, className, html, { minDur:opts.minDur, durRange:opts.durRange, maxDelay: opts.recycleDelay!=null ? opts.recycleDelay : 4 });
+    }
+  }, { once:true });
 }
 
 // Lồng đèn Trung Thu: đung đưa "bay tới bay lui" (đi rồi quay lại) chứ không bay 1 chiều như bí ngô/phù thuỷ
-function addLanternParticle(container){
+// Cũng tự xoá + tạo lại sau mỗi vòng bay để không tích luỹ phần tử theo thời gian.
+function addLanternParticle(container, opts={}){
   const el = document.createElement('div');
   el.className = 'theme-particle lantern';
-  el.innerHTML = LANTERN_SVG;
+  el.innerHTML = '<span class="lantern-flicker">🏮</span>';
   const sx = (Math.random()*80+5) + 'vw';
   const mx = (Math.random()*80+5) + 'vw';
   const sy = (Math.random()*70+5) + 'vh';
@@ -565,55 +591,32 @@ function addLanternParticle(container){
   el.style.setProperty('--my', my);
   el.style.setProperty('--ey', ey);
   el.style.animationDuration = (14 + Math.random()*8) + 's';
-  el.style.animationDelay = (Math.random()*12) + 's';
+  el.style.animationDelay = (Math.random()*(opts.maxDelay!=null ? opts.maxDelay : 12)) + 's';
   container.appendChild(el);
+  el.addEventListener('animationend', function onEnd(){
+    el.removeEventListener('animationend', onEnd);
+    el.remove();
+    if(document.body.contains(container)){
+      addLanternParticle(container, { maxDelay: 3 });
+    }
+  }, { once:true });
 }
 
-// Bí ngô có cánh — hình vẽ gốc (không phải nhân vật có sẵn), mặt cười kiểu đèn lồng Halloween
-const PUMPKIN_WING_SVG = `<svg viewBox="0 0 100 60" width="46" height="28">
-  <path d="M14 30 C-4 18 -6 46 16 44 C8 38 8 32 14 30 Z" fill="#2a2036" opacity=".9"/>
-  <path d="M86 30 C104 18 106 46 84 44 C92 38 92 32 86 30 Z" fill="#2a2036" opacity=".9"/>
-  <ellipse cx="50" cy="34" rx="24" ry="19" fill="#ff8a2b"/>
-  <ellipse cx="50" cy="34" rx="24" ry="19" fill="none" stroke="#c65a12" stroke-width="2"/>
-  <rect x="47" y="10" width="6" height="10" rx="2" fill="#6b4423"/>
-  <path d="M39 30 L44 37 L50 30 L56 37 L61 30" stroke="#3a2410" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M38 42 Q50 50 62 42" stroke="#3a2410" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-</svg>`;
-
-// Lồng đèn giấy Trung Thu — hình vẽ gốc, dáng tròn truyền thống, không phải nhân vật có sẵn
-const LANTERN_SVG = `<svg viewBox="0 0 60 90" width="32" height="48">
-  <rect x="24" y="2" width="12" height="9" rx="2" fill="#ffd98a"/>
-  <ellipse cx="30" cy="44" rx="23" ry="27" fill="#d6342c"/>
-  <ellipse cx="30" cy="44" rx="23" ry="27" fill="none" stroke="#ffd98a" stroke-width="2"/>
-  <line x1="30" y1="18" x2="30" y2="70" stroke="#ffd98a" stroke-width="1.4" opacity=".65"/>
-  <line x1="13" y1="26" x2="13" y2="62" stroke="#ffd98a" stroke-width="1.2" opacity=".5"/>
-  <line x1="47" y1="26" x2="47" y2="62" stroke="#ffd98a" stroke-width="1.2" opacity=".5"/>
-  <circle cx="30" cy="44" r="9" fill="#ffe9a8" opacity=".85"/>
-  <rect x="24" y="70" width="12" height="7" rx="2" fill="#ffd98a"/>
-  <line x1="30" y1="77" x2="30" y2="88" stroke="#ffd98a" stroke-width="2"/>
-</svg>`;
-
 // Sinh 1 quả pháo hoa nổ tại vị trí ngẫu nhiên, tự biến mất sau khi nổ xong
-function spawnFirework(container){
-  const wrap = document.createElement('div');
-  wrap.className = 'theme-particle firework-wrap';
-  wrap.style.left = (8 + Math.random()*80) + 'vw';
-  wrap.style.top = (8 + Math.random()*55) + 'vh';
-  const colors = ['#ffd166','#c8102e','#4ea8de','#f3efe4','#7fd858','#e8b84b'];
-  const color = colors[Math.floor(Math.random()*colors.length)];
-  const sparkCount = 12;
-  for(let i = 0; i < sparkCount; i++){
-    const spark = document.createElement('div');
-    spark.className = 'firework-spark';
-    const angle = (i / sparkCount) * 2 * Math.PI;
-    const dist = 36 + Math.random()*28;
-    spark.style.setProperty('--fx', Math.cos(angle)*dist + 'px');
-    spark.style.setProperty('--fy', Math.sin(angle)*dist + 'px');
-    spark.style.background = color;
-    wrap.appendChild(spark);
-  }
-  container.appendChild(wrap);
-  setTimeout(() => wrap.remove(), 1100);
+// Bắn 1 loạt pháo hoa bằng thư viện canvas-confetti (mã nguồn mở, MIT license) — mượt và đẹp hơn tự code
+function spawnFirework(){
+  if(typeof confetti !== 'function') return;
+  confetti({
+    particleCount: 60,
+    startVelocity: 32,
+    spread: 360,
+    ticks: 90,
+    gravity: 0.9,
+    scalar: 1.1,
+    origin: { x: Math.random(), y: Math.random()*0.5 },
+    colors: ['#ffd166','#c8102e','#4ea8de','#f3efe4','#7fd858','#e8b84b'],
+    disableForReducedMotion: true,
+  });
 }
 
 // Sinh hiệu ứng trang trí theo theme — số lượng giữ vừa phải để không nặng máy/TV yếu
@@ -634,19 +637,30 @@ function spawnThemeEffect(effect){
       el.style.animationDelay = (Math.random()*10) + 's';
       frag.appendChild(el);
     }
-    layer.appendChild(frag);
-    // Ông già Noel cưỡi xe kéo chở quà, bay chéo màn hình ngẫu nhiên
-    for(let i = 0; i < 2; i++){
-      addFlyParticle(layer, 'santa-fly', '🎅🛷🎁', { minDur:16, durRange:10, maxDelay:18 });
+    // Đồ trang trí cây thông rơi xen kẽ tuyết — hộp quà, trái châu, chuông, kẹo — cho cảm giác ấm cúng
+    const ornaments = ['🎁','🔔','🍬','⭐','🧦'];
+    for(let i = 0; i < 16; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle ornament-fall';
+      el.textContent = ornaments[i % ornaments.length];
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.setProperty('--drift', (Math.random()*90-45) + 'px');
+      el.style.animationDuration = (10 + Math.random()*8) + 's';
+      el.style.animationDelay = (Math.random()*12) + 's';
+      frag.appendChild(el);
     }
-    setInterval(() => addFlyParticle(layer, 'santa-fly', '🎅🛷🎁', { minDur:16, durRange:10, maxDelay:2 }), 9000);
+    layer.appendChild(frag);
+    // Ông già Noel cưỡi xe kéo chở quà, bay chéo màn hình ngẫu nhiên — tự thay hạt mới, không rò rỉ bộ nhớ
+    for(let i = 0; i < 2; i++){
+      addFlyParticle(layer, 'santa-fly', '🎅🛷🎁', { minDur:16, durRange:10, maxDelay:18, recycleDelay:6 });
+    }
 
   } else if(effect === 'halloween'){
     for(let i = 0; i < 6; i++){
-      addFlyParticle(layer, 'pumpkin-wing', PUMPKIN_WING_SVG, { minDur:13, durRange:9, maxDelay:14 });
+      addFlyParticle(layer, 'pumpkin-wing', '<span class="pumpkin-flicker">🎃</span>', { minDur:13, durRange:9, maxDelay:14, recycleDelay:3 });
     }
     for(let i = 0; i < 3; i++){
-      addFlyParticle(layer, 'witch-fly', '🧙\u200d♀️', { minDur:12, durRange:8, maxDelay:14 });
+      addFlyParticle(layer, 'witch-fly', '🧙\u200d♀️', { minDur:12, durRange:8, maxDelay:14, recycleDelay:3 });
     }
     for(let i = 0; i < 10; i++){
       const el = document.createElement('div');
@@ -658,12 +672,10 @@ function spawnThemeEffect(effect){
       frag.appendChild(el);
     }
     layer.appendChild(frag);
-    setInterval(() => addFlyParticle(layer, 'pumpkin-wing', PUMPKIN_WING_SVG, { minDur:13, durRange:9, maxDelay:2 }), 6000);
-    setInterval(() => addFlyParticle(layer, 'witch-fly', '🧙\u200d♀️', { minDur:12, durRange:8, maxDelay:2 }), 8000);
 
   } else if(effect === 'newyear'){
     const colors = ['#ffd166','#c8102e','#4ea8de','#f3efe4'];
-    for(let i = 0; i < 30; i++){
+    for(let i = 0; i < 24; i++){
       const el = document.createElement('div');
       el.className = 'theme-particle confetti';
       el.style.left = Math.random()*100 + 'vw';
@@ -673,10 +685,25 @@ function spawnThemeEffect(effect){
       el.style.animationDelay = (Math.random()*8) + 's';
       frag.appendChild(el);
     }
+    // Ngôi sao lấp lánh rơi xen kẽ pháo giấy
+    for(let i = 0; i < 14; i++){
+      const el = document.createElement('div');
+      el.className = 'theme-particle ny-star';
+      el.textContent = i % 2 === 0 ? '⭐' : '✨';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.setProperty('--drift', (Math.random()*100-50) + 'px');
+      el.style.animationDuration = (8 + Math.random()*6) + 's';
+      el.style.animationDelay = (Math.random()*9) + 's';
+      frag.appendChild(el);
+    }
     layer.appendChild(frag);
-    // Pháo hoa nổ ngẫu nhiên trên màn hình, lặp lại liên tục
-    spawnFirework(layer);
-    setInterval(() => spawnFirework(layer), 1300 + Math.random()*900);
+    // Pháo hoa nổ bằng canvas-confetti — chờ thư viện tải xong (script defer) rồi mới bắn
+    const startFireworks = () => {
+      spawnFirework();
+      setInterval(spawnFirework, 1300 + Math.random()*900);
+    };
+    if(typeof confetti === 'function') startFireworks();
+    else window.addEventListener('load', startFireworks, { once: true });
 
   } else if(effect === 'trungthu'){
     // Bánh trung thu rơi rào rào khắp màn hình
@@ -691,11 +718,10 @@ function spawnThemeEffect(effect){
       frag.appendChild(el);
     }
     layer.appendChild(frag);
-    // Lồng đèn đung đưa bay tới bay lui
+    // Lồng đèn đung đưa bay tới bay lui, chớp sáng huyền bí — tự thay hạt mới, không rò rỉ bộ nhớ
     for(let i = 0; i < 6; i++){
       addLanternParticle(layer);
     }
-    setInterval(() => addLanternParticle(layer), 7000);
   }
 }
 
@@ -21889,8 +21915,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260722/H4DYlzXV/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260722/H4DYlzXV/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/34491ad6-ebc4-4634-96da-975ebbf87b5a/master.m3u8"
             ]
           }
         ]
@@ -21901,8 +21926,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260722/JQAFeYk1/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260722/JQAFeYk1/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/b25842d2-42d5-467c-bc5d-509a772ed40c/master.m3u8"
             ]
           }
         ]
@@ -21913,8 +21937,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260818/wlALlInj/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260818/wlALlInj/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/5a2519a8-ef9c-4a4a-a5c8-fb679e6cc552/master.m3u8"
             ]
           }
         ]
@@ -21925,8 +21948,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260730/NoDynHtk/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260730/NoDynHtk/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/ff90c0e9-2687-4cab-9545-574596e152fd/master.m3u8"
             ]
           }
         ]
@@ -21937,8 +21959,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260806/6ntpmlgk/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260806/6ntpmlgk/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/b4e66586-a9ae-4898-8c66-ad36ce7f6461/master.m3u8"
             ]
           }
         ]
@@ -21949,8 +21970,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260806/iwkqioaO/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260806/iwkqioaO/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/6869c2f4-6370-48cd-a2f6-38b423a07d3e/master.m3u8"
             ]
           }
         ]
@@ -21961,8 +21981,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260812/Pnhw6NWv/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260812/Pnhw6NWv/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/31e54b80-f660-4f98-86cb-0b5c4fc806fe/master.m3u8"
             ]
           }
         ]
@@ -21973,8 +21992,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260812/SzmLZg8d/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260812/SzmLZg8d/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/99deb4be-cfa9-4b1f-a0bf-77b76fb071f4/master.m3u8"
             ]
           }
         ]
@@ -26547,15 +26565,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260802/YhZFMOJO/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260802/YhZFMOJO/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260802/kT4bF2WG/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260802/kT4bF2WG/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/eb004113-6f0c-4f93-a8bc-0361ea81ee01/master.m3u8"
             ]
           }
         ]
@@ -26566,15 +26576,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260802/f0ftuCgg/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260802/f0ftuCgg/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260802/bnKZIRbd/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260802/bnKZIRbd/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/e498b7e0-3cf1-4461-8b84-cd39fbd8babc/master.m3u8"
             ]
           }
         ]
@@ -26585,15 +26587,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260808/ibfHOhD7/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260808/ibfHOhD7/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260808/laxObwp8/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260808/laxObwp8/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/a523621e-f972-4d23-930b-ead69020221b/master.m3u8"
             ]
           }
         ]
@@ -26604,15 +26598,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260808/SWsmTlWN/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260808/SWsmTlWN/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260808/F093jXas/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260808/F093jXas/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/5a8d17a8-a7f2-408c-bcea-b0d088632ff7/master.m3u8"
             ]
           }
         ]
@@ -26623,15 +26609,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260814/PY5YeCSp/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260814/PY5YeCSp/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260814/yjSWKrjs/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260814/yjSWKrjs/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/20abca34-aae1-4784-8cf8-b576627d0f00/master.m3u8"
             ]
           }
         ]
@@ -26642,15 +26620,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260816/QkKHz7ih/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260816/QkKHz7ih/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260816/xD3d8y1c/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260816/xD3d8y1c/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/459c033d-1d10-4a07-b9ab-5bc4cd041302/master.m3u8"
             ]
           }
         ]
@@ -26661,15 +26631,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260822/mwlS3mqP/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260822/mwlS3mqP/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260822/quxNhAYF/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260822/quxNhAYF/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/bf23a302-2efc-49d8-9a30-78e11dc45283/master.m3u8"
             ]
           }
         ]
@@ -26680,129 +26642,7 @@ const CATALOG = [
           {
             "label": "Phụ đề",
             "sources": [
-              "https://v7.kkphimplayer7.com/20260822/i83QuyXt/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260822/i83QuyXt/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Thuyết Minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260822/HgLPc3Ot/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260822/HgLPc3Ot/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 9",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260829/PnocvmEe/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260829/PnocvmEe/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260829/E6noQC5T/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260829/E6noQC5T/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 10",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260830/aTcKQDWv/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260830/aTcKQDWv/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260830/ikgEWTd4/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260830/ikgEWTd4/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 11",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260904/sgingVEg/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260904/sgingVEg/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260904/wouiSSWi/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260904/wouiSSWi/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 12",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260905/b5jX9hkV/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260905/b5jX9hkV/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260905/oL6iLtJH/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260905/oL6iLtJH/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 13",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260912/h5av5dJU/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260912/h5av5dJU/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260912/Ucz9XEUN/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260912/Ucz9XEUN/3500kb/hls/index.m3u8"
-            ]
-          }
-        ]
-      },
-      {
-        "label": "Tập 14",
-        "versions": [
-          {
-            "label": "Thuyết minh",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260913/2WLhXFbH/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260913/2WLhXFbH/3500kb/hls/index.m3u8"
-            ]
-          },
-          {
-            "label": "Phụ đề",
-            "sources": [
-              "https://v7.kkphimplayer7.com/20260913/q3UsGQPV/index.m3u8",
-              "https://v7.kkphimplayer7.com/20260913/q3UsGQPV/3500kb/hls/index.m3u8"
+              "https://v1.streamvsmov.com/stream/f7fffb3e-d6ba-49be-b60f-2f47ee800b20/master.m3u8"
             ]
           }
         ]
@@ -28704,7 +28544,518 @@ const CATALOG = [
         ]
       }
     ]
-  } // Furious
+  }, // Furious
+  {
+    "id": 524,
+    "title": "목격자",
+    "poster": "https://image.tmdb.org/t/p/w500/g19rot2PyNKuldAD1IrMic1lYua.jpg",
+    "desc": "An ordinary man witnesses a cruel murder and becomes entangled in circumstances out of his control.",
+    "rating": 6.726,
+    "year": "2018",
+    "genre": [
+      "Giật Gân",
+      "Tội Phạm"
+    ],
+    "country": "Hàn Quốc",
+    "tmdbId": 529569,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://v7.kkphimplayer7.com/20260915/lppAL17j/index.m3u8",
+          "https://v7.kkphimplayer7.com/20260915/lppAL17j/3500kb/hls/index.m3u8"
+        ]
+      }
+    ]
+  }, // 목격자
+  {
+    "id": 525,
+    "title": "Cầy mangut",
+    "poster": "https://image.tmdb.org/t/p/w500/eSS5mvSG84UUuvtbHel5Yu3Wik4.jpg",
+    "desc": "Một anh hùng chiến tranh bị buộc tội sai và không còn gì để mất đã dẫn cảnh sát vào một cuộc rượt đuổi bằng ô tô xuyên quốc gia trên truyền hình hoành tráng, được các thành viên trong tiểu đoàn Quân đội Lực lượng Đặc biệt cũ của anh ta giúp đỡ và được theo dõi chặt chẽ bởi một cộng đồng mê mẩn tìm kiếm nơi nghỉ ngơi an toàn cho anh ta.",
+    "rating": 0,
+    "year": "2026",
+    "genre": [
+      "Hành Động",
+      "Giật Gân"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 1294189,
+    "versions": [
+      {
+        "label": "Phụ đề",
+        "sources": [
+          "https://v7.kkphimplayer7.com/20260914/yAAQbzCl/index.m3u8",
+          "https://v7.kkphimplayer7.com/20260914/yAAQbzCl/3500kb/hls/index.m3u8"
+        ]
+      }
+    ]
+  }, // Cầy mangut
+  {
+    "id": 526,
+    "title": "亜人 - Season 1",
+    "poster": "https://image.tmdb.org/t/p/w500/eLzZWCSoR9YAHQ70pvy6Rvc4Xw7.jpg",
+    "desc": "17 years ago, immortals first appeared on the battlefields of Africa. Later, rare, unknown new immortal lifeforms began appearing among humans, and they became known as \"Ajin\" (demi-humans). Just before summer vacation, a Japanese high school student is instantly killed in a traffic accident on his way home from school. However, he is revived, and a price is placed on his head. Thus begins a boy's life on the run from all of humankind.",
+    "rating": 7.904,
+    "year": "2016",
+    "genre": [
+      "Hoạt Hình",
+      "Hành Động",
+      "Bí Ẩn"
+    ],
+    "country": "Nhật Bản",
+    "tmdbId": 65292,
+    "season": 1,
+    "episodes": [
+      {
+        "label": "Tập 1",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/nAECn3lt/index.m3u8",
+              "https://a.kvp726.com/20260919/nAECn3lt/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 2",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/LD4eoIWA/index.m3u8",
+              "https://a.kvp726.com/20260919/LD4eoIWA/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 3",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/wGEVj2Vj/index.m3u8",
+              "https://a.kvp726.com/20260919/wGEVj2Vj/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 4",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/75amGr4r/index.m3u8",
+              "https://a.kvp726.com/20260919/75amGr4r/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 5",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/fPJYPZau/index.m3u8",
+              "https://a.kvp726.com/20260919/fPJYPZau/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 6",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/2lPfaURc/index.m3u8",
+              "https://a.kvp726.com/20260919/2lPfaURc/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 7",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/ZPofLE4x/index.m3u8",
+              "https://a.kvp726.com/20260919/ZPofLE4x/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 8",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/oAtOdaQ2/index.m3u8",
+              "https://a.kvp726.com/20260919/oAtOdaQ2/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 9",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/TzJdVoXe/index.m3u8",
+              "https://a.kvp726.com/20260919/TzJdVoXe/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 10",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/3KcczTlw/index.m3u8",
+              "https://a.kvp726.com/20260919/3KcczTlw/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 11",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/78pIfuYD/index.m3u8",
+              "https://a.kvp726.com/20260919/78pIfuYD/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 12",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/oTGbWAHU/index.m3u8",
+              "https://a.kvp726.com/20260919/oTGbWAHU/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 13",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/w1ODOZUd/index.m3u8",
+              "https://a.kvp726.com/20260919/w1ODOZUd/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "OAD",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://a.kvp726.com/20260919/vWGcaF7p/index.m3u8",
+              "https://a.kvp726.com/20260919/vWGcaF7p/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      }
+    ]
+  }, // 亜人 - Season 1
+  {
+    "id": 527,
+    "title": "스캔들",
+    "poster": "https://image.tmdb.org/t/p/w500/8ra17h8Z3NX14qdWaOKn0scURJR.jpg",
+    "desc": "Thời Joseon, một đề nghị bí mật thổi bùng khát khao thầm kín, kéo một nữ quý tộc tài hoa, một tay phong tình nổi tiếng và một quý cô chẳng mảy may nghi ngờ vào cuộc chơi nguy hiểm.",
+    "rating": 6.5,
+    "year": "2026",
+    "genre": [
+      "Chính Kịch"
+    ],
+    "country": "Hàn Quốc",
+    "tmdbId": 275102,
+    "episodes": [
+      {
+        "label": "Tập 1",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/9IEezOfu/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/9IEezOfu/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/FBX6eCdC/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/FBX6eCdC/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 2",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/K6at0g16/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/K6at0g16/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/ReFoPdB5/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/ReFoPdB5/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 3",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/R8ODZf2T/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/R8ODZf2T/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/VHnQvs6W/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/VHnQvs6W/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 4",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/bw5mNbce/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/bw5mNbce/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/E2kwTTeM/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/E2kwTTeM/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 5",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/31joRVkp/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/31joRVkp/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/4ekbQzzQ/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/4ekbQzzQ/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 6",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/5LFTxHyQ/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/5LFTxHyQ/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/VuFgJXAl/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/VuFgJXAl/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 7",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/nOPaI8wC/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/nOPaI8wC/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/188GsL6q/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/188GsL6q/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 8",
+        "versions": [
+          {
+            "label": "Thuyết minh",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/eGQTdTQj/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/eGQTdTQj/3500kb/hls/index.m3u8"
+            ]
+          },
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260918/f7jhbhHl/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260918/f7jhbhHl/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      }
+    ]
+  }, // 스캔들
+  {
+    "id": 528,
+    "title": "Quái vật: Câu chuyện về Lizzie Borden",
+    "poster": "https://image.tmdb.org/t/p/w500/57XScX1aYtKi1LvHYFQLPUxVhTG.jpg",
+    "desc": "Mắc kẹt trong một gia đình hà khắc thời Victoria, Lizzie Borden đã sát hại bố mẹ mình trong vụ án mạng đẫm máu bằng rìu, khiến cả nước bàng hoàng.",
+    "rating": 7,
+    "year": "2026",
+    "genre": [
+      "Chính Kịch",
+      "Tội Phạm"
+    ],
+    "country": "Âu Mỹ",
+    "tmdbId": 299939,
+    "episodes": [
+      {
+        "label": "Tập 1",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/HgYaIlt3/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/HgYaIlt3/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 2",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/ff1Ewu7d/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/ff1Ewu7d/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 3",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/BOrXdOOO/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/BOrXdOOO/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 4",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/6lJ3OdGz/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/6lJ3OdGz/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 5",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/RjWACwKh/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/RjWACwKh/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 6",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/FwVWTICg/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/FwVWTICg/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 7",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/5eRvUoBb/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/5eRvUoBb/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Tập 8",
+        "versions": [
+          {
+            "label": "Phụ đề",
+            "sources": [
+              "https://v7.kkphimplayer7.com/20260917/HZo6gNqn/index.m3u8",
+              "https://v7.kkphimplayer7.com/20260917/HZo6gNqn/3500kb/hls/index.m3u8"
+            ]
+          }
+        ]
+      }
+    ]
+  } // Quái vật: Câu chuyện về Lizzie Borden
 ];
 
 let hls = null;
