@@ -694,6 +694,21 @@
   }
   .section-head .count{font-size:10px;letter-spacing:.4px;color:#aeb7c7;background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.075);}
   .movie-grid{grid-template-columns:repeat(auto-fill,minmax(166px,1fr));gap:19px;}
+  .movie-pagination:not([hidden]){
+    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+    gap:6px;margin-top:20px;
+  }
+  .movie-pagination button{
+    min-width:44px;min-height:44px;padding:0 8px;
+    border:1px solid var(--line);border-radius:8px;
+    background:var(--card);color:var(--text);font:inherit;cursor:pointer;
+  }
+  .movie-pagination button:not(:disabled):hover{border-color:var(--gold);}
+  .movie-pagination button[aria-current="page"]{
+    background:var(--gold);border-color:var(--gold);color:#15120a;font-weight:700;
+  }
+  .movie-pagination button:disabled{opacity:.45;cursor:default;}
+  .movie-pagination span{color:var(--muted);}
   .movie-card{
     border:1px solid rgba(255,255,255,.065);border-radius:13px;
     background:linear-gradient(155deg,rgba(20,26,39,.99),rgba(12,16,25,.99));
@@ -841,6 +856,7 @@
       <span class="count" id="searchCount"></span>
     </div>
     <div class="movie-grid" id="searchGrid"></div>
+    <nav class="movie-pagination" id="searchGridPagination" aria-label="Phân trang Kết quả tìm kiếm" hidden></nav>
   </div>
 </div>
 
@@ -848,6 +864,7 @@
   <div class="section">
     <div class="section-head"><h2>Đang thịnh hành</h2><span class="count">Xem nhiều nhất tuần này</span></div>
     <div class="movie-grid" id="hotList"></div>
+    <nav class="movie-pagination" id="hotListPagination" aria-label="Phân trang Đang thịnh hành" hidden></nav>
   </div>
 
   <div class="section" id="the-loai" style="display:none;"></div>
@@ -855,11 +872,13 @@
   <div class="section" id="phim-le">
     <div class="section-head"><h2>Phim lẻ</h2><span class="count" id="leCount"></span></div>
     <div class="movie-grid" id="leList"></div>
+    <nav class="movie-pagination" id="leListPagination" aria-label="Phân trang Phim lẻ" hidden></nav>
   </div>
 
   <div class="section" id="phim-bo">
     <div class="section-head"><h2>Phim bộ</h2><span class="count" id="boCount"></span></div>
     <div class="movie-grid" id="boList"></div>
+    <nav class="movie-pagination" id="boListPagination" aria-label="Phân trang Phim bộ" hidden></nav>
   </div>
 </div>
 
@@ -31254,11 +31273,59 @@ function cardHtml(m){
     </div>`;
 }
 
+const MOVIES_PER_PAGE = 20;
+const gridMovies = new Map();
+
 function renderGrid(elId, list){
-  const el = document.getElementById(elId);
-  el.innerHTML = list.length
-    ? list.map(cardHtml).join("")
+  // ID tăng dần khi thêm phim, nên ID lớn hơn sẽ hiển thị trước.
+  gridMovies.set(elId, list.slice().sort((a, b) => b.id - a.id));
+  showGridPage(elId, 1);
+}
+
+function showGridPage(elId, page){
+  const grid = document.getElementById(elId);
+  const pagination = document.getElementById(elId + 'Pagination');
+  const list = gridMovies.get(elId);
+  const pageCount = Math.ceil(list.length / MOVIES_PER_PAGE);
+  const offset = (page - 1) * MOVIES_PER_PAGE;
+
+  grid.innerHTML = list.length
+    ? list.slice(offset, offset + MOVIES_PER_PAGE).map(cardHtml).join("")
     : `<div class="empty-state" style="grid-column:1/-1;"><h3>Chưa có phim nào</h3><p>Dùng công cụ thêm phim để thêm phim vào đây nhé.</p></div>`;
+
+  pagination.hidden = pageCount <= 1;
+  pagination.innerHTML = pageCount > 1 ? paginationHtml(elId, page, pageCount) : '';
+}
+
+function paginationHtml(elId, page, pageCount){
+  const pageButton = (number, text, label, state = '') =>
+    `<button type="button" aria-label="${label}" aria-controls="${elId}" ${state}
+       onclick="goToGridPage('${elId}', ${number})">${text}</button>`;
+  const numberButton = number => pageButton(
+    number, number, `Trang ${number}`, number === page ? 'aria-current="page"' : ''
+  );
+
+  const firstVisible = Math.max(1, Math.min(page - 2, pageCount - 4));
+  const lastVisible = Math.min(pageCount, firstVisible + 4);
+  const buttons = [pageButton(page - 1, '‹', 'Trang trước', page === 1 ? 'disabled' : '')];
+
+  if(firstVisible > 1) buttons.push(numberButton(1));
+  if(firstVisible > 2) buttons.push('<span aria-hidden="true">…</span>');
+  for(let number = firstVisible; number <= lastVisible; number++){
+    buttons.push(numberButton(number));
+  }
+  if(lastVisible < pageCount - 1) buttons.push('<span aria-hidden="true">…</span>');
+  if(lastVisible < pageCount) buttons.push(numberButton(pageCount));
+
+  buttons.push(pageButton(page + 1, '›', 'Trang sau', page === pageCount ? 'disabled' : ''));
+  return buttons.join('');
+}
+
+function goToGridPage(elId, page){
+  showGridPage(elId, page);
+  const grid = document.getElementById(elId);
+  grid.firstElementChild.focus({preventScroll: true});
+  grid.closest('.section').scrollIntoView();
 }
 
 function renderGenreChips(){
